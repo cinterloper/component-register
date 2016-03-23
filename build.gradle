@@ -30,7 +30,7 @@ processResources {
 shadowJar {
     classifier = 'fat'
     manifest {
-        attributes 'Main-Verticle': 'MyGroovyVerticle.groovy'
+        attributes 'Main-Verticle': 'net.iowntheinter.vertx.componentRegister.impl.CoreLauncher'
     }
     mergeServiceFiles {
         include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
