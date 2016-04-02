@@ -3,5 +3,5 @@ package net.iowntheinter.vertx.componentRegister
 /**
  * Created by grant on 3/23/16.
  */
-class deploymentManager {
+interface deploymentManager {
 }

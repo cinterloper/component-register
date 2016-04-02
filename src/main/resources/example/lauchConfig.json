@@ -1,0 +1,23 @@
+{
+  "launchgrp": [
+    {
+      "v": "example1.groovy",
+      "opts": {
+        "dependencies": [
+          "example2.groovy"
+        ],
+        "worker":true
+      },
+      "startReady": false
+    },
+    {
+      "v": "example1.groovy",
+      "opts": {
+        "dependencies": null
+      },
+      "startReady": true
+    }
+  ]
+}
+
+

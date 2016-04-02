@@ -12,7 +12,6 @@ class gremlinSystemTracker implements componentTracker {
     TinkerGraph g
 
     gremlinSystemTracker() {
-        g = TinkerGraphFactory
         g = TinkerGraph.open()
     }
 
