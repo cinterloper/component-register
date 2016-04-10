@@ -117,9 +117,8 @@ class startupListDeploymentManager implements deploymentManager{
                     "worker": true
             ]
             //everything launches from here
-            launchgrp[0] = ["v": "saltConnection.groovy", "opts": svrOpts, "startReady": false]
-            launchgrp[1] = ["v": "directoryConnection.groovy", "opts": dbOpts, "startReady": false]
-            launchgrp[2] = ["v": "userInterface.groovy", "opts": svrOpts, "startReady": false]
+            launchgrp[0] = ["v": "example1.groovy", "opts": svrOpts, "startReady": false]
+            launchgrp[1] = ["v": "example2.groovy", "opts": dbOpts, "startReady": false]
         }
 
 
