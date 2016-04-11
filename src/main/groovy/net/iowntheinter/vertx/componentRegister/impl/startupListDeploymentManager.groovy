@@ -1,19 +1,22 @@
 package net.iowntheinter.vertx.componentRegister.impl
 
+import io.vertx.core.AsyncResult
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.DeploymentOptionsConverter
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
+import io.vertx.core.logging.Logger
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.vertx.componentRegister.deploymentManager
 
 
 //requires: check to see if all the dependencies of a component are started
 
-class startupListDeploymentManager implements deploymentManager{
+class startupListDeploymentManager implements deploymentManager {
     Vertx v;
+    Logger logger
 
     startupListDeploymentManager(Vertx vx) {
 
@@ -28,22 +31,8 @@ class startupListDeploymentManager implements deploymentManager{
     }
 
 
-    void deploy(ctx, lgrp) {
-        def dc = new DeploymentOptionsConverter()
+    void deploy(name, cfg, cb) {
 
-        def opts = new DeploymentOptions()
-        //logger.info("lgrp: "+(lgrp))
-        lgrp.each { ele ->
-            logger.info("launching " + lgrp[ele].v + '\n')
-            dc.fromJson(lgrp[ele].opts as JsonObject, opts)
-            v.deployVerticle(lgrp[ele].v as String, opts, { res, err ->
-                if (err) {
-                    logger.error("deploy of " + err.printStackTrace() + " failed \n");
-                } else {
-                    logger.info("deploy of " + res.toString() + " completed \n");
-                }
-            } as Handler)
-        }
 
     }
 
@@ -135,9 +124,41 @@ class startupListDeploymentManager implements deploymentManager{
         })
 
 
-        deploy([:], launchgrp)
+        deploy("groupA", launchgrp, {})
     }
 
+    @Override
+    void deploy(String name, JsonObject config, Closure cb) {
+        def dc = new DeploymentOptionsConverter()
+        def lgrp = config.getJsonArray('')
+
+        def opts = new DeploymentOptions()
+        //logger.info("lgrp: "+(lgrp))
+        int size = lgrp.size()
+        int fails = 0;
+        lgrp.each { ele ->
+            logger.info("launching " + lgrp[ele].v + '\n')
+            dc.fromJson(lgrp[ele].opts as JsonObject, opts)
+            v.deployVerticle(lgrp[ele].v as String, opts, { res, err ->
+                if (err) {
+                    size--
+                    cb([sucess:false]);
+                    logger.error("deploy of " + err.printStackTrace() + " failed \n")
+                } else {
+                    size--
+                    logger.info("deploy of " + res.toString() + " completed \n");
+                    if (size == 0)
+                        cb([sucess:true])
+                }
+            } as Handler)
+        }
+
+    }
+
+    @Override
+    void undeploy(String id, Closure cb) {
+
+    }
 }
 
 

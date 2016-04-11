@@ -7,6 +7,9 @@ plugins {
 
 repositories {
     mavenCentral()
+    maven { url 'http://dl.bintray.com/gesellix/docker-utils' }
+    flatDir { dirs '/usr/share/java' }
+    flatDir { dirs '/usr/share/java/shadow' }
 }
 
 
@@ -18,7 +21,10 @@ mainClassName = 'io.vertx.core.Launcher'
 dependencies {
     compile "io.vertx:vertx-core:$version"
     compile "io.vertx:vertx-lang-groovy:$version"
-
+    compile "io.vertx:vertx-shell:$version"
+    compile 'com.englishtown.vertx:vertx-zookeeper:2.1.1'
+    compile 'de.gesellix:docker-client:2016-04-10T19-27-03'
+    compile 'net.iowntheinter:Xe:3.2.1'
     compile 'org.apache.tinkerpop:tinkerpop:3.1.1-incubating'
     compile 'org.apache.tinkerpop:tinkergraph-gremlin:3.1.1-incubating'
 }
