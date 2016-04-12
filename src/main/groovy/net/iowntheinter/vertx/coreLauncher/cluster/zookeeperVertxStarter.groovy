@@ -13,7 +13,7 @@ import net.iowntheinter.vertx.util.resourceLoader
  */
 @Singleton class zookeeperVertxStarter {
     def eZk
-
+    Vertx vertx
     void startZk() {
         Properties prop = new Properties();
         try {
@@ -23,11 +23,11 @@ import net.iowntheinter.vertx.util.resourceLoader
                             getResourceAsStream('zookeeperlocal.properties')))
         } catch (e) {
             println("error loading zookeper configuration ${e}")
-            super.halt()
+            coreStarter.halt()
         }
     }
     void stopZk() {
-        e = eZk as embeddedZookeeper
+        def e = eZk as embeddedZookeeper
         e.threadHandle.interrupt()
     }
 
@@ -37,7 +37,7 @@ import net.iowntheinter.vertx.util.resourceLoader
     def startupResult = { AsyncResult res ->
         if (res.failed()) {
             println("could not start: ${res.cause()}")
-            super.halt()
+            coreStarter.halt()
         } else {
             println("Started clustered vertx:")
         }

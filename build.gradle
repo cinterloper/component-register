@@ -16,7 +16,7 @@ repositories {
 version = '3.2.1'
 
 sourceCompatibility = '1.8'
-mainClassName = 'io.vertx.core.Launcher'
+mainClassName = 'net.iowntheinter.vertx.coreLauncher.coreStarter'
 
 dependencies {
     compile "io.vertx:vertx-core:$version"
@@ -24,6 +24,7 @@ dependencies {
     compile "io.vertx:vertx-shell:$version"
     compile 'com.englishtown.vertx:vertx-zookeeper:2.1.1'
     compile 'de.gesellix:docker-client:2016-04-10T19-27-03'
+    compile 'net.sourceforge.argparse4j:argparse4j:0.7.0'
     compile 'net.iowntheinter:Xe:3.2.1'
     compile 'org.apache.tinkerpop:tinkerpop:3.1.1-incubating'
     compile 'org.apache.tinkerpop:tinkergraph-gremlin:3.1.1-incubating'
