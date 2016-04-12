@@ -17,16 +17,16 @@ class zookeeperVertxStarter {
     URLClassLoader classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
 
     void startZk() {
-        Properties prop = new Properties();
         try {
-            String zkpfl = classloader.
-                    getResourceAsStream('example/zookeeperlocal.properties').getText()
-            println("file loaded " + zkpfl)
+            InputStream zkpStream = classloader.
+                    getResourceAsStream('example/zookeeperlocal.properties')
 
-            eZk = new embeddedZookeeper(prop.load(new StringReader(zkpfl)))
+            Properties prop = new Properties();
+            prop.load(zkpStream)
+            eZk = new embeddedZookeeper(prop)
 
         } catch (e) {
-            println("error loading zookeper configuration ${e}")
+            println("error loading zookeper configuration ${e.printStackTrace()}")
             coreStarter.halt()
         }
     }
@@ -38,7 +38,7 @@ class zookeeperVertxStarter {
 
     void start(VertxOptions opts) {
         startZk()
-        vertx = Vertx.clusteredVertx(opts, startupResult)
+      //  vertx = Vertx.clusteredVertx(opts, startupResult)
     }
     def startupResult = { AsyncResult res ->
         if (res.failed()) {

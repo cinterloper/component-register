@@ -16,12 +16,13 @@ import org.apache.zookeeper.server.ZooKeeperServerMain;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 
 public class embeddedZookeeper {
-
+    def th;
     ZooKeeperServerMain zooKeeperServer;
     public Thread threadHandle;
     public embeddedZookeeper(Properties zkProperties) throws FileNotFoundException, IOException {
         QuorumPeerConfig quorumConfiguration = new QuorumPeerConfig();
         try {
+
             quorumConfiguration.parseProperties(zkProperties);
         } catch (Exception e) {
             throw new RuntimeException(e);
