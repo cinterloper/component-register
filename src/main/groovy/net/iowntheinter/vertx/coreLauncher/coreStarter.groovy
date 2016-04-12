@@ -2,8 +2,10 @@ package net.iowntheinter.vertx.coreLauncher
 
 import groovy.json.JsonOutput
 import groovy.util.CliBuilder
+import io.vertx.core.VertxOptions
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
+import net.iowntheinter.vertx.coreLauncher.cluster.zookeeperVertxStarter
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup
 
 import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
@@ -53,8 +55,6 @@ class coreStarter {
     }
 
 
-
-
     public static void main(String[] args) {
 
         project_config = parseProjectConfig()
@@ -63,7 +63,7 @@ class coreStarter {
         ArgumentParser parser = ArgumentParsers
                 .newArgumentParser(project_name)
                 .defaultHelp(true)
-                .description("project")
+                .description(project_name)
         MutuallyExclusiveGroup mode = parser.addMutuallyExclusiveGroup()
         mode.addArgument("-z", "--cluster-zookeeper").help("start with embedded zk").action(storeTrue())
         mode.addArgument("-s", "--stand-alone").help("start standalone").action(storeTrue())
@@ -74,43 +74,29 @@ class coreStarter {
             ns = parser.parseArgs(args);
             println("parsed args: ${args}")
         } catch (ArgumentParserException e) {
+            println("thown message: ")
             parser.handleError(e);
             System.exit(1);
         }
-        if(ns.getAttrs()["dev_mode"]){
+        if (ns.getAttrs()["dev_mode"]) {
             lgr.info("loaded project def: ${project_name}")
         }
 
 
-/*
-core launch config:
- - inital startup verticle
- - any pre-vertx java dep options to load
- - inital launch group
-
- */
-
-
         def env = System.getenv()
-        if (!env['CONFIG_PATH']) {
-            println("you must declare the CONFIG_PATH enviornment var")
-            halt()
-        } else {
-            try {
-                cfgfile = new File(env['CONFIG_PATH']).text
-                launch_config = new JsonObject(cfgfile)
-            } catch (Exception e) {
-                println("caught exception pareing config: ${e}")
+
+        project_config.getJsonArray("env_vars").each { v ->
+            def var = v as String
+            if (!env[var]) {
+                println("you must declare the ${var} enviornment var")
                 halt()
             }
-            if (ns.getAttrs()['dev_mode']) {
-                println("parsed Json:" + JsonOutput.prettyPrint(launch_config.toString()))
-                println(ns.getAttrs())
-            }
-
+        }
+        if (ns.getAttrs()["cluster_zookeeper"]){
+            def zks = new zookeeperVertxStarter().start(new VertxOptions())
         }
 
-
     }
+
 
 }

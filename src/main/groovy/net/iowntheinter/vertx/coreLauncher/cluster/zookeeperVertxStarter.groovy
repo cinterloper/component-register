@@ -11,27 +11,33 @@ import net.iowntheinter.vertx.util.resourceLoader
 /**
  * Created by grant on 4/11/16.
  */
-@Singleton class zookeeperVertxStarter {
+class zookeeperVertxStarter {
     def eZk
     Vertx vertx
+    URLClassLoader classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
+
     void startZk() {
         Properties prop = new Properties();
         try {
-            eZk = new embeddedZookeeper(
-                    prop.load(getClass().
-                            getClassLoader().
-                            getResourceAsStream('zookeeperlocal.properties')))
+            String zkpfl = classloader.
+                    getResourceAsStream('example/zookeeperlocal.properties').getText()
+            println("file loaded " + zkpfl)
+
+            eZk = new embeddedZookeeper(prop.load(new StringReader(zkpfl)))
+
         } catch (e) {
             println("error loading zookeper configuration ${e}")
             coreStarter.halt()
         }
     }
+
     void stopZk() {
         def e = eZk as embeddedZookeeper
         e.threadHandle.interrupt()
     }
 
     void start(VertxOptions opts) {
+        startZk()
         vertx = Vertx.clusteredVertx(opts, startupResult)
     }
     def startupResult = { AsyncResult res ->
