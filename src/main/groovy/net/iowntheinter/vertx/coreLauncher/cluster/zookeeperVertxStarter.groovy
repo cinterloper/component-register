@@ -7,12 +7,15 @@ import io.vertx.core.VertxOptions
 import net.iowntheinter.vertx.coreLauncher.cluster.impl.embeddedZookeeper
 import net.iowntheinter.vertx.coreLauncher.coreStarter
 import net.iowntheinter.vertx.util.resourceLoader
+import org.apache.zookeeper.server.ZooKeeperServer
+import org.apache.zookeeper.server.ZooKeeperServerMain
 
 /**
  * Created by grant on 4/11/16.
  */
 class zookeeperVertxStarter {
     def eZk
+    ZooKeeperServerMain zu;
     Vertx vertx
     URLClassLoader classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
 
@@ -24,6 +27,8 @@ class zookeeperVertxStarter {
             Properties prop = new Properties();
             prop.load(zkpStream)
             eZk = new embeddedZookeeper(prop)
+
+
 
         } catch (e) {
             println("error loading zookeper configuration ${e.printStackTrace()}")
