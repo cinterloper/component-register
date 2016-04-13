@@ -2,11 +2,15 @@ package net.iowntheinter.vertx.coreLauncher
 
 import groovy.json.JsonOutput
 import groovy.util.CliBuilder
+import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import net.iowntheinter.vertx.coreLauncher.cluster.zookeeperVertxStarter
+import net.iowntheinter.vertx.coreLauncher.single.singleVertxStarter
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup
+import org.apache.log4j.Level
+import org.apache.log4j.LogManager
 
 import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -17,12 +21,16 @@ import io.vertx.core.logging.LoggerFactory
 
 /**
  * Created by grant on 4/11/16.
- * Parse:
+ * Parse order:
  *  1. project.json (baked project config (defines any additional cli args))
  *  2. cli arguments (startup options)
  *  3. cli json (vertx config)
  *  4. environment variables (if declared in project.json or cli json )
  *
+ * Notes:
+ * execution of the startup logic is for the most part synchronous
+ * once Vert.x is started, all real application code should run inside it
+ * and this should all be strictly async code, except maybe worker verticles
  *
  */
 @Singleton
@@ -87,6 +95,9 @@ class coreStarter {
         }
         if (ns.getAttrs()["dev_mode"]) {
             lgr.info("loaded project def: ${project_name}")
+            LogManager.getLogger("CONSOLE").setLevel(Level.DEBUG)
+            LogManager.getRootLogger().setLevel(Level.DEBUG);
+
         }
 
 
@@ -99,8 +110,19 @@ class coreStarter {
                 halt()
             }
         }
-        if (ns.getAttrs()["cluster_zookeeper"]){
-            def zks = new zookeeperVertxStarter().start(new VertxOptions())
+        Vertx vx;
+        if (ns.getAttrs()["cluster_zookeeper"]) {
+            new zookeeperVertxStarter().start(new VertxOptions(), { Map res ->
+                println(res)
+            })
+        } else if (ns.getAttrs()["stand_alone"]) {
+            println("starting in stanalone mode")
+            new singleVertxStarter().start(new VertxOptions(), { Map res ->
+                println(res)
+                if(res.succeeded){
+                    vx = res.vertx as Vertx
+                }
+            })
         }
 
     }

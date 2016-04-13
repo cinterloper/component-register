@@ -49,7 +49,7 @@ publishing {
         mavenJava(MavenPublication) {
             groupId 'net.iowntheinter'
             artifactId 'component-register'
-            version '3.2.1-0'
+            version '3.2.1'
             from components.java
         }
     }
