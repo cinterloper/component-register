@@ -1,5 +1,4 @@
 {
   "name": "example-project",
-  "env_vars": [],
-  "default_launch_config_path":"src/main/resources/example/launchConfig.json"
+  "env_vars": []
 }

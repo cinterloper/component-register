@@ -17,6 +17,13 @@ import io.vertx.core.logging.LoggerFactory
 
 /**
  * Created by grant on 4/11/16.
+ * Parse:
+ *  1. project.json (baked project config (defines any additional cli args))
+ *  2. cli arguments (startup options)
+ *  3. cli json (vertx config)
+ *  4. environment variables (if declared in project.json or cli json )
+ *
+ *
  */
 @Singleton
 class coreStarter {
@@ -68,13 +75,13 @@ class coreStarter {
         mode.addArgument("-z", "--cluster-zookeeper").help("start with embedded zk").action(storeTrue())
         mode.addArgument("-s", "--stand-alone").help("start standalone").action(storeTrue())
         parser.addArgument("-d", "--dev-mode").help("start in debug/dev mode").action(storeTrue())
+        parser.addArgument("-c", "--config").help("json configuration")
 
         Namespace ns = null
         try {
             ns = parser.parseArgs(args);
             println("parsed args: ${args}")
         } catch (ArgumentParserException e) {
-            println("thown message: ")
             parser.handleError(e);
             System.exit(1);
         }
