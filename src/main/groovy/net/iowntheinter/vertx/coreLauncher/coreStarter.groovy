@@ -84,6 +84,7 @@ class coreStarter {
         mode.addArgument("-s", "--stand-alone").help("start standalone").action(storeTrue())
         parser.addArgument("-d", "--dev-mode").help("start in debug/dev mode").action(storeTrue())
         parser.addArgument("-c", "--config").help("json configuration")
+        parser.addArgument("-l", "--log-level").help("log level TRACE|INFO|WARN|DEBUG")
 
         Namespace ns = null
         try {
@@ -95,11 +96,12 @@ class coreStarter {
         }
         if (ns.getAttrs()["dev_mode"]) {
             lgr.info("loaded project def: ${project_name}")
-            LogManager.getLogger("CONSOLE").setLevel(Level.DEBUG)
-            LogManager.getRootLogger().setLevel(Level.DEBUG);
 
+            if (ns.getAttrs()["log_level"])
+                LogManager.getRootLogger().setLevel(Level.toLevel(ns.getAttrs()["log_level"] as String))
+            else
+                LogManager.getRootLogger().setLevel(Level.DEBUG);
         }
-
 
         def env = System.getenv()
 
@@ -119,7 +121,7 @@ class coreStarter {
             println("starting in stanalone mode")
             new singleVertxStarter().start(new VertxOptions(), { Map res ->
                 println(res)
-                if(res.succeeded){
+                if (res.succeeded) {
                     vx = res.vertx as Vertx
                 }
             })
