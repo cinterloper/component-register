@@ -58,6 +58,7 @@ class zookeeperVertxStarter {
         Vertx.clusteredVertx(options, {res ->
             if (res.succeeded()) {
                 Vertx vertx = res.result();
+                println("We have a clustered vertx ${vertx.getOrCreateContext()}")
             } else {
                 // failed!
             }
