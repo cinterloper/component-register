@@ -3,17 +3,57 @@ plugins {
     id 'java'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '1.2.2'
+    id 'maven-publish'
 }
 
+def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
+def AWS_DEFAULT_REGION = System.getenv("AWS_DEFAULT_REGION")
+def AWS_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID")
+def AWS_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY")
+
+
 repositories {
+    jcenter()
     mavenCentral()
     maven { url 'http://dl.bintray.com/gesellix/docker-utils' }
     flatDir { dirs '/usr/share/java' }
     flatDir { dirs 'lib/' }
     flatDir { dirs '/usr/share/java/shadow' }
+    if (AWS_MVN_BUCKET && !AWS_MVN_BUCKET.allWhitespace) {
+        maven {
+            url "s3://$AWS_MVN_BUCKET/maven2"
+            credentials(AwsCredentials) {
+                accessKey AWS_ACCESS_KEY_ID
+                secretKey AWS_SECRET_ACCESS_KEY
+            }
+        }
+    }
 }
+publishing {
+    repositories {
+        maven {
+            url "file:///tmp/maven-repo"
+        }
+        if (AWS_MVN_BUCKET && !AWS_MVN_BUCKET.allWhitespace) {
+            maven {
+                url "s3://$AWS_MVN_BUCKET/maven2"
+                credentials(AwsCredentials) {
+                    accessKey AWS_ACCESS_KEY_ID
+                    secretKey AWS_SECRET_ACCESS_KEY
+                }
+            }
+        }
+    }
 
-
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'net.iowntheinter'
+            artifactId 'component-register'
+            version '3.2.1-0'
+            from components.java
+        }
+    }
+}
 version = '3.2.1'
 
 sourceCompatibility = '1.8'
@@ -27,7 +67,7 @@ dependencies {
     compile 'org.apache.curator:apache-curator:2.8.0'
     compile 'org.apache.curator:curator-recipes:2.8.0'
     compile 'org.apache.zookeeper:zookeeper:3.4.6'
-    compile 'de.gesellix:docker-client:2016-04-10T19-27-03'
+    compile 'de.gesellix:docker-client:2016-04-11T22-50-38'
     compile 'net.sourceforge.argparse4j:argparse4j:0.7.0'
     compile 'net.iowntheinter:Xe:3.2.1'
     compile 'org.apache.tinkerpop:tinkerpop:3.1.1-incubating'
