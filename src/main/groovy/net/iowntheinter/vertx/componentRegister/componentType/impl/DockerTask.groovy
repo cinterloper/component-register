@@ -27,9 +27,10 @@ class DockerTask {
         final HostConfig hcfg = hcfgb.build()
 
         cctr = docker.createContainer(ContainerConfig.builder()
+                .env(cfg.env as List<String>)
                 .image(cfg.image as String)
-                .exposedPorts(cfg.ports as Set<String>)
                 .volumes(cfg.volumes as Set<String>)
+                .exposedPorts(cfg.ports as Set<String>)
                 .hostConfig(hcfg)
                 .build())
 
