@@ -1,4 +1,4 @@
-package net.iowntheinter.vertx.componentRegister.componentType
+package net.iowntheinter.vertx.componentRegister.componentType.impl
 
 import de.gesellix.docker.client.DockerClientImpl
 import io.vertx.core.json.JsonObject

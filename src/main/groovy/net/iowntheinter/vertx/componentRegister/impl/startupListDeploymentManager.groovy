@@ -137,7 +137,7 @@ class startupListDeploymentManager implements deploymentManager {
         int size = lgrp.size()
         int fails = 0;
         lgrp.each { ele ->
-            logger.info("launching " + lgrp[ele].v + '\n')
+            logger.info("launching " + lgrp[ele] + '\n')
             dc.fromJson(lgrp[ele].opts as JsonObject, opts)
             v.deployVerticle(lgrp[ele].v as String, opts, { res, err ->
                 if (err) {

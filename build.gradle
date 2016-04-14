@@ -68,7 +68,6 @@ dependencies {
     compile 'org.apache.zookeeper:zookeeper:3.4.6'
     compile 'de.gesellix:docker-client:2016-04-11T22-50-38'
     compile 'net.sourceforge.argparse4j:argparse4j:0.7.0'
-    compile 'net.iowntheinter:Xe:3.2.1'
     compile 'org.apache.tinkerpop:tinkerpop:3.1.1-incubating'
     compile 'org.apache.tinkerpop:tinkergraph-gremlin:3.1.1-incubating'
 }

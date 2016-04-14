@@ -18,7 +18,7 @@ public class coreLauncher extends AbstractVerticle {
     }
 
     coreLauncher() {
-        println("hello")
+        println("reached CoreLauncher inside vert.x")
 
     }
 

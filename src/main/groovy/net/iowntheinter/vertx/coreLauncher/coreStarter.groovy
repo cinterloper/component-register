@@ -112,19 +112,26 @@ class coreStarter {
                 halt()
             }
         }
+
+        Closure afterVXStart = { Map res ->
+            Vertx vx
+            println(res)
+            if(!res.success){
+                println("could not start vertx")
+                halt()
+            } else {
+                vx = res.vertx as Vertx
+                vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher')
+            }
+
+        }
+
         Vertx vx;
         if (ns.getAttrs()["cluster_zookeeper"]) {
-            new zookeeperVertxStarter().start(new VertxOptions(), { Map res ->
-                println(res)
-            })
+            new zookeeperVertxStarter().start(new VertxOptions(), afterVXStart)
         } else if (ns.getAttrs()["stand_alone"]) {
             println("starting in stanalone mode")
-            new singleVertxStarter().start(new VertxOptions(), { Map res ->
-                println(res)
-                if (res.succeeded) {
-                    vx = res.vertx as Vertx
-                }
-            })
+            new singleVertxStarter().start(new VertxOptions(), afterVXStart)
         }
 
     }
