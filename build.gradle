@@ -5,7 +5,8 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '1.2.2'
     id 'maven-publish'
 }
-
+def libversion = '3.2.1'
+version = '3.2.1-1'
 def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
 def AWS_DEFAULT_REGION = System.getenv("AWS_DEFAULT_REGION")
 def AWS_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID")
@@ -49,21 +50,18 @@ publishing {
         mavenJava(MavenPublication) {
             groupId 'net.iowntheinter'
             artifactId 'component-register'
-            version '3.2.1'
-            from components.java
         }
     }
 }
-version = '3.2.1'
 
 sourceCompatibility = '1.8'
 mainClassName = 'net.iowntheinter.vertx.coreLauncher.coreStarter'
 
 dependencies {
-    compile "io.vertx:vertx-core:$version"
-    compile "io.vertx:vertx-lang-groovy:$version"
-    compile "io.vertx:vertx-shell:$version"
-    compile 'io.vertx:vertx-zookeeper:3.2.1'
+    compile "io.vertx:vertx-core:$libversion"
+    compile "io.vertx:vertx-lang-groovy:$libversion"
+    compile "io.vertx:vertx-shell:$libversion"
+    compile "io.vertx:vertx-zookeeper:$libversion"
     compile 'org.apache.curator:apache-curator:2.8.0'
     compile 'org.apache.curator:curator-recipes:2.8.0'
     compile 'org.apache.zookeeper:zookeeper:3.4.6'

@@ -1,14 +1,10 @@
 package net.iowntheinter.vertx.componentRegister.impl;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
+import io.vertx.core.AbstractVerticle
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.Vertx
-import net.iowntheinter.vertx.componentRegister.deploymentManager
-import net.iowntheinter.vertx.componentRegister.impl.gremlinSystemTracker;
-import net.iowntheinter.vertx.componentRegister.componentTracker
 
-public class CoreLauncher extends AbstractVerticle {
+public class coreLauncher extends AbstractVerticle {
 
     Vertx vertx;
     def  ct
@@ -21,14 +17,14 @@ public class CoreLauncher extends AbstractVerticle {
         c.start();
     }
 
-    CoreLauncher() {
+    coreLauncher() {
         println("hello")
 
     }
 
-    CoreLauncher(JsonObject config) {
+    coreLauncher(JsonObject config) {
         this.config = config
-        CoreLauncher()
+        coreLauncher()
     }
 
     public void final_shutdown(String topic, String value) {
