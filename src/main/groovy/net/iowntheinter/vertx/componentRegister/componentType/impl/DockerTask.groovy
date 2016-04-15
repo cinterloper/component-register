@@ -5,14 +5,17 @@ import com.spotify.docker.client.DockerClient
 import com.spotify.docker.client.messages.ContainerConfig
 import com.spotify.docker.client.messages.ContainerCreation
 import com.spotify.docker.client.messages.HostConfig
+import io.vertx.core.AsyncResult
+import io.vertx.core.Handler
 import io.vertx.core.json.JsonObject
+import net.iowntheinter.vertx.componentRegister.componentType.component
 
 /**
  * Created by grant on 4/10/16.
  */
 
 
-class DockerTask {
+class DockerTask implements component {
     def dockerClient
     DockerClient docker
     ContainerCreation cctr
@@ -41,5 +44,13 @@ class DockerTask {
         // .build();
     }
 
+    @Override
+    void start(String name, Handler<AsyncResult> cb) {
 
+    }
+
+    @Override
+    void stop(String id, Handler<AsyncResult> cb) {
+
+    }
 }
