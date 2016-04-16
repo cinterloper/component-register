@@ -21,7 +21,8 @@ import net.iowntheinter.vertx.componentRegister.componentType.component
  */
 class dependentTask implements component {
     def task
-    def Map dependencies
+    def List dependencies
+    def Map depset
     def String id
     def boolean listening
     def Handler startCb
@@ -29,17 +30,22 @@ class dependentTask implements component {
     def started
     def boolean vertxTask
 
-    dependentTask(component task, Map dependencies) {
+    dependentTask(component task, List dependencies) {
         this.task = task
         this.dependencies = dependencies
+        this.depset = [:]
+        this.dependencies.each { dep ->
+            depset[dep]=false
+        }
         listening = false
         started = false
     }
 
     @Override
     void start(Handler<AsyncResult> cb) {
-        def togo = this.dependencies.size()
-        this.dependencies.each { dep, readyStatus ->
+        def togo = this.depset.size()
+
+        this.depset.each { dep, readyStatus ->
             if (readyStatus == true)
                 togo--
         }

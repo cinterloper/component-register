@@ -41,10 +41,9 @@ class coreStarter {
     static JsonObject launch_config
     static JsonObject project_config
     static URLClassLoader classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
-
     static Logger lgr = LoggerFactory.getLogger(this.class.getName())
-
     static boolean debug = false
+
 
     static void halt() {
         def rt = Runtime.getRuntime()
@@ -69,7 +68,6 @@ class coreStarter {
                 getResourceAsStream('example-project.json').getText()
         return (new JsonObject(defaultCfg))
     }
-
 
     public static void main(String[] args) {
 
@@ -117,16 +115,14 @@ class coreStarter {
         Closure afterVXStart = { Map res ->
             Vertx vx
             println(res)
-            if(!res.success){
+            if (!res.success) {
                 println("could not start vertx")
                 halt()
             } else {
                 vx = res.vertx as Vertx
-                def opts = new DeploymentOptions([config:project_config.getMap()])
-
-                vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher',opts)
+                def opts = new DeploymentOptions([config: project_config.getMap()])
+                vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher', opts)
             }
-
         }
 
         if (ns.getAttrs()["cluster_zookeeper"]) {
@@ -137,6 +133,4 @@ class coreStarter {
         }
 
     }
-
-
 }

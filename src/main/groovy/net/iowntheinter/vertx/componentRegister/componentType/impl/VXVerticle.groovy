@@ -26,7 +26,7 @@ class VXVerticle implements component {
         this.vertx = vertx
         this.ImplementationID = ImplementationID
         this.ops = opts
-        deps =opts.config.getJsonObject()
+        deps =opts.getConfig().getMap()
     }
 
 
