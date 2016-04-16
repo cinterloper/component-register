@@ -10,8 +10,8 @@ import io.vertx.core.json.JsonObject
  * it must check in by that time or will be considered failed
  */
 interface component {
-    void start(String name, Handler<AsyncResult> cb)
-
-    void stop(String id, Handler<AsyncResult> cb)
+    void start(Handler<AsyncResult> cb) //wakeup cb after its actually started
+    void stop( Handler<AsyncResult> cb)
+    void registrationEvent(Map peerNotification, Handler<AsyncResult> cb) //notify that a component has become available
 
 }

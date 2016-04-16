@@ -15,45 +15,48 @@ import net.iowntheinter.vertx.componentRegister.componentType.component
  */
 class VXVerticle implements component {
     Vertx vertx
-    When when
-    VertxExecutor executor
     String ImplementationID  // example com.this.that or js:myVerticle.js
     String name //human readable name of this instance
     UUID id; //launch
     DeploymentOptions ops
+    Map deps =[:]
+    String tasktype
+
     VXVerticle(Vertx vertx, DeploymentOptions opts, String ImplementationID) {
-        this.executor= new VertxExecutor(vertx);
-        this.when = WhenFactory.createFor({ executor })
         this.vertx = vertx
         this.ImplementationID = ImplementationID
         this.ops = opts
+        deps =opts.config.getJsonObject()
     }
 
-
-
-
-
-
-    Promise deploy(){
-
-    }
-    Closure after = { AsyncResult res ->
-        Closure nxtcb = {};
-        this.id = res.result()
-        nxtcb(res)
-    }
 
     @Override
-    void start(String name, Handler<AsyncResult> cb) {
+    void start(Handler<AsyncResult> cb) {
         this.name = name
-
         vertx.deployVerticle(ImplementationID, cb)
     }
 
     @Override
-    void stop(String id, Handler<AsyncResult> cb) {
-        vertx.undeploy(id,
-                after.setProperty('nxtcb', cb)// what? are you serious?
-        )
+    void stop( Handler<AsyncResult> cb) {
+        vertx.undeploy(id as String, cb)
+    }
+
+    @Override
+    void registrationEvent(Map peerNotification, Handler<AsyncResult> cb) {
+     //send a message to the verticles personal channel
+    }
+
+
+
+    private void listen() {
+        def eb = vertx.eventBus()
+        def depchdl = eb.consumer("conerstone:deployments")
+        depchdl.handler({ msg ->
+            this.notify(msg.body() as Map, this.startCb as Handler)
+            if((msg.body() as Map).get("id") == this.id){
+                started = true
+                this.runCb()
+            }
+        })
     }
 }

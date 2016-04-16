@@ -4,7 +4,7 @@ package net.iowntheinter.vertx.coreLauncher.cluster.impl
  * Created by grant on 4/11/16.
  * originally :
  * https://gist.github.com/fjavieralba/7930018
- * this should be run in a worker vehicle
+ * this must be started before vertx, on a seperate Thread
  */
 
 import java.io.FileNotFoundException;

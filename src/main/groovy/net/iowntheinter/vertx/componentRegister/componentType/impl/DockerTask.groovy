@@ -19,6 +19,7 @@ class DockerTask implements component {
     def dockerClient
     DockerClient docker
     ContainerCreation cctr
+    String tasktype
 
     DockerTask(final Map cfg) {
         docker = DefaultDockerClient.fromEnv().build();
@@ -44,13 +45,22 @@ class DockerTask implements component {
         // .build();
     }
 
+
+
     @Override
-    void start(String name, Handler<AsyncResult> cb) {
+    void start(Handler<AsyncResult> cb) {
 
     }
 
     @Override
-    void stop(String id, Handler<AsyncResult> cb) {
+    void stop(Handler<AsyncResult> cb) {
 
     }
+
+    @Override
+    void registrationEvent(Map peerNotification, Handler<AsyncResult> cb) {
+      // use the docer driver to exec a task on the container
+    }
+
+
 }

@@ -133,6 +133,9 @@ class coreStarter {
             println("starting in stanalone mode")
             new singleVertxStarter().start(new VertxOptions(), afterVXStart)
         }
+        project_config.getJsonObject('startup').getJsonObject('vx').getMap().each { k , v ->
+            println ("${k}:${v}")
+        }
 
     }
 

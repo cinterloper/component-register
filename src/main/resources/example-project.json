@@ -1,4 +1,14 @@
 {
   "name": "example-project",
-  "env_vars": []
+  "env_vars": [],
+  "startup":{
+    "vx":{
+      "groovy:example.groovy":
+      {
+        "deps":[],
+        "startReady":true
+      }
+    }
+
+  }
 }
