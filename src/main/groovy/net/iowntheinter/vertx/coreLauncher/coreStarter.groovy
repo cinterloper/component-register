@@ -2,6 +2,7 @@ package net.iowntheinter.vertx.coreLauncher
 
 import groovy.json.JsonOutput
 import groovy.util.CliBuilder
+import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.json.JsonObject
@@ -121,20 +122,18 @@ class coreStarter {
                 halt()
             } else {
                 vx = res.vertx as Vertx
-                vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher')
+                def opts = new DeploymentOptions([config:project_config.getMap()])
+
+                vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher',opts)
             }
 
         }
 
-        Vertx vx;
         if (ns.getAttrs()["cluster_zookeeper"]) {
             new zookeeperVertxStarter().start(new VertxOptions(), afterVXStart)
         } else if (ns.getAttrs()["stand_alone"]) {
             println("starting in stanalone mode")
             new singleVertxStarter().start(new VertxOptions(), afterVXStart)
-        }
-        project_config.getJsonObject('startup').getJsonObject('vx').getMap().each { k , v ->
-            println ("${k}:${v}")
         }
 
     }

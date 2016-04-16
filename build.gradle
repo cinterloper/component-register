@@ -49,7 +49,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId 'net.iowntheinter'
-            artifactId 'component-register'
+            artifactId 'cornerstone'
             from components.java
         }
     }
@@ -63,6 +63,8 @@ dependencies {
     compile "io.vertx:vertx-lang-groovy:$libversion"
     compile "io.vertx:vertx-shell:$libversion"
     compile "io.vertx:vertx-zookeeper:$libversion"
+    compile 'com.englishtown.vertx:vertx-when:4.1.1'
+    compile 'com.englishtown.vertx:vertx-hk2:2.2.0'
     compile 'org.apache.curator:apache-curator:2.8.0'
     compile 'org.apache.curator:curator-recipes:2.8.0'
     compile 'org.apache.zookeeper:zookeeper:3.4.6'

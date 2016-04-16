@@ -47,7 +47,6 @@ class VXVerticle implements component {
     }
 
 
-
     private void listen() {
         def eb = vertx.eventBus()
         def depchdl = eb.consumer("conerstone:deployments")

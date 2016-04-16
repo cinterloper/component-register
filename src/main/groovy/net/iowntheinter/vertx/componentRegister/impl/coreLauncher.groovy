@@ -6,26 +6,11 @@ import io.vertx.core.Vertx
 
 public class coreLauncher extends AbstractVerticle {
 
-    Vertx vertx;
     def  ct
     def  dm;
     JsonObject config;
 
-    public static void main(String[] args) {
-        def c = this.newInstance();
-        c.vertx = Vertx.vertx()
-        c.start();
-    }
 
-    coreLauncher() {
-        println("reached CoreLauncher inside vert.x")
-
-    }
-
-    coreLauncher(JsonObject config) {
-        this.config = config
-        coreLauncher()
-    }
 
     public void final_shutdown(String topic, String value) {
         vertx.close()
@@ -41,5 +26,11 @@ public class coreLauncher extends AbstractVerticle {
     public void start() throws Exception {
         println(vertx)
         start_manager()
+        this.config = vertx.getOrCreateContext().config()
+        println("reached CoreLauncher inside vert.x, cofig: ${config}")
+        config.getJsonObject('startup').getJsonObject('vx').getMap().each { k , v ->
+            println ("${k}:${v}")
+        }
+
     }
 }
