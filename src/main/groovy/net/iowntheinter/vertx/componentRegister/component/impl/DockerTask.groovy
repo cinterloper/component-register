@@ -1,4 +1,4 @@
-package net.iowntheinter.vertx.componentRegister.componentType.impl
+package net.iowntheinter.vertx.componentRegister.component.impl
 
 import com.spotify.docker.client.DefaultDockerClient
 import com.spotify.docker.client.DockerClient
@@ -7,15 +7,14 @@ import com.spotify.docker.client.messages.ContainerCreation
 import com.spotify.docker.client.messages.HostConfig
 import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
-import io.vertx.core.json.JsonObject
-import net.iowntheinter.vertx.componentRegister.componentType.component
+import net.iowntheinter.vertx.componentRegister.component.componentType
 
 /**
  * Created by grant on 4/10/16.
  */
 
 
-class DockerTask implements component {
+class DockerTask implements componentType {
     def dockerClient
     DockerClient docker
     ContainerCreation cctr
@@ -46,7 +45,6 @@ class DockerTask implements component {
     }
 
 
-
     @Override
     void start(Handler<AsyncResult> cb) {
 
@@ -59,7 +57,7 @@ class DockerTask implements component {
 
     @Override
     void registrationEvent(Map peerNotification, Handler<AsyncResult> cb) {
-      // use the docer driver to exec a task on the container
+        // use the docer driver to exec a task on the container
     }
 
 

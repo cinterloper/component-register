@@ -8,7 +8,7 @@ import io.vertx.core.Handler
 /**
  * Created by grant on 4/13/16.
  */
-interface CRContext {
+interface coreCTX {
 
     void start(VertxOptions opts, Closure<Map> cb)
 }

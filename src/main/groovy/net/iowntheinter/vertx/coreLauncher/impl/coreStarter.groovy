@@ -1,14 +1,12 @@
-package net.iowntheinter.vertx.coreLauncher
+package net.iowntheinter.vertx.coreLauncher.impl
 
-import groovy.json.JsonOutput
-import groovy.util.CliBuilder
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
-import net.iowntheinter.vertx.coreLauncher.cluster.zookeeperVertxStarter
-import net.iowntheinter.vertx.coreLauncher.single.singleVertxStarter
+import net.iowntheinter.vertx.coreLauncher.impl.cluster.zookeeperVertxStarter
+import net.iowntheinter.vertx.coreLauncher.impl.single.singleVertxStarter
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup
 import org.apache.log4j.Level
 import org.apache.log4j.LogManager

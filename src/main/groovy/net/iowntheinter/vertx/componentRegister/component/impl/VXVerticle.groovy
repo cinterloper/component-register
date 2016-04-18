@@ -1,19 +1,15 @@
-package net.iowntheinter.vertx.componentRegister.componentType.impl
+package net.iowntheinter.vertx.componentRegister.component.impl
 
-import com.englishtown.promises.Promise
-import com.englishtown.promises.When
-import com.englishtown.promises.WhenFactory
-import com.englishtown.vertx.promises.impl.VertxExecutor
 import io.vertx.core.AsyncResult
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
-import net.iowntheinter.vertx.componentRegister.componentType.component
+import net.iowntheinter.vertx.componentRegister.component.componentType
 
 /**
  * Created by grant on 4/10/16.
  */
-class VXVerticle implements component {
+class VXVerticle implements componentType {
     Vertx vertx
     String ImplementationID  // example com.this.that or js:myVerticle.js
     String name //human readable name of this instance
@@ -33,7 +29,8 @@ class VXVerticle implements component {
     @Override
     void start(Handler<AsyncResult> cb) {
         this.name = name
-        vertx.deployVerticle(ImplementationID, cb)
+
+        vertx.deployVerticle(ImplementationID, ops, cb)
     }
 
     @Override

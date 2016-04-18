@@ -1,10 +1,8 @@
-package net.iowntheinter.vertx.componentRegister.componentType
+package net.iowntheinter.vertx.coreLauncher.impl
 
 import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
-import io.vertx.core.Vertx
-import io.vertx.core.json.JsonObject
-import net.iowntheinter.vertx.componentRegister.componentType.component
+import net.iowntheinter.vertx.componentRegister.component.componentType
 
 /**
  * Created by grant on 4/15/16.
@@ -19,7 +17,7 @@ import net.iowntheinter.vertx.componentRegister.componentType.component
  * #futureimpl: optionaly a closure can be provided to check the service has started after
  * the timeout
  */
-class dependentTask implements component {
+class waitingLaunchStrategy implements componentType {
     def task
     def List dependencies
     def Map depset
@@ -30,7 +28,8 @@ class dependentTask implements component {
     def started
     def boolean vertxTask
 
-    dependentTask(component task, List dependencies) {
+
+    waitingLaunchStrategy(componentType task, List dependencies) {
         this.task = task
         this.dependencies = dependencies
         this.depset = [:]

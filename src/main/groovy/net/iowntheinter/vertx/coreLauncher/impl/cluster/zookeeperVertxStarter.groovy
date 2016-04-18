@@ -1,22 +1,19 @@
-package net.iowntheinter.vertx.coreLauncher.cluster
+package net.iowntheinter.vertx.coreLauncher.impl.cluster
 
-import io.vertx.core.AbstractVerticle
 import io.vertx.core.AsyncResult
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.spi.cluster.ClusterManager
 import io.vertx.spi.cluster.impl.zookeeper.ZookeeperClusterManager
-import net.iowntheinter.vertx.coreLauncher.CRContext
-import net.iowntheinter.vertx.coreLauncher.cluster.impl.embeddedZookeeper
-import net.iowntheinter.vertx.coreLauncher.coreStarter
-import net.iowntheinter.vertx.util.resourceLoader
-import org.apache.zookeeper.server.ZooKeeperServer
+import net.iowntheinter.vertx.coreLauncher.coreCTX
+import net.iowntheinter.util.embedded.embeddedZookeeper
+import net.iowntheinter.vertx.coreLauncher.impl.coreStarter
 import org.apache.zookeeper.server.ZooKeeperServerMain
 
 /**
  * Created by grant on 4/11/16.
  */
-class zookeeperVertxStarter implements CRContext{
+class zookeeperVertxStarter implements coreCTX{
     def eZk
     ZooKeeperServerMain zu;
     Vertx vertx

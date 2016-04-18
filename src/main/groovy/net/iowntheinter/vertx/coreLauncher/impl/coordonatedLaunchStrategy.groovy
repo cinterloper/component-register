@@ -1,19 +1,20 @@
-package net.iowntheinter.vertx.componentRegister.componentType
+package net.iowntheinter.vertx.coreLauncher.impl
 
 import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
+import net.iowntheinter.vertx.componentRegister.component.componentType
 
 /**
  * Created by grant on 4/15/16.
- * a coordinatedTask is launched immediately
+ * a coordonatedLaunchStrategy is launched immediately
  * it is informed when its dependent services become available via an event bus message
  * and is responsible for only processing  work after it has been made aware
  * that its dependencies are available
  * A docker coordonatedTask must either implement well defined json on standard out
  * or call back to the event bus callback address
  */
-class coordinatedTask implements component {
+class coordonatedLaunchStrategy implements componentType {
 
     Map dependentServices
     Vertx vertx
@@ -26,7 +27,7 @@ class coordinatedTask implements component {
     def started
     def boolean vertxTask
 
-    coordinatedTask(component task, Map dependencies) {
+    coordonatedLaunchStrategy(componentType task, Map dependencies) {
         this.task = task
         this.dependencies = dependencies
         listening = false

@@ -2,5 +2,6 @@
 /**
  * Created by grant on 3/28/16.
  */
-
-println("inside example.groovy")
+import io.vertx.groovy.core.Vertx
+v = vertx as Vertx
+println("inside example.groovy" + v.getOrCreateContext().config())
