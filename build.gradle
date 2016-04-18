@@ -6,7 +6,7 @@ plugins {
     id 'maven-publish'
 }
 def libversion = '3.2.1'
-version = '3.2.1-3'
+version = '3.2.1-4'
 def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
 def AWS_DEFAULT_REGION = System.getenv("AWS_DEFAULT_REGION")
 def AWS_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID")
@@ -56,7 +56,7 @@ publishing {
 }
 
 sourceCompatibility = '1.8'
-mainClassName = 'net.iowntheinter.vertx.coreLauncher.coreStarter'
+mainClassName = 'net.iowntheinter.vertx.coreLauncher.impl.coreStarter'
 
 dependencies {
     compile "io.vertx:vertx-core:$libversion"
@@ -68,7 +68,7 @@ dependencies {
     compile 'org.apache.curator:apache-curator:2.8.0'
     compile 'org.apache.curator:curator-recipes:2.8.0'
     compile 'org.apache.zookeeper:zookeeper:3.4.6'
-    compile 'com.spotify:docker-client:3.6.8'
+    compile 'de.gesellix:docker-client:2016-04-11T22-50-38'
     compile 'net.sourceforge.argparse4j:argparse4j:0.7.0'
     compile 'org.apache.tinkerpop:tinkerpop:3.1.1-incubating'
     compile 'org.apache.tinkerpop:tinkergraph-gremlin:3.1.1-incubating'
