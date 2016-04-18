@@ -1,4 +1,52 @@
 {
   "name": "example-project",
-  "env_vars": []
+  "env_vars": [],
+  "startup": {
+    "vx": {
+      "groovy:example.groovy": {
+        "deps": [],
+        "startReady": true
+      }
+    },
+    "ext": {
+      "docker": {
+        "ctrName3": {
+          "dkrOptsRef": "testDkrOpts",
+          "image": "ubuntu",
+          "tag": "latest",
+          "deps": [],
+          "startReady": true
+        },
+        "ctrName4": {
+          "dkrOptsRef": "testDkrOpts",
+          "image": "ubuntu",
+          "tag": "latest",
+          "deps": [],
+          "startReady": true
+        }
+      }
+    }
+  },
+  "optionBlocks": {
+    "testDkrOpts": {
+      "Cmd": [
+        "sh",
+        "-c",
+        "ping 127.0.0.1"
+      ],
+      "ExposedPorts": {
+        "4711/tcp": {}
+      },
+      "HostConfig": {
+        "PortBindings": {
+          "4711/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "4712"
+            }
+          ]
+        }
+      }
+    }
+  }
 }

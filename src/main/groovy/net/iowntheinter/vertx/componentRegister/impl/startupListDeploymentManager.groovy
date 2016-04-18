@@ -1,5 +1,6 @@
 package net.iowntheinter.vertx.componentRegister.impl
 
+import com.englishtown.promises.Promise
 import io.vertx.core.AsyncResult
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.DeploymentOptionsConverter

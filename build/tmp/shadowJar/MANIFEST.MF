@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Main-Verticle: net.iowntheinter.vertx.componentRegister.impl.CoreLaunc
- her
-
