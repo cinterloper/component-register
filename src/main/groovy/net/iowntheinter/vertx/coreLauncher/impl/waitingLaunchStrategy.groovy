@@ -23,7 +23,7 @@ class waitingLaunchStrategy implements componentType {
     def Map depset
     def String id
     def boolean listening
-    def Handler startCb
+    def Closure startCb
     def Closure runCb
     def started
     def boolean vertxTask
@@ -41,7 +41,7 @@ class waitingLaunchStrategy implements componentType {
     }
 
     @Override
-    void start(Handler<AsyncResult> cb) {
+    void start(Closure cb) {
         def togo = this.depset.size()
 
         this.depset.each { dep, readyStatus ->
@@ -57,12 +57,12 @@ class waitingLaunchStrategy implements componentType {
     }
 
     @Override
-    void stop(Handler<AsyncResult> cb) {
+    void stop(Closure cb) {
         this.task.stop(cb)
     }
 
     @Override
-    void registrationEvent(Map peerNotification, Handler<AsyncResult> cb) {
+    void registrationEvent(Map peerNotification, Closure cb) {
         this.dependencies[peerNotification.name] = peerNotification.state
         try {
             start(cb)

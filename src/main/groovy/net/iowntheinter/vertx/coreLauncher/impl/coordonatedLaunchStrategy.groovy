@@ -35,7 +35,7 @@ class coordonatedLaunchStrategy implements componentType {
     }
 
     @Override
-    void start(Handler<AsyncResult> cb) {
+    void start(Closure cb) {
         this.task.start(cb)
         if (!listening && vertxTask)
             task.listen()
@@ -44,12 +44,12 @@ class coordonatedLaunchStrategy implements componentType {
     }
 
     @Override
-    void stop(Handler<AsyncResult> cb) {
+    void stop(Closure cb) {
         this.task.stop(cb)
     }
 
     @Override
-    void registrationEvent(Map peerNotification, Handler<AsyncResult> cb) {
+    void registrationEvent(Map peerNotification, Closure cb) {
         this.task.registrationEvent( notification, cb)
 
     }

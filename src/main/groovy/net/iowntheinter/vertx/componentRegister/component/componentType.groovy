@@ -9,8 +9,8 @@ import io.vertx.core.Handler
  * it must check in by that time or will be considered failed
  */
 interface componentType {
-    void start(Handler<AsyncResult> cb) //wakeup cb after its actually started
-    void stop( Handler<AsyncResult> cb)
-    void registrationEvent(Map peerNotification, Handler<AsyncResult> cb) //notify that a component has become available
+    void start(Closure cb) //wakeup cb after its actually started
+    void stop( Closure cb)
+    void registrationEvent(Map peerNotification, Closure cb) //notify that a component has become available
 
 }

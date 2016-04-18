@@ -27,19 +27,19 @@ class VXVerticle implements componentType {
 
 
     @Override
-    void start(Handler<AsyncResult> cb) {
+    void start(Closure cb) {
         this.name = name
 
-        vertx.deployVerticle(ImplementationID, ops, cb)
+        vertx.deployVerticle(ImplementationID, ops, cb as Handler)
     }
 
     @Override
-    void stop( Handler<AsyncResult> cb) {
-        vertx.undeploy(id as String, cb)
+    void stop( Closure cb) {
+        vertx.undeploy(id as String, cb as Handler)
     }
 
     @Override
-    void registrationEvent(Map peerNotification, Handler<AsyncResult> cb) {
+    void registrationEvent(Map peerNotification, Closure cb) {
      //send a message to the verticles personal channel
     }
 

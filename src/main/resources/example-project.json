@@ -1,14 +1,42 @@
 {
   "name": "example-project",
   "env_vars": [],
-  "startup":{
-    "vx":{
-      "groovy:example.groovy":
-      {
-        "deps":[],
-        "startReady":true
+  "startup": {
+    "vx": {
+      "groovy:example.groovy": {
+        "deps": [],
+        "startReady": true
+      }
+    },
+    "ext": {
+      "docker": {
+        "ubuntu": {
+          "dkrOptsRef": "testDkrOpts",
+          "deps": {},
+          "startReady": true
+        }
       }
     }
-
+  },
+  "optionBlocks": {
+    "testDkrOpts": {
+      "env": [
+        "THIS=THAT"
+      ],
+      "ports": [
+        "80",
+        "22"
+      ],
+      "portBinds": {
+        "80": "8080"
+      },
+      "volumes": [
+        "volumeA"
+      ],
+      "volumeBinds": {
+        "/tmp": "/tmp"
+      },
+      "pubAllPorts": false
+    }
   }
 }
