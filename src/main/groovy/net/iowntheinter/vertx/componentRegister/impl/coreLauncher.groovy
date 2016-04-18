@@ -4,6 +4,8 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
 import io.vertx.core.json.JsonObject
+import io.vertx.core.logging.LoggerFactory
+import net.iowntheinter.vertx.componentRegister.component.impl.DockerTask
 import net.iowntheinter.vertx.coreLauncher.impl.waitingLaunchStrategy
 import net.iowntheinter.vertx.componentRegister.component.impl.VXVerticle
 
@@ -13,7 +15,7 @@ public class coreLauncher extends AbstractVerticle {
     def dm;
     JsonObject config;
     Map launchTasks
-
+    def logger = LoggerFactory.getLogger(this.class.getName())
 
     public void final_shutdown(String topic, String value) {
         vertx.close()
@@ -49,12 +51,25 @@ public class coreLauncher extends AbstractVerticle {
                     dps = vertx.sharedData().getLocalMap('deployments').get(v) as JsonObject
                 }
 
-                dps.put(id, [name:"verticle"])
+                dps.put(id, [name: "verticle"])
                 vertx.sharedData().getLocalMap('deployments').put(v, dps)
                 println(vertx.sharedData().getLocalMap('deployments').get(v))
             })
         }
 
+        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { ctr, cfg ->
+            println "ctr: ${ctr} cfg: ${cfg}"
+            println "\n total config ${config}\n"
+            def cfname = new JsonObject(cfg as String).getString('dkrOptsRef')
+            println "cfname ${cfname}"
+            def ctrcfg = config.getJsonObject('optionBlocks').getJsonObject(cfname)
+            println "ctrcfg ${ctrcfg}"
+            def nd = new DockerTask(ctrcfg.getMap())
+            def nt = new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
+            nt.start({ result ->
+                println "docker result ${result}"
+            })
+        }
 
 
     }

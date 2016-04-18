@@ -9,6 +9,9 @@ import com.spotify.docker.client.messages.HostConfig
 import com.spotify.docker.client.messages.PortBinding
 import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
+import io.vertx.core.json.Json
+import io.vertx.core.json.JsonArray
+import io.vertx.core.json.JsonObject
 import net.iowntheinter.vertx.componentRegister.component.componentType
 import org.apache.tinkerpop.gremlin.structure.util.Host
 
@@ -21,27 +24,24 @@ class DockerTask implements componentType {
     def dockerClient
     DockerClient docker
     ContainerCreation cctr
-    String tasktype
-    Map ports, volmes, binds
+    List volumes
+    Map volumeBinds
+    List ports
     HostConfig dhostcfg
     String id
 
     DockerTask(final Map cfg) {
-        docker = DefaultDockerClient.fromEnv().build();
-        binds = cfg.binds
-        ports = cfg.ports
-        volumes = cfg.volumes
-        def hcfgb = HostConfig.builder()
-        binds.each { k, v ->
-            hcfgb.appendBinds("${k}:${v}")  //support attributes like read only later
-        }
-        final HostConfig hcfg = hcfgb.build()
+        docker = DefaultDockerClient.builder().uri("unix:///var/run/docker.sock").build();
+        volumeBinds = (cfg.volumeBinds as JsonObject ).getMap()
+        ports = (cfg.ports as JsonArray).getList()
+        volumes = (cfg.volumes as JsonArray).getList()
+
 
         def dhostcfgbldr = HostConfig.builder()
 
         final Map<String, List<PortBinding>> portBindings = new HashMap<String, List<PortBinding>>();
-        cfg.get('portBinds').each { String ctrport, String hstport ->
-            portBindings.put(ctrport, ([PortBinding.of("0.0.0.0", hstport)]))
+        (cfg.get('portBinds')as JsonObject).getMap().each { ctrport, hstport ->
+            portBindings.put(ctrport, ([PortBinding.of("0.0.0.0", hstport as String)]))
         }
 
         dhostcfgbldr.portBindings(portBindings)
@@ -65,20 +65,15 @@ class DockerTask implements componentType {
 
     @Override
     void start(Closure cb) {
-        final ContainerCreation creation = docker.createContainer(containerConfig);
-        final String id = creation.id();
-        this.id=id
-// Inspect container
-        final ContainerInfo info = docker.inspectContainer(id);
-
-// Start container
+        this.id = cctr.id()
+        final ContainerInfo info = docker.inspectContainer(this.id);
         docker.startContainer(id);
     }
 
     @Override
     void stop(Closure cb) {
 
-        cb([success:true,result:docker.killContainer(this.id)])
+        cb([success: true, result: docker.killContainer(this.id)])
     }
 
     @Override
