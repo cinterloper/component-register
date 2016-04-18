@@ -1,4 +1,4 @@
-package net.iowntheinter.vertx.componentRegister
+package net.iowntheinter.vertx.componentRegister.tracker
 interface componentTracker {
     /* ctx to register a verticle:
      def mailExample = [

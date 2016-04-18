@@ -1,6 +1,6 @@
-package net.iowntheinter.vertx.componentRegister.impl
+package net.iowntheinter.vertx.componentRegister.tracker.impl
 
-import net.iowntheinter.vertx.componentRegister.componentTracker
+import net.iowntheinter.vertx.componentRegister.tracker.componentTracker
 import org.apache.tinkerpop.gremlin.structure.Edge
 import org.apache.tinkerpop.gremlin.structure.Vertex
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph

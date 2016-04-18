@@ -6,13 +6,13 @@ import io.vertx.core.Future
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.vertx.componentRegister.component.impl.DockerTask
+import net.iowntheinter.vertx.componentRegister.tracker.impl.gremlinSystemTracker
 import net.iowntheinter.vertx.coreLauncher.impl.waitingLaunchStrategy
 import net.iowntheinter.vertx.componentRegister.component.impl.VXVerticle
 
 public class coreLauncher extends AbstractVerticle {
 
     def ct
-    def dm;
     JsonObject config;
     Map launchTasks
     def logger = LoggerFactory.getLogger(this.class.getName())
@@ -23,7 +23,6 @@ public class coreLauncher extends AbstractVerticle {
 
     public void start_manager() {
         ct = new gremlinSystemTracker();
-        dm = new startupListDeploymentManager(vertx, config)
     }
 
 
