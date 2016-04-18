@@ -1,0 +1,18 @@
+resources from config:
+
+ - allow uris/urls to be downloaded to host path at start up time
+
+embedded daemons from resources:
+ - launch single binary out-of-jvm daemons and monitor them at start time
+
+
+
+ services and host systems get 'capability tags'
+
+
+ services can require capabilities to be present on their host system to be deployed,
+  or running in their service group to start
+
+  services can require 'conditions' to be satisfied on a host to be deployed to that host
+
+  can reqire 'conditions' to be present to start

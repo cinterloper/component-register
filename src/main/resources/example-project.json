@@ -10,9 +10,18 @@
     },
     "ext": {
       "docker": {
-        "ubuntu": {
+        "ctrName3": {
           "dkrOptsRef": "testDkrOpts",
-          "deps": {},
+          "image": "ubuntu",
+          "tag": "latest",
+          "deps": [],
+          "startReady": true
+        },
+        "ctrName4": {
+          "dkrOptsRef": "testDkrOpts",
+          "image": "ubuntu",
+          "tag": "latest",
+          "deps": [],
           "startReady": true
         }
       }
@@ -20,23 +29,24 @@
   },
   "optionBlocks": {
     "testDkrOpts": {
-      "env": [
-        "THIS=THAT"
+      "Cmd": [
+        "sh",
+        "-c",
+        "ping 127.0.0.1"
       ],
-      "ports": [
-        "80",
-        "22"
-      ],
-      "portBinds": {
-        "80": "8080"
+      "ExposedPorts": {
+        "4711/tcp": {}
       },
-      "volumes": [
-        "volumeA"
-      ],
-      "volumeBinds": {
-        "/tmp": "/tmp"
-      },
-      "pubAllPorts": false
+      "HostConfig": {
+        "PortBindings": {
+          "4711/tcp": [
+            {
+              "HostIp": "0.0.0.0",
+              "HostPort": "4712"
+            }
+          ]
+        }
+      }
     }
   }
 }

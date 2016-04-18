@@ -1,5 +1,5 @@
 package net.iowntheinter.vertx.componentRegister.impl;
-
+import groovy.json.JsonSlurper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
@@ -57,14 +57,17 @@ public class coreLauncher extends AbstractVerticle {
             })
         }
 
-        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { ctr, cfg ->
+        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { ctr,  cfg ->
             println "ctr: ${ctr} cfg: ${cfg}"
+            cfg = cfg as JsonObject
             println "\n total config ${config}\n"
             def cfname = new JsonObject(cfg as String).getString('dkrOptsRef')
             println "cfname ${cfname}"
-            def ctrcfg = config.getJsonObject('optionBlocks').getJsonObject(cfname)
+            Map ctrcfg = (new JsonSlurper().parseText(
+                    config.getJsonObject('optionBlocks').getJsonObject(cfname).toString())) as Map
+
             println "ctrcfg ${ctrcfg}"
-            def nd = new DockerTask(ctrcfg.getMap())
+            def nd = new DockerTask([name:ctr,tag:'latest',image:cfg.getString('image')],ctrcfg)
             def nt = new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
             nt.start({ result ->
                 println "docker result ${result}"

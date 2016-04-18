@@ -1,19 +1,10 @@
 package net.iowntheinter.vertx.componentRegister.component.impl
 
-import com.spotify.docker.client.DefaultDockerClient
-import com.spotify.docker.client.DockerClient
-import com.spotify.docker.client.messages.ContainerConfig
-import com.spotify.docker.client.messages.ContainerCreation
-import com.spotify.docker.client.messages.ContainerInfo
-import com.spotify.docker.client.messages.HostConfig
-import com.spotify.docker.client.messages.PortBinding
-import io.vertx.core.AsyncResult
-import io.vertx.core.Handler
-import io.vertx.core.json.Json
+import de.gesellix.docker.client.DockerClient
+import de.gesellix.docker.client.DockerClientImpl
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import net.iowntheinter.vertx.componentRegister.component.componentType
-import org.apache.tinkerpop.gremlin.structure.util.Host
 
 /**
  * Created by grant on 4/10/16.
@@ -21,53 +12,37 @@ import org.apache.tinkerpop.gremlin.structure.util.Host
 
 
 class DockerTask implements componentType {
-    def dockerClient
-    DockerClient docker
-    ContainerCreation cctr
-    List volumes
-    Map volumeBinds
-    List ports
-    HostConfig dhostcfg
+
+
+    DockerClientImpl dockerClient
+    Map cfg
+    String image
+    String name
+    String tag
     String id
-
-    DockerTask(final Map cfg) {
-        docker = DefaultDockerClient.builder().uri("unix:///var/run/docker.sock").build();
-        volumeBinds = (cfg.volumeBinds as JsonObject ).getMap()
-        ports = (cfg.ports as JsonArray).getList()
-        volumes = (cfg.volumes as JsonArray).getList()
-
-
-        def dhostcfgbldr = HostConfig.builder()
-
-        final Map<String, List<PortBinding>> portBindings = new HashMap<String, List<PortBinding>>();
-        (cfg.get('portBinds')as JsonObject).getMap().each { ctrport, hstport ->
-            portBindings.put(ctrport, ([PortBinding.of("0.0.0.0", hstport as String)]))
-        }
-
-        dhostcfgbldr.portBindings(portBindings)
-
-        cctr = docker.createContainer(ContainerConfig.builder()
-                .env(cfg.env as List<String>)
-                .image(cfg.image as String)
-                .volumes(cfg.volumes as Set<String>)
-                .exposedPorts(cfg.ports as Set<String>)
-                .hostConfig(dhostcfgbldr.build())
-                .cmd(cfg.cmd as List<String>)
-                .build())
-
-        //= new DefaultDockerClient("unix:///var/run/docker.sock");
-        // --or--
-        //.uri(URI.create("https://boot2docker:2376"))
-        // .dockerCertificates(new DockerCertificates(Paths.get("/Users/rohan/.docker/boot2docker-vm/")))
-        // .build();
+/*
+meta
+[
+ image:
+ tag: ?
+ name:
+]
+ */
+    DockerTask(Map meta, Map cfg) {
+        dockerClient = new DockerClientImpl()
+        def info = dockerClient.info()
+        println("\ndockerinfo:${info}")
+        image = meta.image
+        tag = meta.tag ?: "latest"
+        name = meta.name
+        this.cfg =cfg
     }
 
 
     @Override
     void start(Closure cb) {
-        this.id = cctr.id()
-        final ContainerInfo info = docker.inspectContainer(this.id);
-        docker.startContainer(id);
+        println("\n dkr config: \n ${cfg}")
+         println("new container: ${dockerClient.run(image, cfg, tag,name).container}")
     }
 
     @Override
