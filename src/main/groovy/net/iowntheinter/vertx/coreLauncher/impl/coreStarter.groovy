@@ -39,7 +39,7 @@ class coreStarter {
     static JsonObject launch_config
     static JsonObject project_config
     static URLClassLoader classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
-    static Logger lgr = LoggerFactory.getLogger(this.class.getName())
+    static Logger logger = LoggerFactory.getLogger(this.class.getName())
     static boolean debug = false
 
 
@@ -86,13 +86,13 @@ class coreStarter {
         Namespace ns = null
         try {
             ns = parser.parseArgs(args);
-            println("parsed args: ${args}")
+            logger.info("parsed args: ${args}")
         } catch (ArgumentParserException e) {
             parser.handleError(e);
             System.exit(1);
         }
         if (ns.getAttrs()["dev_mode"]) {
-            lgr.info("loaded project def: ${project_name}")
+            logger.info("loaded project def: ${project_name}")
 
             if (ns.getAttrs()["log_level"])
                 LogManager.getRootLogger().setLevel(Level.toLevel(ns.getAttrs()["log_level"] as String))
@@ -105,16 +105,16 @@ class coreStarter {
         project_config.getJsonArray("env_vars").each { v ->
             def var = v as String
             if (!env[var]) {
-                println("you must declare the ${var} enviornment var")
+                logger.info("you must declare the ${var} enviornment var")
                 halt()
             }
         }
 
         Closure afterVXStart = { Map res ->
             Vertx vx
-            println(res)
+            logger.info(res)
             if (!res.success) {
-                println("could not start vertx")
+                logger.info("could not start vertx")
                 halt()
             } else {
                 vx = res.vertx as Vertx
@@ -126,7 +126,7 @@ class coreStarter {
         if (ns.getAttrs()["cluster_zookeeper"]) {
             new zookeeperVertxStarter().start(new VertxOptions(), afterVXStart)
         } else if (ns.getAttrs()["stand_alone"]) {
-            println("starting in stanalone mode")
+            logger.info("starting in stanalone mode")
             new singleVertxStarter().start(new VertxOptions(), afterVXStart)
         }
 

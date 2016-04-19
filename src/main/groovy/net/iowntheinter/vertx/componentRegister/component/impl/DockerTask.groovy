@@ -4,6 +4,7 @@ import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
+import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.vertx.componentRegister.component.componentType
 
 /**
@@ -13,6 +14,7 @@ import net.iowntheinter.vertx.componentRegister.component.componentType
 
 class DockerTask implements componentType {
 
+    def logger = LoggerFactory.getLogger(this.class.getName())
 
     DockerClientImpl dockerClient
     Map cfg
@@ -31,7 +33,7 @@ meta
     DockerTask(Map meta, Map cfg) {
         dockerClient = new DockerClientImpl()
         def info = dockerClient.info()
-        println("\ndockerinfo:${info}")
+        logger.info("\ndockerinfo:${info}")
         image = meta.image
         tag = meta.tag ?: "latest"
         name = meta.name
@@ -41,8 +43,8 @@ meta
 
     @Override
     void start(Closure cb) {
-        println("\n dkr config: \n ${cfg}")
-         println("new container: ${dockerClient.run(image, cfg, tag,name).container}")
+        logger.info("\n dkr config: \n ${cfg}")
+         logger.info("new container: ${dockerClient.run(image, cfg, tag,name).container}")
     }
 
     @Override

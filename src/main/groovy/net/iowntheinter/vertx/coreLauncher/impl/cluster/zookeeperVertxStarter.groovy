@@ -3,6 +3,7 @@ package net.iowntheinter.vertx.coreLauncher.impl.cluster
 import io.vertx.core.AsyncResult
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
+import io.vertx.core.logging.LoggerFactory
 import io.vertx.core.spi.cluster.ClusterManager
 import io.vertx.spi.cluster.impl.zookeeper.ZookeeperClusterManager
 import net.iowntheinter.vertx.coreLauncher.coreCTX
@@ -17,6 +18,8 @@ class zookeeperVertxStarter implements coreCTX{
     def eZk
     ZooKeeperServerMain zu;
     Vertx vertx
+    def logger = LoggerFactory.getLogger(this.class.getName())
+
     URLClassLoader classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
 
     void startZk() {
@@ -31,7 +34,7 @@ class zookeeperVertxStarter implements coreCTX{
 
 
         } catch (e) {
-            println("error loading zookeper configuration ${e.printStackTrace()}")
+            logger.info("error loading zookeper configuration ${e.printStackTrace()}")
             coreStarter.halt()
         }
     }
@@ -58,10 +61,10 @@ class zookeeperVertxStarter implements coreCTX{
             if (res.succeeded()) {
                 Vertx vertx = res.result();
                 cb([success:true, vertx:vertx])
-                println("We have a clustered vertx ${vertx.getOrCreateContext()}")
+                logger.info("We have a clustered vertx ${vertx.getOrCreateContext()}")
             } else {
                 cb([success:false, vertx:null])
-                println("there was a failure starting zookeeper & vertx ${vertx.getOrCreateContext()}")
+                logger.info("there was a failure starting zookeeper & vertx ${vertx.getOrCreateContext()}")
                 System.exit(-1)
                 // failed!
             }
@@ -70,10 +73,10 @@ class zookeeperVertxStarter implements coreCTX{
     }
     def startupResult = { AsyncResult res ->
         if (res.failed()) {
-            println("could not start: ${res.cause()}")
+            logger.info("could not start: ${res.cause()}")
             coreStarter.halt()
         } else {
-            println("Started clustered vertx:")
+            logger.info("Started clustered vertx:")
         }
 
 
