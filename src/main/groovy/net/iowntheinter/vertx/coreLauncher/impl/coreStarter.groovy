@@ -5,7 +5,7 @@ import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
-import net.iowntheinter.vertx.coreLauncher.impl.cluster.zookeeperVertxStarter
+import net.iowntheinter.vertx.coreLauncher.impl.cluster.clusterVertxStarter
 import net.iowntheinter.vertx.coreLauncher.impl.single.singleVertxStarter
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup
 import org.apache.log4j.Level
@@ -124,9 +124,10 @@ class coreStarter {
                 vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher', opts)
             }
         }
-        System.setProperty("vertx.logger-delegate-factory-class-name","io.vertx.core.logging.Log4jLogDelegateFactory" )
+        System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.Log4jLogDelegateFactory")
         if (ns.getAttrs()["cluster_zookeeper"]) {
-            new zookeeperVertxStarter().start(new VertxOptions(), afterVXStart)
+
+            new clusterVertxStarter().start(new VertxOptions(), afterVXStart)
         } else if (ns.getAttrs()["stand_alone"]) {
             logger.debug("starting in stanalone mode")
             new singleVertxStarter().start(new VertxOptions(), afterVXStart)
