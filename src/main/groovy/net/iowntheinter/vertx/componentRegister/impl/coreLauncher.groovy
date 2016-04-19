@@ -71,7 +71,7 @@ public class coreLauncher extends AbstractVerticle {
                     config.getJsonObject('optionBlocks').getJsonObject(cfname).toString())) as Map
 
             logger.debug "ctrcfg ${ctrcfg}"
-            def nd = new DockerTask([name: ctr, tag: 'latest', image: cfg.getString('image')], ctrcfg)
+            def nd = new DockerTask([name: ctr, tag: 'latest', image: cfg.getString('image'), ifExists:cfg.getString('ifExists')], ctrcfg)
             def nt = new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
             nt.start({ result ->
                 logger.info "docker start result: " +

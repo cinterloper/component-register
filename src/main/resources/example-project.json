@@ -19,7 +19,7 @@
           "startReady": true
         },
         "ctrName4": {
-          "ifExists":"start",
+          "ifExists":"restart",
           "dkrOptsRef": "testDkrOpts",
           "image": "ubuntu",
           "tag": "latest",

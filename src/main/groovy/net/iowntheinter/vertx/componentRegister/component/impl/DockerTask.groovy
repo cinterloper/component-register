@@ -1,11 +1,20 @@
 package net.iowntheinter.vertx.componentRegister.component.impl
 
+/*
+for this to be really async
+will need to switch to https://github.com/shekhargulati/rx-docker-client
+ */
+
+
 import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.vertx.componentRegister.component.componentType
+import static groovy.json.JsonOutput.*
 
 /**
  * Created by grant on 4/10/16.
@@ -18,10 +27,12 @@ class DockerTask implements componentType {
 
     DockerClientImpl dockerClient
     Map cfg
+    Map meta
     String image
     String name
     String tag
     String id
+
 /*
 meta
 [
@@ -39,19 +50,57 @@ meta
         tag = meta.tag ?: "latest"
         name = meta.name
         this.cfg = cfg
+        this.meta = meta
     }
 
 
     @Override
     void start(Closure cb) {
-        logger.debug("\n dkr config: \n ${cfg}")
-        cb(dockerClient.run(image, cfg, tag, name))
+        boolean running = false
+        logger.info("\n dkr config: \n ${cfg}")
+        def resp = new JsonObject()
+        try {
+            resp = new JsonObject(toJson(dockerClient.inspectContainer(name)))
+        } catch (e) {
+            logger.info("could not inspect , not running? " + e.getCause())
+        }
+        logger.info("resp: ${resp}")
+        if (!resp.isEmpty()) {
+            def oldId = resp.getJsonObject('content').getString('Id')
+            running = resp.getJsonObject('content').getJsonObject('State').getBoolean('Running')
+            logger.info("existing container: " +
+                    " \n ifExists: " + meta.ifExists +
+                    " \n id: " + oldId +
+                    " \n running: " + running)
+            switch (meta.ifExists) {
+                case 'recreate':
+                    dockerClient.stop(oldId)
+                    dockerClient.rm(oldId)
+                    running = false
+                    break
+                case 'restart':
+                    dockerClient.stop(oldId)
+                    dockerClient.startContainer(oldId)
+                    break
+                case 'halt':
+                    logger.fatal("${name} ctr exists, and configured to halt if already present")
+                    System.exit(-1)
+                    break
+                case 'leave':
+                    logger.info("leaving existing container in place")
+                    break
+            }
+        }
+        if (!running) {
+            cb(dockerClient.run(image, cfg, tag, name))
+        }
     }
 
     @Override
     void stop(Closure cb) {
 
-        cb([success: true, result: docker.killContainer(this.id)])
+        cb([success: true, result: dockerClient.stop(this.id)])
+
     }
 
     @Override
