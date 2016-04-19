@@ -1,4 +1,8 @@
-package net.iowntheinter.vertx.componentRegister.impl;
+package net.iowntheinter.vertx.componentRegister.impl
+
+import static groovy.json.JsonOutput.*
+
+import groovy.json.JsonParser;
 import groovy.json.JsonSlurper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
@@ -10,6 +14,7 @@ import net.iowntheinter.vertx.componentRegister.tracker.impl.gremlinSystemTracke
 import net.iowntheinter.vertx.coreLauncher.impl.waitingLaunchStrategy
 import net.iowntheinter.vertx.componentRegister.component.impl.VXVerticle
 import io.vertx.core.logging.Log4jLogDelegateFactory
+
 public class coreLauncher extends AbstractVerticle {
 
     def ct
@@ -29,16 +34,16 @@ public class coreLauncher extends AbstractVerticle {
     @Override
     public void start() throws Exception {
         launchTasks = [:]
-        logger.info(vertx)
+        logger.debug(vertx)
         start_manager()
         JsonObject dps = new JsonObject()
         this.config = vertx.getOrCreateContext().config()
-        logger.info("reached CoreLauncher inside vert.x, cofig: ${config}")
+        logger.debug("reached CoreLauncher inside vert.x, cofig: ${config}")
 
 
 
         config.getJsonObject('startup').getJsonObject('vx').getMap().each { k, v ->
-            logger.info("${k}:${v}")
+            logger.debug("${k}:${v}")
             def name = k
             def nv = new VXVerticle(vertx, new DeploymentOptions([config: config]), k)
             def nt = new waitingLaunchStrategy(nv, new JsonObject(v as String).getJsonArray('deps').getList())
@@ -52,24 +57,25 @@ public class coreLauncher extends AbstractVerticle {
 
                 dps.put(id, [name: "verticle"])
                 vertx.sharedData().getLocalMap('deployments').put(v, dps)
-                logger.info(vertx.sharedData().getLocalMap('deployments').get(v))
+                logger.debug(vertx.sharedData().getLocalMap('deployments').get(v))
             })
         }
 
-        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { ctr,  cfg ->
-            logger.info "ctr: ${ctr} cfg: ${cfg}"
+        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { ctr, cfg ->
+            logger.debug "ctr: ${ctr} cfg: ${cfg}"
             cfg = cfg as JsonObject
-            logger.info "\n total config ${config}\n"
+            logger.debug "\n total config ${config}\n"
             def cfname = new JsonObject(cfg as String).getString('dkrOptsRef')
-            logger.info "cfname ${cfname}"
+            logger.debug "cfname ${cfname}"
             Map ctrcfg = (new JsonSlurper().parseText(
                     config.getJsonObject('optionBlocks').getJsonObject(cfname).toString())) as Map
 
-            logger.info "ctrcfg ${ctrcfg}"
-            def nd = new DockerTask([name:ctr,tag:'latest',image:cfg.getString('image')],ctrcfg)
+            logger.debug "ctrcfg ${ctrcfg}"
+            def nd = new DockerTask([name: ctr, tag: 'latest', image: cfg.getString('image')], ctrcfg)
             def nt = new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
             nt.start({ result ->
-                logger.info "docker result ${result}"
+                logger.info "docker start result: " +
+                        (result as Map).container.content.Id
             })
         }
 

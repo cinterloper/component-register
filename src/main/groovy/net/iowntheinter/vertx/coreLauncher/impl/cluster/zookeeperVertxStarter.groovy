@@ -34,7 +34,7 @@ class zookeeperVertxStarter implements coreCTX{
 
 
         } catch (e) {
-            logger.info("error loading zookeper configuration ${e.printStackTrace()}")
+            logger.error("error loading zookeper configuration ${e.printStackTrace()}")
             coreStarter.halt()
         }
     }
@@ -64,7 +64,7 @@ class zookeeperVertxStarter implements coreCTX{
                 logger.info("We have a clustered vertx ${vertx.getOrCreateContext()}")
             } else {
                 cb([success:false, vertx:null])
-                logger.info("there was a failure starting zookeeper & vertx ${vertx.getOrCreateContext()}")
+                logger.error("there was a failure starting zookeeper & vertx ${vertx.getOrCreateContext()}")
                 System.exit(-1)
                 // failed!
             }
@@ -73,7 +73,7 @@ class zookeeperVertxStarter implements coreCTX{
     }
     def startupResult = { AsyncResult res ->
         if (res.failed()) {
-            logger.info("could not start: ${res.cause()}")
+            logger.error("could not start: ${res.cause()}")
             coreStarter.halt()
         } else {
             logger.info("Started clustered vertx:")

@@ -11,6 +11,7 @@
     "ext": {
       "docker": {
         "ctrName3": {
+          "ifExists":"recreate",
           "dkrOptsRef": "testDkrOpts",
           "image": "ubuntu",
           "tag": "latest",
@@ -18,6 +19,7 @@
           "startReady": true
         },
         "ctrName4": {
+          "ifExists":"start",
           "dkrOptsRef": "testDkrOpts",
           "image": "ubuntu",
           "tag": "latest",

@@ -11,6 +11,7 @@ import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup
 import org.apache.log4j.Level
 import org.apache.log4j.LogManager
 
+
 import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -68,7 +69,7 @@ class coreStarter {
     }
 
     public static void main(String[] args) {
-
+        println("PROPERTY: ${System.getProperty('vertx.logger-delegate-factory-class-name')}")
         project_config = parseProjectConfig()
         project_name = project_config.getString('name')
 
@@ -86,18 +87,19 @@ class coreStarter {
         Namespace ns = null
         try {
             ns = parser.parseArgs(args);
-            logger.info("parsed args: ${args}")
+            logger.debug("parsed args: ${args}")
         } catch (ArgumentParserException e) {
             parser.handleError(e);
             System.exit(1);
         }
         if (ns.getAttrs()["dev_mode"]) {
-            logger.info("loaded project def: ${project_name}")
+            logger.debug("loaded project def: ${project_name}")
 
-            if (ns.getAttrs()["log_level"])
+            if (ns.getAttrs()["log_level"]) {
                 LogManager.getRootLogger().setLevel(Level.toLevel(ns.getAttrs()["log_level"] as String))
-            else
+            } else {
                 LogManager.getRootLogger().setLevel(Level.DEBUG);
+            }
         }
 
         def env = System.getenv()
@@ -105,16 +107,16 @@ class coreStarter {
         project_config.getJsonArray("env_vars").each { v ->
             def var = v as String
             if (!env[var]) {
-                logger.info("you must declare the ${var} enviornment var")
+                logger.debug("you must declare the ${var} enviornment var")
                 halt()
             }
         }
 
         Closure afterVXStart = { Map res ->
             Vertx vx
-            logger.info(res)
+            logger.debug(res)
             if (!res.success) {
-                logger.info("could not start vertx")
+                logger.error("could not start vertx")
                 halt()
             } else {
                 vx = res.vertx as Vertx
@@ -122,11 +124,11 @@ class coreStarter {
                 vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher', opts)
             }
         }
-
+        System.setProperty("vertx.logger-delegate-factory-class-name","io.vertx.core.logging.Log4jLogDelegateFactory" )
         if (ns.getAttrs()["cluster_zookeeper"]) {
             new zookeeperVertxStarter().start(new VertxOptions(), afterVXStart)
         } else if (ns.getAttrs()["stand_alone"]) {
-            logger.info("starting in stanalone mode")
+            logger.debug("starting in stanalone mode")
             new singleVertxStarter().start(new VertxOptions(), afterVXStart)
         }
 

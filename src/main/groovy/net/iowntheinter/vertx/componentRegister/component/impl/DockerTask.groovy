@@ -30,21 +30,22 @@ meta
  name:
 ]
  */
+
     DockerTask(Map meta, Map cfg) {
         dockerClient = new DockerClientImpl()
         def info = dockerClient.info()
-        logger.info("\ndockerinfo:${info}")
+        logger.debug("\ndockerinfo:${info}")
         image = meta.image
         tag = meta.tag ?: "latest"
         name = meta.name
-        this.cfg =cfg
+        this.cfg = cfg
     }
 
 
     @Override
     void start(Closure cb) {
-        logger.info("\n dkr config: \n ${cfg}")
-         logger.info("new container: ${dockerClient.run(image, cfg, tag,name).container}")
+        logger.debug("\n dkr config: \n ${cfg}")
+        cb(dockerClient.run(image, cfg, tag, name))
     }
 
     @Override
