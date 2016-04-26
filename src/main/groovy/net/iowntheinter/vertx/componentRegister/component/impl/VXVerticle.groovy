@@ -15,14 +15,14 @@ class VXVerticle implements componentType {
     String name //human readable name of this instance
     UUID id; //launch
     DeploymentOptions ops
-    Map deps =[:]
+    Map deps = [:]
     String tasktype
 
     VXVerticle(Vertx vertx, DeploymentOptions opts, String ImplementationID) {
         this.vertx = vertx
         this.ImplementationID = ImplementationID
         this.ops = opts
-        deps =opts.getConfig().getMap()
+        deps = opts.getConfig().getMap()
     }
 
 
@@ -34,13 +34,13 @@ class VXVerticle implements componentType {
     }
 
     @Override
-    void stop( Closure cb) {
+    void stop(Closure cb) {
         vertx.undeploy(id as String, cb as Handler)
     }
 
     @Override
     void registrationEvent(Map peerNotification, Closure cb) {
-     //send a message to the verticles personal channel
+        //send a message to the verticles personal channel
     }
 
 
@@ -49,7 +49,7 @@ class VXVerticle implements componentType {
         def depchdl = eb.consumer("conerstone:deployments")
         depchdl.handler({ msg ->
             this.notify(msg.body() as Map, this.startCb as Handler)
-            if((msg.body() as Map).get("id") == this.id){
+            if ((msg.body() as Map).get("id") == this.id) {
                 started = true
                 this.runCb()
             }

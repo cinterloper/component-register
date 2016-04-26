@@ -1,5 +1,9 @@
 package net.iowntheinter.vertx.componentRegister.impl
 
+import io.vertx.core.Vertx
+import io.vertx.core.VertxOptions
+import net.iowntheinter.vertx.coreLauncher.impl.cluster.clusterVertxStarter
+
 import static groovy.json.JsonOutput.*
 
 import groovy.json.JsonParser;
@@ -10,7 +14,6 @@ import io.vertx.core.Future
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.vertx.componentRegister.component.impl.DockerTask
-import net.iowntheinter.vertx.componentRegister.tracker.impl.gremlinSystemTracker
 import net.iowntheinter.vertx.coreLauncher.impl.waitingLaunchStrategy
 import net.iowntheinter.vertx.componentRegister.component.impl.VXVerticle
 import io.vertx.core.logging.Log4jLogDelegateFactory
@@ -26,41 +29,15 @@ public class coreLauncher extends AbstractVerticle {
         vertx.close()
     }
 
-    public void start_manager() {
-        ct = new gremlinSystemTracker();
-    }
-
-
     @Override
     public void start() throws Exception {
         launchTasks = [:]
         logger.debug(vertx)
-        start_manager()
         JsonObject dps = new JsonObject()
         this.config = vertx.getOrCreateContext().config()
         logger.debug("reached CoreLauncher inside vert.x, cofig: ${config}")
 
-
-
-        config.getJsonObject('startup').getJsonObject('vx').getMap().each { k, v ->
-            logger.debug("${k}:${v}")
-            def name = k
-            def nv = new VXVerticle(vertx, new DeploymentOptions([config: config]), k)
-            def nt = new waitingLaunchStrategy(nv, new JsonObject(v as String).getJsonArray('deps').getList())
-            nt.start({ result ->
-                String id = (result as Future).result()
-
-                logger.info("Started ${id}")
-                if (vertx.sharedData().getLocalMap('deployments').get(v)) {
-                    dps = vertx.sharedData().getLocalMap('deployments').get(v) as JsonObject
-                }
-
-                dps.put(id, [name: "verticle"])
-                vertx.sharedData().getLocalMap('deployments').put(v, dps)
-                logger.debug(vertx.sharedData().getLocalMap('deployments').get(v))
-            })
-        }
-
+        //start all the docker components first in case the cluster manager is one of them
         config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { ctr, cfg ->
             logger.debug "ctr: ${ctr} cfg: ${cfg}"
             cfg = cfg as JsonObject
@@ -71,12 +48,52 @@ public class coreLauncher extends AbstractVerticle {
                     config.getJsonObject('optionBlocks').getJsonObject(cfname).toString())) as Map
 
             logger.debug "ctrcfg ${ctrcfg}"
-            def nd = new DockerTask([name: ctr, tag: 'latest', image: cfg.getString('image'), ifExists:cfg.getString('ifExists')], ctrcfg)
+            def nd = new DockerTask([name: ctr, tag: 'latest', image: cfg.getString('image'), ifExists: cfg.getString('ifExists')], ctrcfg)
             def nt = new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
             nt.start({ result ->
                 logger.info "docker start result: " +
                         (result as Map).container.content.Id
             })
+        }
+
+        Closure startVerticles = { vertx ->
+            config.getJsonObject('startup').getJsonObject('vx').getMap().each { k, v ->
+                logger.debug("${k}:${v}")
+                def name = k
+                def nv = new VXVerticle(vertx, new DeploymentOptions([config: config]), k)
+                def nt = new waitingLaunchStrategy(nv, new JsonObject(v as String).getJsonArray('deps').getList())
+                nt.start({ result ->
+                    String id = (result as Future).result()
+
+                    logger.info("Started ${id}")
+                    if (vertx.sharedData().getLocalMap('deployments').get(v)) {
+                        dps = vertx.sharedData().getLocalMap('deployments').get(v) as JsonObject
+                    }
+
+                    dps.put(id, [name: "verticle"])
+                    vertx.sharedData().getLocalMap('deployments').put(v, dps)
+                    logger.debug(vertx.sharedData().getLocalMap('deployments').get(v))
+                })
+            }
+        }
+
+        Closure afterVXClusterStart = { Map res ->
+            Vertx vx
+            logger.debug(res)
+            if (!res.success) {
+                logger.error("could not start clustered vertx")
+                System.exit(-1)
+            } else {
+                vx = res.vertx as Vertx
+                def opts = new DeploymentOptions([config: config.getMap()])
+                startVerticles(vx)
+            }
+        }
+
+        if (config.getBoolean("clustered")) {
+            new clusterVertxStarter().start(new VertxOptions(), afterVXClusterStart)
+        } else {
+            startVerticles(vertx)
         }
 
 

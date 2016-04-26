@@ -34,7 +34,7 @@ class waitingLaunchStrategy implements componentType {
         this.dependencies = dependencies
         this.depset = [:]
         this.dependencies.each { dep ->
-            depset[dep]=false
+            depset[dep] = false
         }
         listening = false
         started = false
@@ -71,7 +71,7 @@ class waitingLaunchStrategy implements componentType {
         }
     }
 
-    void callWhenRunning(Closure cb){
+    void callWhenRunning(Closure cb) {
         this.task.runCb = cb
     }
 

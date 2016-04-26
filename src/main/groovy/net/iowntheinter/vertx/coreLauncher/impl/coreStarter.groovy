@@ -3,14 +3,21 @@ package net.iowntheinter.vertx.coreLauncher.impl
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
+import io.vertx.core.cli.Argument
+import io.vertx.core.cli.CLI
+import io.vertx.core.cli.CommandLine
+import io.vertx.core.cli.Option
+import io.vertx.core.cli.impl.DefaultCommandLine
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import net.iowntheinter.vertx.coreLauncher.impl.cluster.clusterVertxStarter
 import net.iowntheinter.vertx.coreLauncher.impl.single.singleVertxStarter
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup
-import org.apache.log4j.Level
-import org.apache.log4j.LogManager
-
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.core.config.Configuration
+import org.apache.logging.log4j.core.config.LoggerConfig
 
 import static net.sourceforge.argparse4j.impl.Arguments.storeTrue;
 import net.sourceforge.argparse4j.ArgumentParsers;
@@ -36,7 +43,7 @@ import io.vertx.core.logging.LoggerFactory
 @Singleton
 class coreStarter {
     static String cfgfile
-    static String project_name
+    static String project_name =""
     static JsonObject launch_config
     static JsonObject project_config
     static URLClassLoader classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
@@ -69,37 +76,66 @@ class coreStarter {
     }
 
     public static void main(String[] args) {
-        println("PROPERTY: ${System.getProperty('vertx.logger-delegate-factory-class-name')}")
+
         project_config = parseProjectConfig()
         project_name = project_config.getString('name')
 
-        ArgumentParser parser = ArgumentParsers
-                .newArgumentParser(project_name)
-                .defaultHelp(true)
-                .description(project_name)
-        MutuallyExclusiveGroup mode = parser.addMutuallyExclusiveGroup()
-        mode.addArgument("-z", "--cluster-zookeeper").help("start with embedded zk").action(storeTrue())
-        mode.addArgument("-s", "--stand-alone").help("start standalone").action(storeTrue())
-        parser.addArgument("-d", "--dev-mode").help("start in debug/dev mode").action(storeTrue())
-        parser.addArgument("-c", "--config").help("json configuration")
-        parser.addArgument("-l", "--log-level").help("log level TRACE|INFO|WARN|DEBUG")
+        CLI cli = CLI.create(project_name as String)
+                .setSummary(project_name as String)
+                .addOption(new Option()
+                .setLongName("cluster")
+                .setShortName("X")
+                .setDescription("enables clustering")
+                .setFlag(true))
+                .addOption(new Option()
+                .setLongName("debug")
+                .setShortName("d")
+                .setDescription("enables debugging")
+                .setFlag(true))
+                .addOption(new Option()
+                .setLongName("loglevel")
+                .setShortName("l")
+                .setDescription("log level TRACE|INFO|WARN|DEBUG"))
+                .addArgument(new Argument()
+                .setIndex(0)
+                .setDescription("The runtime configuration")
+                .setArgName("config"))
+                .addOption(new Option()
+                .setLongName("help").setShortName("h").setFlag(true).setHelp(true))
 
-        Namespace ns = null
+
+        StringBuilder builder = new StringBuilder();
+        cli.usage(builder);
+
+        println("PROPERTY: ${System.getProperty('vertx.logger-delegate-factory-class-name')}")
+        CommandLine commandLine = DefaultCommandLine.create(cli)
         try {
-            ns = parser.parseArgs(args);
-            logger.debug("parsed args: ${args}")
+            commandLine = cli.parse(Arrays.asList(args));
+            logger.debug("parsed args: ${commandLine.allArguments()}")
+            if (!commandLine.isValid() && commandLine.isAskingForHelp()) {
+                System.out.print(builder.toString());
+                System.exit(1);
+
+            }
         } catch (ArgumentParserException e) {
-            parser.handleError(e);
+            logger.error("could not parse cli: " + e.getMessage())
             System.exit(1);
         }
-        if (ns.getAttrs()["dev_mode"]) {
-            logger.debug("loaded project def: ${project_name}")
 
-            if (ns.getAttrs()["log_level"]) {
-                LogManager.getRootLogger().setLevel(Level.toLevel(ns.getAttrs()["log_level"] as String))
+// The parsing does not fail and let you do:
+
+        if (commandLine.getArgumentValue("debug")) {
+            logger.debug("loaded project def: ${project_name}")
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            Configuration config = ctx.getConfiguration();
+            LoggerConfig loggerConfig = config.getLoggerConfig(LogManager.ROOT_LOGGER_NAME);
+            if (commandLine.getArgumentValue("loglevel")) {
+                loggerConfig.setLevel(Level.toLevel(commandLine.getArgumentValue("loglevel") as String));
             } else {
-                LogManager.getRootLogger().setLevel(Level.DEBUG);
+                loggerConfig.setLevel(Level.DEBUG);
             }
+            ctx.updateLoggers();
+
         }
 
         def env = System.getenv()
@@ -120,18 +156,16 @@ class coreStarter {
                 halt()
             } else {
                 vx = res.vertx as Vertx
+                project_config.put("clustered", commandLine.getOptionValue("cluster"))
                 def opts = new DeploymentOptions([config: project_config.getMap()])
                 vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher', opts)
             }
         }
-        System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.Log4jLogDelegateFactory")
-        if (ns.getAttrs()["cluster_zookeeper"]) {
 
-            new clusterVertxStarter().start(new VertxOptions(), afterVXStart)
-        } else if (ns.getAttrs()["stand_alone"]) {
-            logger.debug("starting in stanalone mode")
-            new singleVertxStarter().start(new VertxOptions(), afterVXStart)
-        }
+        System.setProperty("vertx.logger-delegate-factory-class-name", "io.vertx.core.logging.Log4jLogDelegateFactory")
+        logger.debug("starting first vertx")
+
+        new singleVertxStarter().start(new VertxOptions(), afterVXStart)
 
     }
 }

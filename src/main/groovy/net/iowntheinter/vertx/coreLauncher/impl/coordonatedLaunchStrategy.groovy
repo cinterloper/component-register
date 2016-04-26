@@ -50,7 +50,7 @@ class coordonatedLaunchStrategy implements componentType {
 
     @Override
     void registrationEvent(Map peerNotification, Closure cb) {
-        this.task.registrationEvent( notification, cb)
+        this.task.registrationEvent(notification, cb)
 
     }
 

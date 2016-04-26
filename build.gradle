@@ -62,16 +62,10 @@ dependencies {
     compile "io.vertx:vertx-core:$libversion"
     compile "io.vertx:vertx-lang-groovy:$libversion"
     compile "io.vertx:vertx-shell:$libversion"
-    compile "io.vertx:vertx-zookeeper:$libversion"
-    compile 'com.englishtown.vertx:vertx-when:4.1.1'
-    compile 'com.englishtown.vertx:vertx-hk2:2.2.0'
-    compile 'org.apache.curator:apache-curator:2.8.0'
-    compile 'org.apache.curator:curator-recipes:2.8.0'
-    compile 'org.apache.zookeeper:zookeeper:3.4.6'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.5'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.5'
     compile 'de.gesellix:docker-client:2016-04-11T22-50-38'
     compile 'net.sourceforge.argparse4j:argparse4j:0.7.0'
-    compile 'org.apache.tinkerpop:tinkerpop:3.1.1-incubating'
-    compile 'org.apache.tinkerpop:tinkergraph-gremlin:3.1.1-incubating'
 }
 
 processResources {

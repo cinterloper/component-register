@@ -74,13 +74,21 @@ meta
                     " \n running: " + running)
             switch (meta.ifExists) {
                 case 'recreate':
-                    dockerClient.stop(oldId)
+                    if(running)
+                        dockerClient.stop(oldId)
                     dockerClient.rm(oldId)
                     running = false
                     break
                 case 'restart':
-                    dockerClient.stop(oldId)
-                    dockerClient.startContainer(oldId)
+                    if(running)
+                        dockerClient.stop(oldId)
+                    try{
+                        dockerClient.startContainer(oldId)
+                        running = true
+                    }catch(e){
+                        logger.error("error on container restart " + e.getMessage())
+                        running = false
+                    }
                     break
                 case 'halt':
                     logger.fatal("${name} ctr exists, and configured to halt if already present")
@@ -92,7 +100,11 @@ meta
             }
         }
         if (!running) {
-            cb(dockerClient.run(image, cfg, tag, name))
+            try{
+            cb(dockerClient.run(image, cfg, tag, name))}
+            catch(e){
+                logger.error("error after launching ctr : "+ e.getMessage())
+            }
         }
     }
 

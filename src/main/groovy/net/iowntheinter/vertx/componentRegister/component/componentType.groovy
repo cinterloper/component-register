@@ -10,7 +10,8 @@ import io.vertx.core.Handler
  */
 interface componentType {
     void start(Closure cb) //wakeup cb after its actually started
-    void stop( Closure cb)
+    void stop(Closure cb)
+
     void registrationEvent(Map peerNotification, Closure cb) //notify that a component has become available
 
 }

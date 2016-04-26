@@ -13,7 +13,7 @@
     },
     {
       "type": "verticle",
-      "instances":1,
+      "instances": 1,
       "name": "example2.groovy",
       "opts": {
         "dependencies": null
@@ -34,7 +34,7 @@
     {
       "type": "docker",
       "image": "shadowhosting/baseimage",
-      "name":"docker_launch_test",
+      "name": "docker_launch_test",
       "opts": {
         "dependencies": null,
         "volumes": {

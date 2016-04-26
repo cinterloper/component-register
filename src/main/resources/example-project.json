@@ -11,7 +11,7 @@
     "ext": {
       "docker": {
         "ctrName3": {
-          "ifExists":"recreate",
+          "ifExists": "recreate",
           "dkrOptsRef": "testDkrOpts",
           "image": "ubuntu",
           "tag": "latest",
@@ -19,7 +19,7 @@
           "startReady": true
         },
         "ctrName4": {
-          "ifExists":"restart",
+          "ifExists": "recreate",
           "dkrOptsRef": "testDkrOpts",
           "image": "ubuntu",
           "tag": "latest",
@@ -41,7 +41,6 @@
       },
       "HostConfig": {
         "PortBindings": {
-
         }
       }
     }
