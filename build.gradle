@@ -62,8 +62,7 @@ dependencies {
     compile "io.vertx:vertx-core:$libversion"
     compile "io.vertx:vertx-lang-groovy:$libversion"
     compile "io.vertx:vertx-shell:$libversion"
-    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.5'
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.5'
+    compile 'log4j:log4j:1.2.17'
     compile 'de.gesellix:docker-client:2016-04-11T22-50-38'
     compile 'net.sourceforge.argparse4j:argparse4j:0.7.0'
 }
