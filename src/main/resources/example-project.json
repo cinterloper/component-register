@@ -10,10 +10,10 @@
     },
     "ext": {
       "docker": {
-        "ctrName3": {
+        "zookeeper": {
           "ifExists": "recreate",
-          "dkrOptsRef": "testDkrOpts",
-          "image": "ubuntu",
+          "dkrOptsRef": "zkOpts",
+          "image": "jplock/zookeeper",
           "tag": "latest",
           "deps": [],
           "startReady": true
@@ -41,6 +41,21 @@
       },
       "HostConfig": {
         "PortBindings": {
+        }
+      }
+    },
+    "zkOpts": {
+      "Cmd":  ["start-foreground"],
+      "ExposedPorts": {
+        "2181/tcp": {},
+        "2888/tcp": {},
+        "3888/tcp": {}
+      },
+      "HostConfig": {
+        "PortBindings": {
+          "2181/tcp": [{ "HostPort": "2181" }],
+          "2888/tcp": [{ "HostPort": "2888" }],
+          "3888/tcp": [{ "HostPort": "3888" }]
         }
       }
     }

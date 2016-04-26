@@ -111,6 +111,7 @@ class coreStarter {
             logger.info("parsed args: ${commandLine.allArguments()}")
             logger.info("loglevel option: ${commandLine.getOptionValue("loglevel")}")
             logger.info("debug flag: ${commandLine.isFlagEnabled("debug")}")
+            logger.info("cluster flag: ${commandLine.isFlagEnabled("cluster")}")
             if (!commandLine.isValid() && commandLine.isAskingForHelp()) {
                 System.out.print(builder.toString());
                 System.exit(1);
@@ -153,7 +154,7 @@ class coreStarter {
                 halt()
             } else {
                 vx = res.vertx as Vertx
-                project_config.put("clustered", commandLine.getOptionValue("cluster"))
+                project_config.put("clustered", commandLine.isFlagEnabled("cluster"))
                 def opts = new DeploymentOptions([config: project_config.getMap(), worker: true])
                 vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher', opts)
             }
