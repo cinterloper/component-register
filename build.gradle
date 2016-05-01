@@ -12,6 +12,7 @@ def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
 def AWS_DEFAULT_REGION = System.getenv("AWS_DEFAULT_REGION")
 def AWS_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID")
 def AWS_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY")
+def USER = System.getenv("USER")
 
 
 repositories {
@@ -34,7 +35,7 @@ repositories {
 publishing {
     repositories {
         maven {
-            url "file:///tmp/maven-repo"
+            url "file:///home/$USER/maven_repo"
         }
         if (AWS_MVN_BUCKET && !AWS_MVN_BUCKET.allWhitespace) {
             maven {
