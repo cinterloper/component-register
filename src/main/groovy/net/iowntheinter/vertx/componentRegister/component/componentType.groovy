@@ -11,7 +11,19 @@ import io.vertx.core.Handler
 interface componentType {
     void start(Closure cb) //wakeup cb after its actually started
     void stop(Closure cb)
+    void backup(Closure cb) // *see below
+/*
+for a docker task, backup should
+  provide some notification to the container
+  attach another container on the same server to the same volumes
+   - serialize them to tar volumes
+   - return a map of their names and the location of the tar archives
 
-    void registrationEvent(Map peerNotification, Closure cb) //notify that a component has become available
+for a verticle
+this should
+ - send an event that
+  - notifies the verticle to persist or finish its transactions
+    - the verticle shoudl reply when this is done
 
+ */
 }

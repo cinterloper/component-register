@@ -116,6 +116,17 @@ meta
     }
 
     @Override
+    void backup(Closure cb) {
+        /*
+        map connections
+        volumes.each { it ->
+           connections.add(it,"/tmp/${it}"
+         }
+         with volumes "docker start $volumes backupctr"
+         */
+
+    }
+
     void registrationEvent(Map peerNotification, Closure cb) {
         // use the docer driver to exec a task on the container
     }

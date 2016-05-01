@@ -22,6 +22,7 @@ public class coreLauncher extends AbstractVerticle {
 
     def ct
     JsonObject config;
+    JsonObject dps = new JsonObject()
     Map launchTasks
     def logger = LoggerFactory.getLogger(this.class.getName())
 
@@ -33,47 +34,17 @@ public class coreLauncher extends AbstractVerticle {
     public void start() throws Exception {
         launchTasks = [:]
         logger.debug(vertx)
-        JsonObject dps = new JsonObject()
         this.config = vertx.getOrCreateContext().config()
         logger.debug("reached CoreLauncher inside vert.x, cofig: ${config}")
 
         //start all the docker components first in case the cluster manager is one of them
-        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { ctr, cfg ->
-            logger.debug "ctr: ${ctr} cfg: ${cfg}"
-            cfg = cfg as JsonObject
-            logger.debug "\n total config ${config}\n"
-            def cfname = new JsonObject(cfg as String).getString('dkrOptsRef')
-            logger.debug "cfname ${cfname}"
-            Map ctrcfg = (new JsonSlurper().parseText(
-                    config.getJsonObject('optionBlocks').getJsonObject(cfname).toString())) as Map
-
-            logger.debug "ctrcfg ${ctrcfg}"
-            def nd = new DockerTask([name: ctr, tag: 'latest', image: cfg.getString('image'), ifExists: cfg.getString('ifExists')], ctrcfg)
-            def nt = new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
-            nt.start({ result ->
-                logger.info "docker start result: " +
-                        (result as Map).container.content.Id
-            })
+        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { name, cfg ->
+            startContainer(name as String, cfg as JsonObject, {})
         }
 
         Closure startVerticles = { vertx ->
-            config.getJsonObject('startup').getJsonObject('vx').getMap().each { k, v ->
-                logger.debug("${k}:${v}")
-                def name = k
-                def nv = new VXVerticle(vertx, new DeploymentOptions([config: config]), k)
-                def nt = new waitingLaunchStrategy(nv, new JsonObject(v as String).getJsonArray('deps').getList())
-                nt.start({ result ->
-                    String id = (result as Future).result()
-
-                    logger.info("Started ${id}")
-                    if (vertx.sharedData().getLocalMap('deployments').get(v)) {
-                        dps = vertx.sharedData().getLocalMap('deployments').get(v) as JsonObject
-                    }
-
-                    dps.put(id, [name: "verticle"])
-                    vertx.sharedData().getLocalMap('deployments').put(v, dps)
-                    logger.debug(vertx.sharedData().getLocalMap('deployments').get(v))
-                })
+            config.getJsonObject('startup').getJsonObject('vx').getMap().each { name, vconfig ->
+                startVerticle(name as String, vconfig as JsonObject, {})
             }
         }
 
@@ -90,12 +61,52 @@ public class coreLauncher extends AbstractVerticle {
             }
         }
 
-        if (config.getBoolean("clustered")) {
-            new clusterVertxStarter().start(new VertxOptions(), afterVXClusterStart)
-        } else {
-            startVerticles(vertx)
-        }
+
+        startVerticles(vertx)
 
 
     }
+
+
+    void startContainer(String name, JsonObject cfg, Closure cb) {
+        logger.debug "ctr: ${name} cfg: ${cfg}"
+        cfg = cfg as JsonObject
+        logger.debug "\n total config ${config}\n"
+        def cfname = new JsonObject(cfg as String).getString('dkrOptsRef')
+        logger.debug "cfname ${cfname}"
+        Map ctrcfg = (new JsonSlurper().parseText(
+                config.getJsonObject('optionBlocks').getJsonObject(cfname).toString())) as Map
+
+        logger.debug "ctrcfg ${ctrcfg}"
+        def nd = new DockerTask([name: name, tag: 'latest', image: cfg.getString('image'), ifExists: cfg.getString('ifExists')], ctrcfg)
+        def nt = new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
+        nt.start({ result ->
+            logger.info "docker start result: " +
+                    (result as Map).container.content.Id
+        })
+    }
+
+
+    void startVerticle(String name, JsonObject vconfig, Closure cb) {
+        logger.debug("${name}:${vconfig}")
+        def nv = new VXVerticle(vertx, new DeploymentOptions([config: config]), name)
+        def nt = new waitingLaunchStrategy(nv, new JsonObject(vconfig as String).getJsonArray('deps').getList())
+        nt.start({ result ->
+            String id = (result as Future).result()
+
+
+            logger.info("Started ${id}")
+            if (vertx.sharedData().getLocalMap('deployments').get(name)) {
+                dps = vertx.sharedData().getLocalMap('deployments').get(name) as JsonObject
+            }
+
+            dps.put(id, [name: "verticle"])
+            vertx.sharedData().getLocalMap('deployments').put(name, dps)
+            logger.debug(vertx.sharedData().getLocalMap('deployments').get(name))
+            vertx.eventBus().send('task_deployments', new JsonObject([name: id]))
+            cb([name: id])
+        })
+    }
+
+
 }

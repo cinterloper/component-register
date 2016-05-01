@@ -39,6 +39,10 @@ class VXVerticle implements componentType {
     }
 
     @Override
+    void backup(Closure cb) {
+
+    }
+
     void registrationEvent(Map peerNotification, Closure cb) {
         //send a message to the verticles personal channel
     }

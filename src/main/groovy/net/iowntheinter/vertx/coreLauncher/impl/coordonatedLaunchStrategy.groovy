@@ -4,6 +4,7 @@ import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import net.iowntheinter.vertx.componentRegister.component.componentType
+import net.iowntheinter.vertx.coreLauncher.launchStrategy
 
 /**
  * Created by grant on 4/15/16.
@@ -14,7 +15,7 @@ import net.iowntheinter.vertx.componentRegister.component.componentType
  * A docker coordonatedTask must either implement well defined json on standard out
  * or call back to the event bus callback address
  */
-class coordonatedLaunchStrategy implements componentType {
+class coordonatedLaunchStrategy implements launchStrategy {
 
     Map dependentServices
     Vertx vertx

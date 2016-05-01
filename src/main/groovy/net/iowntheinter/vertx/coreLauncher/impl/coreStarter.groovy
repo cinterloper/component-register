@@ -128,7 +128,7 @@ class coreStarter {
             logger.debug("loaded project def: ${project_name}")
 
             if (commandLine.isFlagEnabled("debug")) {
-                    LogManager.getRootLogger().setLevel(Level.toLevel(commandLine.getOptionValue("loglevel") as String));
+                LogManager.getRootLogger().setLevel(Level.toLevel(commandLine.getOptionValue("loglevel") as String));
 
             } else {
                 LogManager.getRootLogger().setLevel(Level.DEBUG);
@@ -162,7 +162,11 @@ class coreStarter {
 
         logger.debug("starting first vertx")
 
-        new singleVertxStarter().start(new VertxOptions(), afterVXStart)
+
+        if (commandLine.isFlagEnabled("cluster")) {
+            new clusterVertxStarter().start(new VertxOptions(), afterVXStart)
+        } else
+            new singleVertxStarter().start(new VertxOptions(), afterVXStart)
 
     }
 }

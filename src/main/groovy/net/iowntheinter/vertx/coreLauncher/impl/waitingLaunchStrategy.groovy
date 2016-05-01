@@ -3,6 +3,7 @@ package net.iowntheinter.vertx.coreLauncher.impl
 import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
 import net.iowntheinter.vertx.componentRegister.component.componentType
+import net.iowntheinter.vertx.coreLauncher.launchStrategy
 
 /**
  * Created by grant on 4/15/16.
@@ -17,7 +18,7 @@ import net.iowntheinter.vertx.componentRegister.component.componentType
  * #futureimpl: optionaly a closure can be provided to check the service has started after
  * the timeout
  */
-class waitingLaunchStrategy implements componentType {
+class waitingLaunchStrategy implements launchStrategy {
     def task
     def List dependencies
     def Map depset
