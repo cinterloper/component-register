@@ -1,24 +1,17 @@
 package net.iowntheinter.vertx.componentRegister.impl
 
-import io.vertx.core.Vertx
-import io.vertx.core.VertxOptions
-import net.iowntheinter.vertx.coreLauncher.impl.cluster.clusterVertxStarter
-
-import static groovy.json.JsonOutput.*
-
-import groovy.json.JsonParser;
 import groovy.json.JsonSlurper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Future
+import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.vertx.componentRegister.component.impl.DockerTask
-import net.iowntheinter.vertx.coreLauncher.impl.waitingLaunchStrategy
 import net.iowntheinter.vertx.componentRegister.component.impl.VXVerticle
-import io.vertx.core.logging.Log4jLogDelegateFactory
+import net.iowntheinter.vertx.coreLauncher.impl.waitingLaunchStrategy
 
-public class coreLauncher extends AbstractVerticle {
+public class coreLauncher extends AbstractVerticle  {
 
     def ct
     JsonObject config;
@@ -38,14 +31,29 @@ public class coreLauncher extends AbstractVerticle {
         logger.debug("reached CoreLauncher inside vert.x, cofig: ${config}")
 
         //start all the docker components first in case the cluster manager is one of them
-        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { name, cfg ->
-            startContainer(name as String, cfg as JsonObject, {})
+        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { name,  cfg ->
+            cfg = cfg as JsonObject
+            getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent("docker:"+name, cfg)
+            if(cfg.getBoolean("startReady")){
+                startContainer(name as String, cfg as JsonObject, {
+                    getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent("docker:"+name, cfg)
+
+                })
+            }
         }
 
         Closure startVerticles = { vertx ->
             config.getJsonObject('startup').getJsonObject('vx').getMap().each { name, vconfig ->
-                startVerticle(name as String, vconfig as JsonObject, {})
-            }
+                vconfig = vconfig as JsonObject
+                vconfig = vconfig as JsonObject
+                getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent(name, vconfig)
+                if(vconfig.getBoolean("startReady")){
+                    startVerticle(name as String, vconfig as JsonObject, {
+                        getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent(""+name, vconfig)
+
+                    })
+
+                }}
         }
 
         Closure afterVXClusterStart = { Map res ->

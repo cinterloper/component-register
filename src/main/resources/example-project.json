@@ -16,7 +16,7 @@
           "image": "jplock/zookeeper",
           "tag": "latest",
           "deps": [],
-          "startReady": true
+          "startReady": false
         },
         "ctrName4": {
           "ifExists": "recreate",
@@ -24,7 +24,7 @@
           "image": "ubuntu",
           "tag": "latest",
           "deps": [],
-          "startReady": true
+          "startReady": false
         }
       }
     }

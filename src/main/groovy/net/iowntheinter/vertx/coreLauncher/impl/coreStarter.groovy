@@ -94,7 +94,7 @@ class coreStarter {
                 .addArgument(new Argument()
                 .setIndex(0)
                 .setDescription("The runtime configuration")
-                .setArgName("config"))
+                .setArgName("config").setRequired(false))
                 .addOption(new Option()
                 .setLongName("help").setShortName("h").setFlag(true).setHelp(true))
 
@@ -108,10 +108,10 @@ class coreStarter {
         CommandLine commandLine = DefaultCommandLine.create(cli)
         try {
             commandLine = cli.parse(Arrays.asList(args));
-            logger.info("parsed args: ${commandLine.allArguments()}")
-            logger.info("loglevel option: ${commandLine.getOptionValue("loglevel")}")
-            logger.info("debug flag: ${commandLine.isFlagEnabled("debug")}")
-            logger.info("cluster flag: ${commandLine.isFlagEnabled("cluster")}")
+            logger.debug("parsed args: ${commandLine.allArguments()}")
+            logger.debug("loglevel option: ${commandLine.getOptionValue("loglevel")}")
+            logger.debug("debug flag: ${commandLine.isFlagEnabled("debug")}")
+            logger.debug("cluster flag: ${commandLine.isFlagEnabled("cluster")}")
             if (!commandLine.isValid() && commandLine.isAskingForHelp()) {
                 System.out.print(builder.toString());
                 System.exit(1);
