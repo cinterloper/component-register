@@ -100,18 +100,22 @@ public class coreLauncher extends AbstractVerticle  {
         def nv = new VXVerticle(vertx, new DeploymentOptions([config: config]), name)
         def nt = new waitingLaunchStrategy(nv, new JsonObject(vconfig as String).getJsonArray('deps').getList())
         nt.start({ result ->
-            String id = (result as Future).result()
+            String id
+            if (result.succeeded()) {
+                id = (result as Future).result()
+                logger.info("Started ${id}")
+                if (vertx.sharedData().getLocalMap('deployments').get(name)) {
+                    dps = vertx.sharedData().getLocalMap('deployments').get(name) as JsonObject
+                }
+                dps.put(id, [name: "verticle"])
+                vertx.sharedData().getLocalMap('deployments').put(name, dps)
+                logger.debug(vertx.sharedData().getLocalMap('deployments').get(name))
+                vertx.eventBus().send('task_deployments', new JsonObject([name: id]))
+            } else {
+                logger.error "deployment failed: ${name} :\n ${result.cause()}"
 
-
-            logger.info("Started ${id}")
-            if (vertx.sharedData().getLocalMap('deployments').get(name)) {
-                dps = vertx.sharedData().getLocalMap('deployments').get(name) as JsonObject
             }
 
-            dps.put(id, [name: "verticle"])
-            vertx.sharedData().getLocalMap('deployments').put(name, dps)
-            logger.debug(vertx.sharedData().getLocalMap('deployments').get(name))
-            vertx.eventBus().send('task_deployments', new JsonObject([name: id]))
             cb([name: id])
         })
     }

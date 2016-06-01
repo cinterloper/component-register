@@ -16,7 +16,7 @@ plugins {
 apply plugin: 'org.owasp.dependencycheck'
 
 def libversion = '3.2.1'
-version = '3.2.1-11'
+version = '3.2.1-12'
 def GITHUB_TOKEN = System.getenv("GITHUB_TOKEN")
 def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
 def AWS_DEFAULT_REGION = System.getenv("AWS_DEFAULT_REGION")
@@ -47,6 +47,7 @@ publishing {
         maven {
             url "file:///home/$USER/maven_repo"
         }
+        mavenLocal()
         if (AWS_MVN_BUCKET && !AWS_MVN_BUCKET.allWhitespace) {
             maven {
                 url "s3://$AWS_MVN_BUCKET/maven2"
