@@ -16,7 +16,7 @@ plugins {
 apply plugin: 'org.owasp.dependencycheck'
 
 def libversion = '3.2.1'
-version = '3.2.1-12'
+version = '3.2.1-14'
 def GITHUB_TOKEN = System.getenv("GITHUB_TOKEN")
 def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
 def AWS_DEFAULT_REGION = System.getenv("AWS_DEFAULT_REGION")

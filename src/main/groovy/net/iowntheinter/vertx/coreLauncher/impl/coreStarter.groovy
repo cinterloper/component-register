@@ -35,7 +35,6 @@ import org.apache.log4j.LogManager
  * and this should all be strictly async code, except maybe worker verticles
  *
  */
-@Singleton
 class coreStarter {
     static String cfgfile
     static String project_name = ""
@@ -63,7 +62,16 @@ class coreStarter {
         }
         return (new JsonObject(config))
     }
-
+    static JsonObject parseProjectConfig(String path) {
+        def config
+        try {
+            config = new JsonObject(new File(path).text)
+        }
+        catch (Exception e) {
+            return (parseDefaultProjectConfig())
+        }
+        return (config ?: new JsonObject())
+    }
     static JsonObject parseDefaultProjectConfig() {
         String defaultCfg = classloader.
                 getResourceAsStream('example-project.json').getText()
@@ -98,7 +106,6 @@ class coreStarter {
                 .addOption(new Option()
                 .setLongName("help").setShortName("h").setFlag(true).setHelp(true))
 
-
         StringBuilder builder = new StringBuilder();
         cli.usage(builder);
 
@@ -107,12 +114,12 @@ class coreStarter {
         println("PROPERTY: ${System.getProperty('vertx.logger-delegate-factory-class-name')}")
         CommandLine commandLine = DefaultCommandLine.create(cli)
         try {
-            commandLine = cli.parse(Arrays.asList(args));
+            commandLine = cli.parse(Arrays.asList(args)) as CommandLine;
             logger.debug("parsed args: ${commandLine.allArguments()}")
             logger.debug("loglevel option: ${commandLine.getOptionValue("loglevel")}")
             logger.debug("debug flag: ${commandLine.isFlagEnabled("debug")}")
             logger.debug("cluster flag: ${commandLine.isFlagEnabled("cluster")}")
-            if (!commandLine.isValid() && commandLine.isAskingForHelp()) {
+            if (!commandLine.isValid() || commandLine.isAskingForHelp()) {
                 System.out.print(builder.toString());
                 System.exit(1);
 
@@ -121,19 +128,18 @@ class coreStarter {
             logger.error("could not parse cli: " + e.getMessage())
             System.exit(1);
         }
-
-// The parsing does not fail and let you do:
-
+        String config_override_path = commandLine.getArgumentValue("config") ?: ""
+        logger.info("config override path ${config_override_path}")
+        if(!config_override_path.isEmpty())
+            parseProjectConfig(config_override_path)
         if (commandLine.isFlagEnabled("debug")) {
             logger.debug("loaded project def: ${project_name}")
 
             if (commandLine.isFlagEnabled("debug")) {
                 LogManager.getRootLogger().setLevel(Level.toLevel(commandLine.getOptionValue("loglevel") as String));
-
             } else {
                 LogManager.getRootLogger().setLevel(Level.DEBUG);
             }
-
         }
 
         def env = System.getenv()
@@ -161,7 +167,6 @@ class coreStarter {
         }
 
         logger.debug("starting first vertx")
-
 
         if (commandLine.isFlagEnabled("cluster")) {
             new clusterVertxStarter().start(new VertxOptions(), afterVXStart)

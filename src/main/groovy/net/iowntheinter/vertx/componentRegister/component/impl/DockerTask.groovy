@@ -64,7 +64,7 @@ meta
         } catch (e) {
             logger.info("could not inspect , not running? " + e.getCause())
         }
-        logger.info("resp: ${resp}")
+        logger.debug("resp: ${resp}")
         if (!resp.isEmpty()) {
             def oldId = resp.getJsonObject('content').getString('Id')
             running = resp.getJsonObject('content').getJsonObject('State').getBoolean('Running')
