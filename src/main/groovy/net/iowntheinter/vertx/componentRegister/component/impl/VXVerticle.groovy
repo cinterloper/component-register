@@ -30,7 +30,9 @@ class VXVerticle implements componentType {
     void start(Closure cb) {
         this.name = name
 
-        vertx.deployVerticle(ImplementationID, ops, cb as Handler)
+        vertx.deployVerticle(ImplementationID, ops, { AsyncResult result ->
+            cb(result)
+        } as Handler)
     }
 
     @Override

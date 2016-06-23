@@ -7,11 +7,13 @@ import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
+import io.vertx.core.shareddata.LocalMap
 import net.iowntheinter.vertx.componentRegister.component.impl.DockerTask
 import net.iowntheinter.vertx.componentRegister.component.impl.VXVerticle
 import net.iowntheinter.vertx.coreLauncher.impl.waitingLaunchStrategy
+import net.iowntheinter.vertx.util.displayTables
 
-public class coreLauncher extends AbstractVerticle  {
+public class coreLauncher extends AbstractVerticle {
 
     def ct
     JsonObject config;
@@ -25,35 +27,44 @@ public class coreLauncher extends AbstractVerticle  {
 
     @Override
     public void start() throws Exception {
-        launchTasks = [:]
-        logger.debug(vertx)
         this.config = vertx.getOrCreateContext().config()
+
+        launchTasks = [
+                docker: config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().keySet(),
+                vertx : config.getJsonObject('startup').getJsonObject('vx').getMap().keySet()
+        ]
+
+        logger.debug(vertx)
         logger.debug("reached CoreLauncher inside vert.x, cofig: ${config}")
 
         //start all the docker components first in case the cluster manager is one of them
-        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { name,  cfg ->
-            cfg = cfg as JsonObject
-            getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent("docker:"+name, cfg)
-            if(cfg.getBoolean("startReady")){
-                startContainer(name as String, cfg as JsonObject, {
-                    getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent("docker:"+name, cfg)
 
-                })
+        Closure startContainers = { cb ->
+            config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { name, cfg ->
+                cfg = cfg as JsonObject
+                getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent("docker:" + name, cfg)
+                if (cfg.getBoolean("startReady")) {
+                    startContainer(name as String, cfg as JsonObject, {
+                        getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent("docker:" + name, cfg)
+
+                    })
+                }
             }
         }
 
-        Closure startVerticles = { vertx ->
+
+        Closure startVerticles = { cb ->
             config.getJsonObject('startup').getJsonObject('vx').getMap().each { name, vconfig ->
                 vconfig = vconfig as JsonObject
                 vconfig = vconfig as JsonObject
                 getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent(name, vconfig)
-                if(vconfig.getBoolean("startReady")){
+                if (vconfig.getBoolean("startReady")) {
                     startVerticle(name as String, vconfig as JsonObject, {
-                        getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent(""+name, vconfig)
-
+                        getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent(name, vconfig)
                     })
 
-                }}
+                }
+            }
         }
 
         Closure afterVXClusterStart = { Map res ->
@@ -69,9 +80,32 @@ public class coreLauncher extends AbstractVerticle  {
             }
         }
 
-
+        startContainers({})
         startVerticles(vertx)
 
+
+        Map startmessage = ["header": "coreLauncher",
+                            "cols"  : ["COMPONENT", "STATUS", "ENABLED"],
+                            "data"  : [:]
+        ]
+
+        LocalMap comp = vertx.sharedData().getLocalMap("cornerstone_components")
+        def d = startmessage.data;
+        comp.keySet().each { key ->
+            d[key] = ["loaded", comp.get(key).getBoolean("startReady").toString()]
+
+        }
+
+        LocalMap depl = vertx.sharedData().getLocalMap("cornerstone_deployments")
+
+        depl.keySet().each { key ->
+            println("debug : deployed : ${key}")
+            d[key] = ["running", comp.get(key).getBoolean("startReady").toString()]
+        }
+        startmessage.data = d
+
+
+        new displayTables().displayTable(startmessage)
 
     }
 
@@ -103,7 +137,7 @@ public class coreLauncher extends AbstractVerticle  {
             String id
             if (result.succeeded()) {
                 id = (result as Future).result()
-                logger.info("Started ${id}")
+                logger.debug("Started verticle ${id}")
                 if (vertx.sharedData().getLocalMap('deployments').get(name)) {
                     dps = vertx.sharedData().getLocalMap('deployments').get(name) as JsonObject
                 }

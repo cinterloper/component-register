@@ -100,11 +100,20 @@ meta
             }
         }
         if (!running) {
+            def error='',success
             try{
-            cb(dockerClient.run(image, cfg, tag, name))}
+                dockerClient.run(image, cfg, tag, name)
+                success = true
+            }
             catch(e){
                 logger.error("error after launching ctr : "+ e.getMessage())
+                error = e.getMessage()
+                success = false
             }
+            cb([success:success, error:error])// if not error its assumed to be lanunched
+            //should set a timer and wait for dail back
+        }else {
+            cb([success:true, error:"running"])
         }
     }
 

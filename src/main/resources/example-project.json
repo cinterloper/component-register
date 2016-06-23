@@ -6,6 +6,10 @@
       "groovy:example.groovy": {
         "deps": [],
         "startReady": true
+      } ,
+      "groovy:unreal.groovy": {
+        "deps": [],
+        "startReady": false
       }
     },
     "ext": {

@@ -15,6 +15,7 @@ import net.iowntheinter.vertx.coreLauncher.impl.single.singleVertxStarter
 
 
 import io.vertx.core.logging.LoggerFactory
+import net.iowntheinter.vertx.util.displayTables
 
 import java.util.logging.Handler as LHandler
 import java.util.logging.Logger as JULogger
@@ -36,13 +37,10 @@ import org.apache.log4j.LogManager
  *
  */
 class coreStarter {
-    static String cfgfile
     static String project_name = ""
-    static JsonObject launch_config
     static JsonObject project_config
     static URLClassLoader classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
     static Logger logger = LoggerFactory.getLogger(this.class.getName())
-    static boolean debug = false
 
 
     static void halt() {
@@ -62,6 +60,7 @@ class coreStarter {
         }
         return (new JsonObject(config))
     }
+
     static JsonObject parseProjectConfig(String path) {
         def config
         try {
@@ -72,6 +71,7 @@ class coreStarter {
         }
         return (config ?: new JsonObject())
     }
+
     static JsonObject parseDefaultProjectConfig() {
         String defaultCfg = classloader.
                 getResourceAsStream('example-project.json').getText()
@@ -101,7 +101,7 @@ class coreStarter {
                 .setDescription("log level TRACE|INFO|WARN|DEBUG"))
                 .addArgument(new Argument()
                 .setIndex(0)
-                .setDescription("The runtime configuration")
+                .setDescription("override configuration with this json file")
                 .setArgName("config").setRequired(false))
                 .addOption(new Option()
                 .setLongName("help").setShortName("h").setFlag(true).setHelp(true))
@@ -109,9 +109,7 @@ class coreStarter {
         StringBuilder builder = new StringBuilder();
         cli.usage(builder);
 
-        System.setProperty(LoggerFactory.LOGGER_DELEGATE_FACTORY_CLASS_NAME, "io.vertx.core.logging.Log4jLogDelegateFactory")
 
-        println("PROPERTY: ${System.getProperty('vertx.logger-delegate-factory-class-name')}")
         CommandLine commandLine = DefaultCommandLine.create(cli)
         try {
             commandLine = cli.parse(Arrays.asList(args)) as CommandLine;
@@ -129,9 +127,11 @@ class coreStarter {
             System.exit(1);
         }
         String config_override_path = commandLine.getArgumentValue("config") ?: ""
-        logger.info("config override path ${config_override_path}")
-        if(!config_override_path.isEmpty())
-            parseProjectConfig(config_override_path)
+        if (!config_override_path.isEmpty()) {
+            project_config = parseProjectConfig(config_override_path)
+            logger.info("config override path ${config_override_path}")
+        }
+
         if (commandLine.isFlagEnabled("debug")) {
             logger.debug("loaded project def: ${project_name}")
 
@@ -167,6 +167,16 @@ class coreStarter {
         }
 
         logger.debug("starting first vertx")
+        def startmessage =  ["header":"cornerstone init",
+                             "cols": ["COMPONENT", "STATUS", "MESSAGE"],
+                             "data": [
+                                     'coreStarter':["running","ok"],
+                             ]
+        ]
+
+
+        new displayTables().displayTable(startmessage)
+
 
         if (commandLine.isFlagEnabled("cluster")) {
             new clusterVertxStarter().start(new VertxOptions(), afterVXStart)
