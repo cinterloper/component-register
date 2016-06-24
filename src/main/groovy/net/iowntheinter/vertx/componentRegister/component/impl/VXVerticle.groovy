@@ -50,15 +50,5 @@ class VXVerticle implements componentType {
     }
 
 
-    private void listen() {
-        def eb = vertx.eventBus()
-        def depchdl = eb.consumer("conerstone:deployments")
-        depchdl.handler({ msg ->
-            this.notify(msg.body() as Map, this.startCb as Handler)
-            if ((msg.body() as Map).get("id") == this.id) {
-                started = true
-                this.runCb()
-            }
-        })
-    }
+
 }

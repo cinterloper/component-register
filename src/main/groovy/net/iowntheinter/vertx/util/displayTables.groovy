@@ -1,5 +1,6 @@
 package net.iowntheinter.vertx.util
 
+import io.vertx.core.eventbus.Message
 import wagu.*;
 
 /**
@@ -8,6 +9,10 @@ import wagu.*;
 class displayTables {
 
 
+
+    void setHeader(String hd){
+
+    }
     void displayTable(Map input) {
         List<String> headersList = new ArrayList<String>()
         input['cols'].each { String k ->
@@ -26,6 +31,8 @@ class displayTables {
         String ts = board.build().getPreview()
         println(ts)
     }
+
+
 }
 
 

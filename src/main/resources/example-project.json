@@ -5,11 +5,11 @@
     "vx": {
       "groovy:example.groovy": {
         "deps": [],
-        "startReady": true
+        "enabled": true
       } ,
       "groovy:unreal.groovy": {
         "deps": [],
-        "startReady": false
+        "enabled": false
       }
     },
     "ext": {
@@ -20,7 +20,7 @@
           "image": "jplock/zookeeper",
           "tag": "latest",
           "deps": [],
-          "startReady": false
+          "enabled": false
         },
         "ctrName4": {
           "ifExists": "recreate",
@@ -28,7 +28,7 @@
           "image": "ubuntu",
           "tag": "latest",
           "deps": [],
-          "startReady": false
+          "enabled": false
         }
       }
     }

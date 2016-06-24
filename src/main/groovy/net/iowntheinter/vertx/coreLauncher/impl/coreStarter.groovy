@@ -1,5 +1,7 @@
 package net.iowntheinter.vertx.coreLauncher.impl
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger as LBLogger
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
@@ -10,6 +12,7 @@ import io.vertx.core.cli.Option
 import io.vertx.core.cli.impl.DefaultCommandLine
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
+import io.vertx.core.logging.SLF4JLogDelegateFactory
 import net.iowntheinter.vertx.coreLauncher.impl.cluster.clusterVertxStarter
 import net.iowntheinter.vertx.coreLauncher.impl.single.singleVertxStarter
 
@@ -17,10 +20,8 @@ import net.iowntheinter.vertx.coreLauncher.impl.single.singleVertxStarter
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.vertx.util.displayTables
 
-import java.util.logging.Handler as LHandler
-import java.util.logging.Logger as JULogger
-import org.apache.log4j.Level
-import org.apache.log4j.LogManager
+import org.slf4j.LoggerFactory as sLoggerFactory
+
 
 /**
  * Created by grant on 4/11/16.
@@ -79,7 +80,8 @@ class coreStarter {
     }
 
     public static void main(String[] args) {
-
+        System.setProperty(LoggerFactory.LOGGER_DELEGATE_FACTORY_CLASS_NAME, SLF4JLogDelegateFactory.class.getName());
+        System.setProperty('vertx.logger-delegate-factory-class-name', 'io.vertx.core.logging.SLF4JLogDelegateFactory');
         project_config = parseProjectConfig()
         project_name = project_config.getString('name')
 
@@ -113,10 +115,6 @@ class coreStarter {
         CommandLine commandLine = DefaultCommandLine.create(cli)
         try {
             commandLine = cli.parse(Arrays.asList(args)) as CommandLine;
-            logger.debug("parsed args: ${commandLine.allArguments()}")
-            logger.debug("loglevel option: ${commandLine.getOptionValue("loglevel")}")
-            logger.debug("debug flag: ${commandLine.isFlagEnabled("debug")}")
-            logger.debug("cluster flag: ${commandLine.isFlagEnabled("cluster")}")
             if (!commandLine.isValid() || commandLine.isAskingForHelp()) {
                 System.out.print(builder.toString());
                 System.exit(1);
@@ -126,20 +124,28 @@ class coreStarter {
             logger.error("could not parse cli: " + e.getMessage())
             System.exit(1);
         }
+
+
+        if (commandLine.isFlagEnabled("debug")) {
+
+            if (commandLine.isFlagEnabled("debug")) {
+                (org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as LBLogger).
+                        setLevel(Level.toLevel(commandLine.getOptionValue("loglevel") as String))
+            } else {
+                (org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as LBLogger).
+                        setLevel(Level.INFO)
+            }
+
+        }
+        logger.debug("parsed args: ${commandLine.allArguments()}")
+        logger.debug("loglevel option: ${commandLine.getOptionValue("loglevel")}")
+        logger.debug("debug flag: ${commandLine.isFlagEnabled("debug")}")
+        logger.debug("cluster flag: ${commandLine.isFlagEnabled("cluster")}")
+        logger.debug("loaded project def: ${project_name}")
         String config_override_path = commandLine.getArgumentValue("config") ?: ""
         if (!config_override_path.isEmpty()) {
             project_config = parseProjectConfig(config_override_path)
-            logger.info("config override path ${config_override_path}")
-        }
-
-        if (commandLine.isFlagEnabled("debug")) {
-            logger.debug("loaded project def: ${project_name}")
-
-            if (commandLine.isFlagEnabled("debug")) {
-                LogManager.getRootLogger().setLevel(Level.toLevel(commandLine.getOptionValue("loglevel") as String));
-            } else {
-                LogManager.getRootLogger().setLevel(Level.DEBUG);
-            }
+            logger.debug("config override path ${config_override_path}")
         }
 
         def env = System.getenv()
