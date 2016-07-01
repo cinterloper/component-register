@@ -1,4 +1,4 @@
-package net.iowntheinter.vertx.coreLauncher.impl.single
+package net.iowntheinter.coreLauncher.impl.single
 
 import io.vertx.core.Context
 import io.vertx.core.Vertx

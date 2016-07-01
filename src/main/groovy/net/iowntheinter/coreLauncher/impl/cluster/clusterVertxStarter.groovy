@@ -1,11 +1,10 @@
-package net.iowntheinter.vertx.coreLauncher.impl.cluster
+package net.iowntheinter.coreLauncher.impl.cluster
 
 import io.vertx.core.AsyncResult
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import io.vertx.core.logging.LoggerFactory
-
-import net.iowntheinter.vertx.coreLauncher.impl.coreStarter
+import net.iowntheinter.coreLauncher.impl.coreStarter
 
 /**
  * Created by grant on 4/11/16.

@@ -1,4 +1,4 @@
-package net.iowntheinter.vertx.coreLauncher.impl
+package net.iowntheinter.coreLauncher.impl
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger as LBLogger
@@ -13,15 +13,12 @@ import io.vertx.core.cli.impl.DefaultCommandLine
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import io.vertx.core.logging.SLF4JLogDelegateFactory
-import net.iowntheinter.vertx.coreLauncher.impl.cluster.clusterVertxStarter
-import net.iowntheinter.vertx.coreLauncher.impl.single.singleVertxStarter
+import net.iowntheinter.coreLauncher.impl.cluster.clusterVertxStarter
+import net.iowntheinter.coreLauncher.impl.single.singleVertxStarter
 
 
 import io.vertx.core.logging.LoggerFactory
-import net.iowntheinter.vertx.util.displayTables
-
-import org.slf4j.LoggerFactory as sLoggerFactory
-
+import net.iowntheinter.util.displayTables
 
 /**
  * Created by grant on 4/11/16.
@@ -80,6 +77,8 @@ class coreStarter {
     }
 
     public static void main(String[] args) {
+        (org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as LBLogger).
+                setLevel(Level.WARN)
         System.setProperty(LoggerFactory.LOGGER_DELEGATE_FACTORY_CLASS_NAME, SLF4JLogDelegateFactory.class.getName());
         System.setProperty('vertx.logger-delegate-factory-class-name', 'io.vertx.core.logging.SLF4JLogDelegateFactory');
         project_config = parseProjectConfig()
@@ -131,9 +130,6 @@ class coreStarter {
             if (commandLine.isFlagEnabled("debug")) {
                 (org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as LBLogger).
                         setLevel(Level.toLevel(commandLine.getOptionValue("loglevel") as String))
-            } else {
-                (org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as LBLogger).
-                        setLevel(Level.INFO)
             }
 
         }
@@ -153,7 +149,7 @@ class coreStarter {
         project_config.getJsonArray("env_vars").each { v ->
             def var = v as String
             if (!env[var]) {
-                logger.debug("you must declare the ${var} enviornment var")
+                logger.error("you must declare the ${var} enviornment var")
                 halt()
             }
         }
@@ -168,7 +164,7 @@ class coreStarter {
                 vx = res.vertx as Vertx
                 project_config.put("clustered", commandLine.isFlagEnabled("cluster"))
                 def opts = new DeploymentOptions([config: project_config.getMap(), worker: true])
-                vx.deployVerticle('net.iowntheinter.vertx.componentRegister.impl.coreLauncher', opts)
+                vx.deployVerticle('net.iowntheinter.componentRegister.impl.coreLauncher', opts)
             }
         }
 

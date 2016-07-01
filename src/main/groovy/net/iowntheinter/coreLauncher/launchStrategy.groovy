@@ -1,4 +1,4 @@
-package net.iowntheinter.vertx.coreLauncher
+package net.iowntheinter.coreLauncher
 
 /**
  * Created by grant on 4/17/16.

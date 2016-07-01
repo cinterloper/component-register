@@ -1,10 +1,10 @@
-package net.iowntheinter.vertx.componentRegister.component.impl
+package net.iowntheinter.componentRegister.component.impl
 
 import io.vertx.core.AsyncResult
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
-import net.iowntheinter.vertx.componentRegister.component.componentType
+import net.iowntheinter.componentRegister.component.componentType
 
 /**
  * Created by grant on 4/10/16.

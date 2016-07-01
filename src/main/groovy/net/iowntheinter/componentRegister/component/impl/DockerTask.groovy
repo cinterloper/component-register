@@ -1,19 +1,13 @@
-package net.iowntheinter.vertx.componentRegister.component.impl
+package net.iowntheinter.componentRegister.component.impl
 
 /*
 for this to be really async
 will need to switch to https://github.com/shekhargulati/rx-docker-client
  */
-
-
-import de.gesellix.docker.client.DockerClient
 import de.gesellix.docker.client.DockerClientImpl
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
-import net.iowntheinter.vertx.componentRegister.component.componentType
+import net.iowntheinter.componentRegister.component.componentType
 import static groovy.json.JsonOutput.*
 
 /**

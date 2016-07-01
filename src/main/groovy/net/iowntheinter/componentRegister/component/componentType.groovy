@@ -1,4 +1,4 @@
-package net.iowntheinter.vertx.componentRegister.component
+package net.iowntheinter.componentRegister.component
 
 import io.vertx.core.AsyncResult
 import io.vertx.core.Handler

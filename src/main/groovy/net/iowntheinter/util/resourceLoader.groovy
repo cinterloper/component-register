@@ -1,4 +1,4 @@
-package net.iowntheinter.vertx.util
+package net.iowntheinter.util
 
 /**
  * Created by grant on 4/11/16.

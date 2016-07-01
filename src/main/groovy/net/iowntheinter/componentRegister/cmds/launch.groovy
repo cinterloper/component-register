@@ -1,4 +1,4 @@
-package net.iowntheinter.vertx.componentRegister.cmds
+package net.iowntheinter.componentRegister.cmds
 
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.core.logging.LoggerFactory

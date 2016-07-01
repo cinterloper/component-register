@@ -1,20 +1,24 @@
 {
   "name": "example-project",
   "env_vars": [],
+  "kvdn_port":6500,
+  "reflectors":{
+    "_KVDN_+cornerstone:registration":"_cornerstone:registration"
+  },
   "startup": {
     "vx": {
       "groovy:example.groovy": {
         "deps": [],
         "enabled": true
       } ,
-      "groovy:unreal.groovy": {
+      "net.iowntheinter.util.ebReflector": {
         "deps": [],
-        "enabled": false
+        "enabled": true
       }
     },
     "ext": {
       "docker": {
-        "zookeeper": {
+        "ubuntu": {
           "ifExists": "recreate",
           "dkrOptsRef": "zkOpts",
           "image": "jplock/zookeeper",
@@ -50,6 +54,7 @@
     },
     "zkOpts": {
       "Cmd":  ["start-foreground"],
+      "Env":["THIS=123"],
       "ExposedPorts": {
         "2181/tcp": {},
         "2888/tcp": {},

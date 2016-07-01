@@ -1,9 +1,7 @@
-package net.iowntheinter.vertx.coreLauncher.impl
+package net.iowntheinter.coreLauncher.impl
 
-import io.vertx.core.AsyncResult
-import io.vertx.core.Handler
-import net.iowntheinter.vertx.componentRegister.component.componentType
-import net.iowntheinter.vertx.coreLauncher.launchStrategy
+import net.iowntheinter.componentRegister.component.componentType
+import net.iowntheinter.coreLauncher.launchStrategy
 
 /**
  * Created by grant on 4/15/16.
