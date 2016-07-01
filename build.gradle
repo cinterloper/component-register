@@ -1,0 +1,99 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.owasp:dependency-check-gradle:1.3.6'
+    }
+}
+plugins {
+    id 'groovy'
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '1.2.2'
+    id 'maven-publish'
+}
+apply plugin: 'org.owasp.dependencycheck'
+
+def libversion = '3.3.0'
+version = '3.3.0-23'
+def GITHUB_TOKEN = System.getenv("GITHUB_TOKEN")
+def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
+def AWS_DEFAULT_REGION = System.getenv("AWS_DEFAULT_REGION")
+def AWS_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID")
+def AWS_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY")
+def USER = System.getenv("USER")
+
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    jcenter()
+    maven { url 'http://dl.bintray.com/gesellix/docker-utils' }
+    if (AWS_MVN_BUCKET && !AWS_MVN_BUCKET.allWhitespace) {
+        maven {
+            url "s3://$AWS_MVN_BUCKET/maven2"
+            credentials(AwsCredentials) {
+                accessKey AWS_ACCESS_KEY_ID
+                secretKey AWS_SECRET_ACCESS_KEY
+            }
+        }
+    }
+}
+publishing {
+    repositories {
+        maven {
+            url "file:///home/$USER/maven_repo"
+        }
+        mavenLocal()
+        if (AWS_MVN_BUCKET && !AWS_MVN_BUCKET.allWhitespace) {
+            maven {
+                url "s3://$AWS_MVN_BUCKET/maven2"
+                credentials(AwsCredentials) {
+                    accessKey AWS_ACCESS_KEY_ID
+                    secretKey AWS_SECRET_ACCESS_KEY
+                }
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'net.iowntheinter'
+            artifactId 'cornerstone'
+            from components.java
+        }
+    }
+}
+
+sourceCompatibility = '1.8'
+mainClassName = 'net.iowntheinter.coreLauncher.impl.coreStarter'
+
+dependencies {
+    compile "io.vertx:vertx-core:$libversion"
+    compile "io.vertx:vertx-lang-groovy:$libversion"
+    compile "io.vertx:vertx-shell:$libversion"
+    compile 'ch.qos.logback:logback-classic:1.1.7'
+    compile 'ch.qos.logback:logback-core:1.1.7'
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'net.iowntheinter:kvdn:3.3.0-15'
+    compile 'de.gesellix:docker-client:2016-06-23T19-34-50'
+}
+
+processResources {
+    from 'src/main/groovy'
+}
+
+shadowJar {
+    classifier = 'fat'
+    manifest {
+        attributes 'Main-Verticle': 'net.iowntheinter.vertx.componentRegister.impl.CoreLauncher'
+    }
+    mergeServiceFiles {
+        include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.8'
+}
