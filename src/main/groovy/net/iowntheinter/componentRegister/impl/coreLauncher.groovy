@@ -18,7 +18,7 @@ import net.iowntheinter.kvdn.kvserver
 import net.iowntheinter.componentRegister.component.impl.DockerTask
 import net.iowntheinter.componentRegister.component.impl.VXVerticle
 import net.iowntheinter.coreLauncher.impl.waitingLaunchStrategy
-import net.iowntheinter.util.displayTables
+import net.iowntheinter.util.displayOutput
 
 public class coreLauncher extends AbstractVerticle {
 
@@ -253,7 +253,7 @@ public class coreLauncher extends AbstractVerticle {
         depchdl.handler({ Message msg ->
             try {
                 Map m = (new JsonSlurper()).parseText(msg.body().toString()) as Map
-                new displayTables().displayTable(m)
+                new displayOutput(this.config.getString("output_type") ?: "json").display(m)
             } catch (Exception e) {
                 logger.error(e)
             }

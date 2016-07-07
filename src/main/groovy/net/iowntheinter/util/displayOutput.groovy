@@ -1,16 +1,31 @@
 package net.iowntheinter.util
 
+import groovy.json.JsonOutput
 import io.vertx.core.eventbus.Message
 import wagu.*;
 
 /**
  * Created by g on 6/21/16.
  */
-class displayTables {
+class displayOutput {
+    def String outputType;
+    displayOutput( ){
+        displayOutput('json')
+    }
+    displayOutput(String type){
+        outputType = type
+    }
 
 
-
-    void setHeader(String hd){
+    void display(Map d){
+        switch (outputType){
+            case "json":
+                displayJson(d);
+                break;
+            case "table":
+                displayTable(d)
+                break;
+        }
 
     }
     void displayTable(Map input) {
@@ -31,7 +46,9 @@ class displayTables {
         String ts = board.build().getPreview()
         println(ts)
     }
-
+    void displayJson(Map input) {
+        println(JsonOutput.prettyPrint(JsonOutput.toJson(input)))
+    }
 
 }
 

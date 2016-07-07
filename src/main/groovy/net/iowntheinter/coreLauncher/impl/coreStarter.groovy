@@ -18,7 +18,7 @@ import net.iowntheinter.coreLauncher.impl.single.singleVertxStarter
 
 
 import io.vertx.core.logging.LoggerFactory
-import net.iowntheinter.util.displayTables
+import net.iowntheinter.util.displayOutput
 
 /**
  * Created by grant on 4/11/16.
@@ -177,7 +177,7 @@ class coreStarter {
         ]
 
 
-        new displayTables().displayTable(startmessage)
+        new displayOutput(project_config.getString("output_type") ?: "json").display(startmessage)
 
 
         if (commandLine.isFlagEnabled("cluster")) {

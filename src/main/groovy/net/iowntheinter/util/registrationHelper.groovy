@@ -11,5 +11,10 @@ class registrationHelper {
         v.eventBus().send('_cornerstone:registration',
                 v.getOrCreateContext().config().getString('launchId'))
     }
+    void on_start_signial(Vertx v,cb){
+        v.eventBus().consumer('_cornerstone:start',{ sevent ->
+            cb()
+        })
+    }
 
 }
