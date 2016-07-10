@@ -150,19 +150,20 @@ public class coreLauncher extends AbstractVerticle {
                 sjsh.bridge(options)
                 router.route("/eb/*").handler(sjsh)
                 server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
-                logger.debug("server port: ${server.actualPort()}")
+                logger.debug("server port: ${config.getInteger('kvdn_port')}")
 
                 display_writer_channel()
                 listen_registrations()
                 startContainers({})
                 startVerticles(vertx)
                 def dd = sm.data;
-                dd['kvdn'] = [" port: ${server.actualPort()}", "true"]
+                dd['kvdn'] = [" port: ${config.getInteger('kvdn_port')}", "true"]
                 sm.data = dd
                 getVertx().eventBus().send('_cornerstone:display', new JsonObject(populateMessage(sm) as Map))
 
             } catch (e) {
-                logger.error "could not setup http server:" + e.getMessage()
+                logger.error "error during deploy:" + e.getMessage()
+                e.printStackTrace()
             }
         })
 
@@ -249,8 +250,8 @@ public class coreLauncher extends AbstractVerticle {
 
     private void display_writer_channel() {
         def eb = vertx.eventBus()
-        def depchdl = eb.consumer("_cornerstone:display")
-        depchdl.handler({ Message msg ->
+        def dispchannel = eb.consumer("_cornerstone:display")
+        dispchannel.handler({ Message msg ->
             try {
                 Map m = (new JsonSlurper()).parseText(msg.body().toString()) as Map
                 new displayOutput(this.config.getString("output_type") ?: "json").display(m)
