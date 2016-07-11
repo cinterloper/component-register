@@ -37,9 +37,10 @@ class displayOutput {
         input['data'].each {  k,  v ->
           rowsList.add(Arrays.asList(k) + v)
         }
-        Board board = new Board(102);
-        Table datat = new Table(board, 100,  headersList,rowsList)
-        Block header = new Block(board, 100, 1, input['header'] as String)
+        def width = new Integer(System.getenv("COLUMNS"))
+        Board board = new Board(width );
+        Table datat = new Table(board, width - 2 ,  headersList,rowsList)
+        Block header = new Block(board, width - 2 , 1, input['header'] as String)
         board.setInitialBlock(header.allowGrid(false).setBlockAlign(Block.BLOCK_LEFT).setDataAlign(Block.DATA_CENTER))
         board.appendTableTo(0,Board.APPEND_BELOW,datat)
 

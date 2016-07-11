@@ -10,10 +10,10 @@ import net.iowntheinter.util.registrationHelper
  */
 Vertx v = (vertx as GVertx).getDelegate()
 def rh = new registrationHelper()
-rh.on_start_signial(v,{
+rh.on_start_signial(v, {
 
     LoggerFactory.getLogger(this.class.getName()).warn("inside example 1")
 
 })
 
-rh.notify_start_ready(v,{})
+rh.notify_start_ready(v, {})
