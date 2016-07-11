@@ -8,14 +8,15 @@
   },
   "startup": {
     "vx": {
-      "groovy:example.groovy": {
-        "deps": [],
-        "enabled": true
-      } ,
       "net.iowntheinter.util.ebReflector": {
         "deps": [],
         "enabled": true
+      },
+      "groovy:example.groovy": {
+        "deps": [],
+        "enabled": true
       }
+
     },
     "ext": {
       "docker": {

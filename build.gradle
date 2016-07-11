@@ -16,7 +16,7 @@ plugins {
 apply plugin: 'org.owasp.dependencycheck'
 
 def libversion = System.getenv("VERTX_VERSION")
-if(libversion == "" || libversion.isEmpty())
+if("${libversion}" == "" || "${libversion}".isEmpty())
     libversion = '3.3.1'
 version = "${libversion}-28"
 println "building for $libversion"

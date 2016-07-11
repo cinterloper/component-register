@@ -2,12 +2,20 @@ import groovy.json.JsonOutput
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import io.vertx.core.logging.LoggerFactory
-import io.vertx.groovy.core.Vertx
+import io.vertx.groovy.core.Vertx as GVertx
+import io.vertx.core.Vertx
+import net.iowntheinter.util.registrationHelper
 
 /**
  * Created by grant on 3/28/16.
  */
 
-def Vertx  v = vertx as Vertx
-LoggerFactory.getLogger(this.getClass().name).debug "inside a loaded verticle with config: \n"
-v.eventBus().send('_cornerstone:registration',v.getOrCreateContext().config().launchId)
+Vertx v = (vertx as GVertx).getDelegate() as Vertx
+def rh = new registrationHelper()
+rh.on_start_signial(v, {
+
+    LoggerFactory.getLogger(this.class.getName()).warn("inside example")
+
+})
+
+rh.notify_start_ready(v, {})
