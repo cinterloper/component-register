@@ -15,6 +15,7 @@ import io.vertx.ext.web.handler.sockjs.BridgeOptions
 import io.vertx.ext.web.handler.sockjs.PermittedOptions
 import io.vertx.ext.web.handler.sockjs.SockJSHandler
 import net.iowntheinter.kvdn.kvserver
+import net.iowntheinter.kvdn.http.routeProvider
 import net.iowntheinter.componentRegister.component.impl.DockerTask
 import net.iowntheinter.componentRegister.component.impl.VXVerticle
 import net.iowntheinter.coreLauncher.impl.waitingLaunchStrategy
@@ -140,6 +141,18 @@ public class coreLauncher extends AbstractVerticle {
         def v = vertx as Vertx
         def router = Router.router(v)
         router.route().handler(BodyHandler.create())
+        if(config.containsKey("kvdn_route_provider")){
+            def r
+            try{
+                r = this.class.classLoader.
+                        loadClass( config.getString("kvdn_route_provider"))?.newInstance() as routeProvider
+                r.addRoutes(router)
+            } catch(e){
+                logger.fatal("Could not load configured kvdn_route_provider: "+e)
+                e.printStackTrace()
+                System.exit(-1)
+            }
+        }
         s.init(router, v, {
             try {
                 def server = v.createHttpServer()//configure keystore

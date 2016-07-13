@@ -37,7 +37,7 @@ class displayOutput {
         input['data'].each {  k,  v ->
           rowsList.add(Arrays.asList(k) + v)
         }
-        def width = new Integer(System.getenv("COLUMNS"))
+        def width = System.getenv("COLUMNS") ?: 80
         Board board = new Board(width );
         Table datat = new Table(board, width - 2 ,  headersList,rowsList)
         Block header = new Block(board, width - 2 , 1, input['header'] as String)

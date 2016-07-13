@@ -3,6 +3,7 @@
   "env_vars": [],
   "output_type":"table",
   "kvdn_port":6500,
+  "kvdn_route_provider":"net.iowntheinter.kvdn.http.example.helloWorldRouteProvider",
   "reflectors":{
     "_KVDN_+cornerstone:registration":"_cornerstone:registration"
   },
