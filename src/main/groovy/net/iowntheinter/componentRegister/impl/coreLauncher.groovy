@@ -6,16 +6,14 @@ import io.vertx.core.AsyncResult
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.eventbus.Message
+import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.core.shareddata.LocalMap
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
-import io.vertx.ext.web.handler.sockjs.BridgeOptions
-import io.vertx.ext.web.handler.sockjs.PermittedOptions
-import io.vertx.ext.web.handler.sockjs.SockJSHandler
 import net.iowntheinter.kvdn.kvserver
-import net.iowntheinter.kvdn.http.routeProvider
+import net.iowntheinter.util.http.routeConfig
 import net.iowntheinter.componentRegister.component.impl.DockerTask
 import net.iowntheinter.componentRegister.component.impl.VXVerticle
 import net.iowntheinter.coreLauncher.impl.waitingLaunchStrategy
@@ -132,36 +130,36 @@ public class coreLauncher extends AbstractVerticle {
             return startmessage
         }
 
-        Map sm = ["header": "coreLauncher",
-                  "cols"  : ["COMPONENT", "STATUS", "ENABLED"],
-                  "data"  : [:]
+        Map startMessage = ["header": "coreLauncher",
+                            "cols"  : ["COMPONENT", "STATUS", "ENABLED"],
+                            "data"  : [:]
         ]
 
         def s = new kvserver()
         def v = vertx as Vertx
         def router = Router.router(v)
         router.route().handler(BodyHandler.create())
-        if(config.containsKey("kvdn_route_provider")){
+        if (config.containsKey("kvdn_route_provider")) {
             def r
-            try{
+            try {
                 r = this.class.classLoader.
-                        loadClass( config.getString("kvdn_route_provider"))?.newInstance() as routeProvider
-                r.addRoutes(router)
-            } catch(e){
-                logger.fatal("Could not load configured kvdn_route_provider: "+e)
+                        loadClass(config.getString("kvdn_route_provider"))?.newInstance() as routeConfig
+                r.addRoutes(router, v)
+            } catch (e) {
+                logger.fatal("Could not load configured kvdn_route_provider: " + e)
                 e.printStackTrace()
                 System.exit(-1)
             }
         }
         s.init(router, v, {
             try {
-                def server = v.createHttpServer()//configure keystore
-                def sjsh = SockJSHandler.create(v)
-                def options = new BridgeOptions()
-                        .addOutboundPermitted(new PermittedOptions()
-                        .setAddressRegex(".*")); //apply security here
-                sjsh.bridge(options)
-                router.route("/eb/*").handler(sjsh)
+                def server
+                if(config.containsKey('http_server_options')){
+                    server = v.createHttpServer(
+                            new HttpServerOptions(config.getJsonObject('http_server_options')))
+                }else
+                    server = v.createHttpServer()
+
                 server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
                 logger.debug("server port: ${config.getInteger('kvdn_port')}")
 
@@ -169,11 +167,10 @@ public class coreLauncher extends AbstractVerticle {
                 listen_registrations()
                 startContainers({})
                 startVerticles(vertx)
-                def dd = sm.data;
-                dd['kvdn'] = [" port: ${config.getInteger('kvdn_port')}", "true"]
-                sm.data = dd
-                getVertx().eventBus().send('_cornerstone:display', new JsonObject(populateMessage(sm) as Map))
-
+                def dispd = startMessage.data
+                dispd['kvdn'] = [" port: ${config.getInteger('kvdn_port')}", "true"]
+                startMessage.data=dispd
+                new displayOutput().display(startMessage)
             } catch (e) {
                 logger.error "error during deploy:" + e.getMessage()
                 e.printStackTrace()
@@ -243,7 +240,7 @@ public class coreLauncher extends AbstractVerticle {
             def togo = [:]
             launchIds.each { id, props ->
                 d[props.launchName] = [" running ", "true"]
-                if (!props['startReady']){
+                if (!props['startReady']) {
                     start = false
                     togo[id] = props.launchName
                 }

@@ -1,9 +1,9 @@
 {
   "name": "example-project",
   "env_vars": [],
-  "output_type":"table",
+  "output_type":"json",
   "kvdn_port":6500,
-  "kvdn_route_provider":"net.iowntheinter.kvdn.http.example.helloWorldRouteProvider",
+  "kvdn_route_provider":"net.iowntheinter.util.http.example.helloWorldRouteProvider",
   "reflectors":{
     "_KVDN_+cornerstone:registration":"_cornerstone:registration"
   },
