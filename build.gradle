@@ -5,6 +5,7 @@ buildscript {
     dependencies {
         classpath 'org.owasp:dependency-check-gradle:1.3.6'
     }
+    allprojects { apply plugin: "idea" }
 }
 plugins {
     id 'groovy'
@@ -18,7 +19,7 @@ apply plugin: 'org.owasp.dependencycheck'
 def libversion = '3.3.2'
 if(System.getenv("VERTX_VERSION") != null)
     libversion = System.getenv("VERTX_VERSION")
-version = "${libversion}-28"
+version = "${libversion}-32"
 println "building for $libversion"
 def GITHUB_TOKEN = System.getenv("GITHUB_TOKEN")
 def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
@@ -78,7 +79,7 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.1.7'
     compile 'ch.qos.logback:logback-core:1.1.7'
     compile 'org.slf4j:slf4j-api:1.7.21'
-    compile "net.iowntheinter:kvdn:$libversion-19"
+    compile "net.iowntheinter:kvdn:$libversion-1.0.0"
     compile 'de.gesellix:docker-client:2016-06-23T19-34-50'
 }
 

@@ -5,12 +5,12 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.sockjs.BridgeOptions
 import io.vertx.ext.web.handler.sockjs.PermittedOptions
 import io.vertx.ext.web.handler.sockjs.SockJSHandler
-import net.iowntheinter.util.http.routeConfig
+import net.iowntheinter.util.http.routeProvider
 
 /**
  * Created by g on 7/12/16.
  */
-class helloWorldRouteProvider implements routeConfig  {
+class helloWorldRouteProvider implements routeProvider  {
     @Override
     void addRoutes(Router router, Vertx v) {
         def sjsh = SockJSHandler.create(v)

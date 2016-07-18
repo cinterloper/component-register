@@ -1,22 +1,20 @@
-package net.iowntheinter.componentRegister.impl
+package net.iowntheinter.coreLauncher.impl
 
 import groovy.json.JsonSlurper
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.AsyncResult
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
-import io.vertx.core.eventbus.Message
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
-import io.vertx.core.shareddata.LocalMap
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
+import net.iowntheinter.componentRegister.impl.registrationManager
 import net.iowntheinter.kvdn.kvserver
-import net.iowntheinter.util.http.routeConfig
+import net.iowntheinter.util.http.routeProvider
 import net.iowntheinter.componentRegister.component.impl.DockerTask
 import net.iowntheinter.componentRegister.component.impl.VXVerticle
-import net.iowntheinter.coreLauncher.impl.waitingLaunchStrategy
 import net.iowntheinter.util.displayOutput
 
 public class coreLauncher extends AbstractVerticle {
@@ -24,8 +22,8 @@ public class coreLauncher extends AbstractVerticle {
     def ct
     JsonObject config;
     JsonObject dps = new JsonObject()
-    Map launchIds = [:]
-
+    Map<String,Map> launchIds = [:]
+    def rm;
     def logger = LoggerFactory.getLogger(this.class.getName())
 
     public void final_shutdown() {
@@ -46,33 +44,44 @@ public class coreLauncher extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
-        Map launchTasks = [:]
 
         this.config = vertx.getOrCreateContext().config()
-
-        launchTasks = [
-                docker: config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().keySet(),
-                vertx : config.getJsonObject('startup').getJsonObject('vx').getMap().keySet()
-        ]
-
 
         logger.debug(vertx)
         logger.debug("reached CoreLauncher inside vert.x, config: ${config}")
 
         //start all the docker components first in case the cluster manager is one of them
 
+        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { name, cfg ->
+            cfg = cfg as JsonObject
+            if (cfg.getBoolean("enabled")) {
+                def Id = UUID.randomUUID().toString()
+                launchIds[Id] = [launchId: Id, type:"vertx", launchName: "docker:${name}", name: name, config: cfg, startReady: false]
+            }
+        }
+        config.getJsonObject('startup').getJsonObject('vx').getMap().each { name, vconfig ->
+            vconfig = vconfig as JsonObject
+            def Id = UUID.randomUUID().toString()
+            if (vconfig.getBoolean("enabled")) {
+                launchIds[Id] = [launchId: Id, type:'vertx', launchName: "vertx:${name}", name: name, config: vconfig, startReady: false]
+                //add docker id
+            }
+        }
+        rm = new registrationManager(launchIds, vertx)
+        rm.listen_registrations() // this is quite important
+
+
         Closure startContainers = { cb ->
-            config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { name, cfg ->
-                cfg = cfg as JsonObject
-                getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent("docker:" + name, cfg)
-                if (cfg.getBoolean("enabled")) {
-                    def Id = UUID.randomUUID().toString()
-                    launchIds[Id] = [launchId: Id, launchName: "docker:${name}", startReady: false]  //add docker id
-                    def cconfig = (cfg as JsonObject).put('launchId', Id)
+            launchIds.each { String Id, Map config ->
+                def cfg = config.config as JsonObject
+                def name = config.name
+
+                if (cfg.getBoolean("enabled") && (config.type == "docker")) {
+                    getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent("docker:" + name, cfg)
+                    def cconfig = cfg.put('launchId', Id)
                     logger.debug("container config: ${cconfig}")
                     startContainer(name as String, cconfig, {
                         getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent("docker:" + name, cfg)
-
                     })
                 }
             }
@@ -80,13 +89,12 @@ public class coreLauncher extends AbstractVerticle {
 
 
         Closure startVerticles = { cb ->
-            config.getJsonObject('startup').getJsonObject('vx').getMap().each { name, vconfig ->
-                vconfig = vconfig as JsonObject
-                getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent(name, vconfig)
-                def Id = UUID.randomUUID().toString()
+            launchIds.each { String Id, Map config  ->
+                def vconfig = config.config as JsonObject
+                def name = config.name
 
-                if (vconfig.getBoolean("enabled")) {
-                    launchIds[Id] = [launchId: Id, launchName: "vertx:${name}", startReady: false]  //add docker id
+                if (vconfig.getBoolean("enabled") && config.type=="vertx") {
+                    getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent(name, vconfig)
                     startVerticle(name as String, (vconfig as JsonObject).put('launchId', Id), { Map result ->
                         launchIds[Id]['vxid'] = result.name
                         getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent(name, vconfig)
@@ -96,46 +104,15 @@ public class coreLauncher extends AbstractVerticle {
             }
         }
 
-        Closure afterVXClusterStart = { Map res ->
-            Vertx vx
-            logger.debug(res)
-            if (!res.success) {
-                logger.error("could not start clustered vertx")
-                System.exit(-1)
-            } else {
-                vx = res.vertx as Vertx
-                def opts = new DeploymentOptions([config: config.getMap()])
-                startVerticles(vx)
-            }
-        }
-
-//main work starts here
 
 
-        Closure populateMessage = { Map startmessage ->
-
-            LocalMap comp = vertx.sharedData().getLocalMap("cornerstone_components")
-            def d = startmessage.data;
-            comp.keySet().each { key ->
-                d[key] = [" --- ", comp.get(key).getBoolean("enabled").toString()]
-            }
-
-            LocalMap depl = vertx.sharedData().getLocalMap("cornerstone_deployments")
-
-            depl.keySet().each { key ->
-                println("debug : deployed : ${key}")
-                d[key] = ["running", comp.get(key).getBoolean("enabled").toString()]
-            }
-            startmessage.data = d
-            return startmessage
-        }
 
         Map startMessage = ["header": "coreLauncher",
                             "cols"  : ["COMPONENT", "STATUS", "ENABLED"],
                             "data"  : [:]
         ]
 
-        def s = new kvserver()
+        def kvs = new kvserver()
         def v = vertx as Vertx
         def router = Router.router(v)
         router.route().handler(BodyHandler.create())
@@ -143,7 +120,7 @@ public class coreLauncher extends AbstractVerticle {
             def r
             try {
                 r = this.class.classLoader.
-                        loadClass(config.getString("kvdn_route_provider"))?.newInstance() as routeConfig
+                        loadClass(config.getString("kvdn_route_provider"))?.newInstance() as routeProvider
                 r.addRoutes(router, v)
             } catch (e) {
                 logger.fatal("Could not load configured kvdn_route_provider: " + e)
@@ -151,25 +128,23 @@ public class coreLauncher extends AbstractVerticle {
                 System.exit(-1)
             }
         }
-        s.init(router, v, {
+        kvs.init(router, v, {
             try {
                 def server
-                if(config.containsKey('http_server_options')){
+                if (config.containsKey('http_server_options')) {
                     server = v.createHttpServer(
                             new HttpServerOptions(config.getJsonObject('http_server_options')))
-                }else
+                } else
                     server = v.createHttpServer()
 
                 server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
                 logger.debug("server port: ${config.getInteger('kvdn_port')}")
 
-                display_writer_channel()
-                listen_registrations()
                 startContainers({})
                 startVerticles(vertx)
                 def dispd = startMessage.data
                 dispd['kvdn'] = [" port: ${config.getInteger('kvdn_port')}", "true"]
-                startMessage.data=dispd
+                startMessage.data = dispd
                 new displayOutput().display(startMessage)
             } catch (e) {
                 logger.error "error during deploy:" + e.getMessage()
@@ -222,54 +197,6 @@ public class coreLauncher extends AbstractVerticle {
                 cb([name: null, error: result.cause()])
             }
         })
-    }
-
-    private void listen_registrations() {
-        def eb = vertx.eventBus()
-        def depchdl = eb.consumer("_cornerstone:registration")
-        Map announce = ["header": "coreLauncher",
-                        "cols"  : ["COMPONENT", "STATUS", "ENABLED"],
-                        "data"  : [:]
-        ]
-        depchdl.handler({ msg ->
-            logger.debug("registration message: " + msg.body())
-            launchIds[msg.body()]['startReady'] = true
-            def start = true
-            def d = announce.data;
-
-            def togo = [:]
-            launchIds.each { id, props ->
-                d[props.launchName] = [" running ", "true"]
-                if (!props['startReady']) {
-                    start = false
-                    togo[id] = props.launchName
-                }
-            }
-            logger.debug("components that still need to check in: ${togo.values()}")
-            if (start) {
-                getVertx().eventBus().send('_cornerstone:start', 'true')
-                logger.debug("sending start sig")
-                getVertx().eventBus().send('_cornerstone:display', new JsonObject(announce))
-
-            } else {
-                logger.debug("launchids ${launchIds}")
-            }
-
-        })
-    }
-
-    private void display_writer_channel() {
-        def eb = vertx.eventBus()
-        def dispchannel = eb.consumer("_cornerstone:display")
-        dispchannel.handler({ Message msg ->
-            try {
-                Map m = (new JsonSlurper()).parseText(msg.body().toString()) as Map
-                new displayOutput(this.config.getString("output_type") ?: "json").display(m)
-            } catch (Exception e) {
-                logger.error(e)
-            }
-        })
-
     }
 
 

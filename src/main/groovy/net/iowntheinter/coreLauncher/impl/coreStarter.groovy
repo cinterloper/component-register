@@ -162,9 +162,10 @@ class coreStarter {
                 halt()
             } else {
                 vx = res.vertx as Vertx
+                project_config.put("_root_launch_id", vx.getOrCreateContext().deploymentID())
                 project_config.put("clustered", commandLine.isFlagEnabled("cluster"))
                 def opts = new DeploymentOptions([config: project_config.getMap(), worker: true])
-                vx.deployVerticle('net.iowntheinter.componentRegister.impl.coreLauncher', opts)
+                vx.deployVerticle('net.iowntheinter.coreLauncher.impl.coreLauncher', opts)
             }
         }
 

@@ -4,6 +4,4 @@ if (!JavaVersion.current().java8Compatible) {
                                     |  You are using something else,
                                     |  Refresh. Try again.'''.stripMargin())
 }
-if(!System.getenv("DISABLE_BUILD_EXTENSIONS"))
-  include 'service-registry'
-
+include 'service-registry'
