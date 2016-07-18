@@ -36,7 +36,14 @@ class registrationManager {
         ]
         depchdl.handler({ msg ->
             logger.debug("registration message: " + msg.body())
-            launchIds[msg.body()]['startReady'] = true
+            try{
+                launchIds[msg.body()]['startReady'] = true
+            }catch(e){
+                logger.error("a registration message generated an error: " +e.getMessage())
+                logger.error("did another instance launch trying " +
+                        "to assume a bridge port we are already listening on?")
+                logger.error(e)
+            }
             def start = true
             def d = announce.data;
 

@@ -1,5 +1,4 @@
- | grep dev
- package net.iowntheinter.serviceRegistry
+package net.iowntheinter.serviceRegistry
 
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Vertx
@@ -22,6 +21,8 @@ class cornerstoneServiceRegistry  {
                        .setAnnounceAddress("_cornerstone:service")
                        .setName( "cornerstone_${vertx.getOrCreateContext().config().getString("_root_launch_id") ?: vertx.getOrCreateContext().deploymentID()}:$name"));
 
+
+       ServiceDiscovery.create().get
     }
 
 

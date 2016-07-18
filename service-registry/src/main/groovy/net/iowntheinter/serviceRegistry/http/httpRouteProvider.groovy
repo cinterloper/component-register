@@ -11,7 +11,7 @@ import net.iowntheinter.util.http.routeProvider
  * Created by g on 7/16/16.
  */
 class httpRouteProvider implements routeProvider {
-    cornerstoneServiceRegisty r
+    def  r
     @Override
     void addRoutes(Router r, Vertx v) {
         r.post('_CSR/lookup')
