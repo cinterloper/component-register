@@ -56,7 +56,7 @@ public class coreLauncher extends AbstractVerticle {
             cfg = cfg as JsonObject
             if (cfg.getBoolean("enabled")) {
                 def Id = UUID.randomUUID().toString()
-                launchIds[Id] = [launchId: Id, type:"vertx", launchName: "docker:${name}", name: name, config: cfg, startReady: false]
+                launchIds[Id] = [launchId: Id, type:"docker", launchName: "docker:${name}", name: name, config: cfg, startReady: false]
             }
         }
         config.getJsonObject('startup').getJsonObject('vx').getMap().each { name, vconfig ->

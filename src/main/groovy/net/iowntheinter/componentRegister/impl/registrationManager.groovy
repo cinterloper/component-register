@@ -34,9 +34,7 @@ class registrationManager {
                         "cols"  : ["COMPONENT", "STATUS", "ENABLED"],
                         "data"  : [:]
         ]
-        println "lanunchids ${launchIds.keySet()}"
         depchdl.handler({ msg ->
-            println "got msg : ${msg.body()}"
             logger.debug("registration message: " + msg.body())
             launchIds[msg.body()]['startReady'] = true
             def start = true
