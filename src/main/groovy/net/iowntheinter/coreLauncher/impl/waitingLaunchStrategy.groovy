@@ -5,16 +5,8 @@ import net.iowntheinter.coreLauncher.launchStrategy
 
 /**
  * Created by grant on 4/15/16.
- * a dependent task is launched after the starting process is made aware
- * that all the task's dependencies have become available
  *
- * dependent tasks need not include internal startup logic, they may assume
- * the things they are looking for are already present at startup time
- *
- * a docker dependent task has an assumed set of provided services,
- * an assumed time to startup
- * #futureimpl: optionaly a closure can be provided to check the service has started after
- * the timeout
+
  */
 class waitingLaunchStrategy implements launchStrategy {
     def task

@@ -4,6 +4,7 @@ package net.iowntheinter.util
  * Created by grant on 4/11/16.
  */
 class resourceLoader {
+
     static String getResource(String name) {
         def classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
         def cpth = classloader.findResource(name);

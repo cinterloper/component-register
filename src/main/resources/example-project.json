@@ -27,6 +27,7 @@
           "image": "jplock/zookeeper",
           "tag": "latest",
           "deps": [],
+          "enviornment_injector":"net.iowntheinter.util.crypto.JWTInjector",
           "enabled": false
         },
         "ctrName4": {

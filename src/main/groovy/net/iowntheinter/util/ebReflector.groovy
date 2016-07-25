@@ -33,7 +33,11 @@ class ebReflector extends AbstractVerticle {
 
     }
 
-
+/**
+ * remove a reflector, you must provide its RID
+ * @param RID id returned when a reflector is created
+ * @param cb
+ */
     public void removeReflector(String RID, cb) {
         try {
             MessageConsumer r = reflectors[RID] as MessageConsumer
@@ -44,7 +48,13 @@ class ebReflector extends AbstractVerticle {
         }
         cb()
     }
-
+/**
+ * create a 'reflector', which is just an active event handler that relays messages to a new channel
+ * it is strongly advised this should only be used with 'publish' type messaging
+ * @param srcaddr
+ * @param dstaddr
+ * @param cb
+ */
     public void createReflector(String srcaddr, String dstaddr, cb) {
         def ret = true
         MessageConsumer subscriptionChannel = eb.consumer(srcaddr)
