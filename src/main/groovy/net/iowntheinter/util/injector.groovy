@@ -1,16 +1,20 @@
 package net.iowntheinter.util
 
 import io.vertx.core.Handler
+import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
 
 /**
  * Created by g on 7/25/16.
  */
 
-/**
- * pass the component configuration
- * the callback is called with a Map[] to add to the enviornment of the component
- */
 interface injector {
-    void inject(JsonObject componentcfg, Handler cb)
+    /**
+     * an injector is called right before a component is started, and is passed the components configuration
+     * the injector can do arbitrary work, then return a Set of enviornment variables to add to the components startup
+     * @param componentcfg
+     * @param vertx
+     * @return
+     */
+    Set inject(JsonObject componentcfg, Vertx vertx)
 }

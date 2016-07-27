@@ -16,10 +16,10 @@ import net.iowntheinter.util.http.routeProvider
 import net.iowntheinter.componentRegister.component.impl.DockerTask
 import net.iowntheinter.componentRegister.component.impl.VXVerticle
 import net.iowntheinter.util.displayOutput
+import net.iowntheinter.util.injector
 
 public class coreLauncher extends AbstractVerticle {
 
-    def ct
     JsonObject config;
     JsonObject dps = new JsonObject()
     Map<String,Map> launchIds = [:]
@@ -72,16 +72,43 @@ public class coreLauncher extends AbstractVerticle {
 
 
         Closure startContainers = { cb ->
-            launchIds.each { String Id, Map config ->
-                def cfg = config.config as JsonObject
-                def name = config.name
+            launchIds.each { String Id, Map launch_task ->
+                def docker_crconfig = launch_task.config as JsonObject
+                def name = launch_task.name
 
-                if (cfg.getBoolean("enabled") && (config.type == "docker")) {
-                    getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent("docker:" + name, cfg)
-                    def cconfig = cfg.put('launchId', Id)
+                if (docker_crconfig.getBoolean("enabled") && (launch_task.type == "docker")) {
+                    getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent("docker:" + name, docker_crconfig)
+                    def cconfig = docker_crconfig.put('launchId', Id)
                     logger.debug("container config: ${cconfig}")
+
+                    Set enviornmentInjections = []
+
+                    if (cconfig.containsKey("enviornment_injectors")) {
+                        def ij
+                        def IJC = launch_task["enviornment_injectors"]
+                        IJC.each{String ijname ->
+                            try {
+                                ij = this.class.classLoader.
+                                        loadClass(this.config.getJsonObject('injectors').getString(ijname))?.newInstance() as injector
+                                enviornmentInjections = ij.inject(docker_crconfig, vertx)
+                            } catch (e) {
+                                logger.fatal("Could not load configured kvdn_route_provider: " + e)
+                                e.printStackTrace()
+                                System.exit(-1)
+                            }
+                            def env = cconfig.getJsonArray("Env")
+                            enviornmentInjections.each{ String needle ->
+                                env.add(needle)
+                            }
+                            cconfig.put("Env",env)
+
+                        }
+
+                        }
+
+
                     startContainer(name as String, cconfig, {
-                        getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent("docker:" + name, cfg)
+                        getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent("docker:" + name, docker_crconfig)
                     })
                 }
             }
@@ -89,11 +116,11 @@ public class coreLauncher extends AbstractVerticle {
 
 
         Closure startVerticles = { cb ->
-            launchIds.each { String Id, Map config  ->
-                def vconfig = config.config as JsonObject
-                def name = config.name
+            launchIds.each { String Id, Map launch_task  ->
+                def vconfig = launch_task.config as JsonObject
+                def name = launch_task.name
 
-                if (vconfig.getBoolean("enabled") && config.type=="vertx") {
+                if (vconfig.getBoolean("enabled") && launch_task.type=="vertx") {
                     getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent(name, vconfig)
                     startVerticle(name as String, (vconfig as JsonObject).put('launchId', Id), { Map result ->
                         launchIds[Id]['vxid'] = result.name
@@ -116,18 +143,10 @@ public class coreLauncher extends AbstractVerticle {
         def v = vertx as Vertx
         def router = Router.router(v)
         router.route().handler(BodyHandler.create())
-        if (config.containsKey("kvdn_route_provider")) {
-            def r
-            try {
-                r = this.class.classLoader.
-                        loadClass(config.getString("kvdn_route_provider"))?.newInstance() as routeProvider
-                r.addRoutes(router, v)
-            } catch (e) {
-                logger.fatal("Could not load configured kvdn_route_provider: " + e)
-                e.printStackTrace()
-                System.exit(-1)
-            }
-        }
+
+        /**
+         * initalize the key value server, and activate any configured @Link:routeProvider s
+         */
         kvs.init(router, v, {
             try {
                 def server
@@ -137,6 +156,26 @@ public class coreLauncher extends AbstractVerticle {
                 } else
                     server = v.createHttpServer()
 
+
+
+
+                if(config.containsKey("kvdn_route_providers")){
+                    def KRP = config.getJsonObject("kvdn_route_providers")
+                    KRP.fieldNames().each { key ->
+                        def value = KRP.getString(key)
+                        try{
+                            def instance = this.class.classLoader.loadClass(value)?.newInstance() as routeProvider
+                            instance.addRoutes(router, v)
+                        } catch(e){
+                            logger.fatal("Could not load configured kvdn_route_provider: "+e)
+                            e.printStackTrace()
+                            System.exit(-1)
+                        }
+
+                    }
+
+
+                }
                 server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
                 logger.debug("server port: ${config.getInteger('kvdn_port')}")
 

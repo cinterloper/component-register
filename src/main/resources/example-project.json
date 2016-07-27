@@ -7,6 +7,9 @@
   "reflectors":{
     "_KVDN_+cornerstone:registration":"_cornerstone:registration"
   },
+  "injectors":{
+    "JWTInjector":"net.iowntheinter.util.crypto.JWTInjector"
+  },
   "startup": {
     "vx": {
       "net.iowntheinter.util.ebReflector": {
@@ -22,53 +25,25 @@
     "ext": {
       "docker": {
         "ubuntu": {
-          "ifExists": "recreate",
-          "dkrOptsRef": "zkOpts",
-          "image": "jplock/zookeeper",
-          "tag": "latest",
-          "deps": [],
-          "enviornment_injector":"net.iowntheinter.util.crypto.JWTInjector",
-          "enabled": false
-        },
-        "ctrName4": {
+          "launchStrategy":"waiting",
           "ifExists": "recreate",
           "dkrOptsRef": "testDkrOpts",
-          "image": "ubuntu",
+          "image": "shadowsystem/baseiimage",
           "tag": "latest",
           "deps": [],
-          "enabled": false
+          "environment_injectors":["JWTInjector"],
+          "enabled": true
         }
       }
     }
   },
   "optionBlocks": {
     "testDkrOpts": {
-      "Cmd": [
-        "sh",
-        "-c",
-        "ping 127.0.0.1"
-      ],
       "ExposedPorts": {
         "4711/tcp": {}
       },
       "HostConfig": {
         "PortBindings": {
-        }
-      }
-    },
-    "zkOpts": {
-      "Cmd":  ["start-foreground"],
-      "Env":["THIS=123"],
-      "ExposedPorts": {
-        "2181/tcp": {},
-        "2888/tcp": {},
-        "3888/tcp": {}
-      },
-      "HostConfig": {
-        "PortBindings": {
-          "2181/tcp": [{ "HostPort": "2181" }],
-          "2888/tcp": [{ "HostPort": "2888" }],
-          "3888/tcp": [{ "HostPort": "3888" }]
         }
       }
     }
