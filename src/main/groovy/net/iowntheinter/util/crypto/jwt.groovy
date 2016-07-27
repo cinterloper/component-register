@@ -6,23 +6,27 @@ import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.auth.AuthProvider
 import io.vertx.ext.auth.jwt.JWTAuth
 import io.vertx.ext.auth.jwt.JWTOptions
-import io.vertx.ext.auth.jwt.impl.JWTAuthProviderImpl
 
 /**
  * Created by g on 7/24/16.
  */
 class jwt {
     Vertx vertx
-    JWTAuthProviderImpl provider
+    def provider, logger
     jwt(Vertx vertx, JsonObject cryptconfig){
         this.vertx = vertx
+        this.logger= LoggerFactory.getLogger(this.class.getName())
         provider = JWTAuth.create(this.vertx, cryptconfig)
+        logger.info("jwt cryptconfig: ${cryptconfig}")
     }
     String createToken(JsonObject tokenconfig, JWTOptions jwtOptions){
         try{
-            return provider.generateToken(tokenconfig, jwtOptions)
+            provider = provider as JWTAuth
+            logger.info("json jwtoptions: ${jwtOptions.toJson()}")
+            return provider.generateToken(tokenconfig, jwtOptions.setExpiresInMinutes(36000))
         }        catch(e){
-            LoggerFactory.getLogger(this.class.getName()).error(e)
+            logger.error(e)
+            e.printStackTrace()
         }
     }
 

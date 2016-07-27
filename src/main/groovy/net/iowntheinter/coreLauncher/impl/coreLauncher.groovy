@@ -6,6 +6,7 @@ import io.vertx.core.AsyncResult
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpServerOptions
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.web.Router
@@ -83,21 +84,24 @@ public class coreLauncher extends AbstractVerticle {
                     logger.debug("container config: ${cconfig}")
 
                     Set enviornmentInjections = []
-
-                    if (cconfig.containsKey("enviornment_injectors")) {
+                    logger.info("before _injecting, cconfig.keys ${cconfig.fieldNames()}")
+                    if (cconfig.fieldNames().contains("environment_injectors")) {
+                        logger.info("_injecting")
                         def ij
-                        def IJC = launch_task["enviornment_injectors"]
+                        def IJC = cconfig.getJsonArray("environment_injectors")
+
                         IJC.each { String ijname ->
                             try {
                                 ij = this.class.classLoader.
                                         loadClass(this.config.getJsonObject('injectors').getString(ijname))?.newInstance() as injector
+                                logger.info("did we get an injector?: ${ij}")
                                 enviornmentInjections = ij.inject(docker_crconfig, vertx)
                             } catch (e) {
                                 logger.fatal("Could not load configured environment injector : " + e)
                                 e.printStackTrace()
                                 System.exit(-1)
                             }
-                            def env = cconfig.getJsonArray("Env")
+                            def env = cconfig.getJsonArray("Env") ?: new JsonArray()
                             enviornmentInjections.each { String needle ->
                                 env.add(needle)
                             }
