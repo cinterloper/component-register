@@ -22,7 +22,7 @@ public class coreLauncher extends AbstractVerticle {
 
     JsonObject config;
     JsonObject dps = new JsonObject()
-    Map<String,Map> launchIds = [:]
+    Map<String, Map> launchIds = [:]
     def rm;
     def logger = LoggerFactory.getLogger(this.class.getName())
 
@@ -56,14 +56,14 @@ public class coreLauncher extends AbstractVerticle {
             cfg = cfg as JsonObject
             if (cfg.getBoolean("enabled")) {
                 def Id = UUID.randomUUID().toString()
-                launchIds[Id] = [launchId: Id, type:"docker", launchName: "docker:${name}", name: name, config: cfg, startReady: false]
+                launchIds[Id] = [launchId: Id, type: "docker", launchName: "docker:${name}", name: name, config: cfg, startReady: false]
             }
         }
         config.getJsonObject('startup').getJsonObject('vx').getMap().each { name, vconfig ->
             vconfig = vconfig as JsonObject
             def Id = UUID.randomUUID().toString()
             if (vconfig.getBoolean("enabled")) {
-                launchIds[Id] = [launchId: Id, type:'vertx', launchName: "vertx:${name}", name: name, config: vconfig, startReady: false]
+                launchIds[Id] = [launchId: Id, type: 'vertx', launchName: "vertx:${name}", name: name, config: vconfig, startReady: false]
                 //add docker id
             }
         }
@@ -86,25 +86,25 @@ public class coreLauncher extends AbstractVerticle {
                     if (cconfig.containsKey("enviornment_injectors")) {
                         def ij
                         def IJC = launch_task["enviornment_injectors"]
-                        IJC.each{String ijname ->
+                        IJC.each { String ijname ->
                             try {
                                 ij = this.class.classLoader.
                                         loadClass(this.config.getJsonObject('injectors').getString(ijname))?.newInstance() as injector
                                 enviornmentInjections = ij.inject(docker_crconfig, vertx)
                             } catch (e) {
-                                logger.fatal("Could not load configured kvdn_route_provider: " + e)
+                                logger.fatal("Could not load configured environment injector : " + e)
                                 e.printStackTrace()
                                 System.exit(-1)
                             }
                             def env = cconfig.getJsonArray("Env")
-                            enviornmentInjections.each{ String needle ->
+                            enviornmentInjections.each { String needle ->
                                 env.add(needle)
                             }
-                            cconfig.put("Env",env)
+                            cconfig.put("Env", env)
 
                         }
 
-                        }
+                    }
 
 
                     startContainer(name as String, cconfig, {
@@ -116,11 +116,11 @@ public class coreLauncher extends AbstractVerticle {
 
 
         Closure startVerticles = { cb ->
-            launchIds.each { String Id, Map launch_task  ->
+            launchIds.each { String Id, Map launch_task ->
                 def vconfig = launch_task.config as JsonObject
                 def name = launch_task.name
 
-                if (vconfig.getBoolean("enabled") && launch_task.type=="vertx") {
+                if (vconfig.getBoolean("enabled") && launch_task.type == "vertx") {
                     getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent(name, vconfig)
                     startVerticle(name as String, (vconfig as JsonObject).put('launchId', Id), { Map result ->
                         launchIds[Id]['vxid'] = result.name
@@ -159,15 +159,15 @@ public class coreLauncher extends AbstractVerticle {
 
 
 
-                if(config.containsKey("kvdn_route_providers")){
+                if (config.containsKey("kvdn_route_providers")) {
                     def KRP = config.getJsonObject("kvdn_route_providers")
                     KRP.fieldNames().each { key ->
                         def value = KRP.getString(key)
-                        try{
+                        try {
                             def instance = this.class.classLoader.loadClass(value)?.newInstance() as routeProvider
                             instance.addRoutes(router, v)
-                        } catch(e){
-                            logger.fatal("Could not load configured kvdn_route_provider: "+e)
+                        } catch (e) {
+                            logger.fatal("Could not load configured kvdn_route_provider: " + e)
                             e.printStackTrace()
                             System.exit(-1)
                         }
