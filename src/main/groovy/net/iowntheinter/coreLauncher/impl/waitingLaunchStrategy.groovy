@@ -1,7 +1,10 @@
 package net.iowntheinter.coreLauncher.impl
 
+import io.vertx.core.Vertx
+import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.componentRegister.component.componentType
 import net.iowntheinter.coreLauncher.launchStrategy
+import net.iowntheinter.util.registrationHelper
 
 /**
  * Created by grant on 4/15/16.
@@ -18,10 +21,12 @@ class waitingLaunchStrategy implements launchStrategy {
     def Closure runCb
     def started
     def boolean vertxTask
+    Vertx vertx
 
-
-    waitingLaunchStrategy(componentType task, List dependencies) {
-        this.task = task
+    waitingLaunchStrategy(Vertx v, String launchId, componentType task, List dependencies) {
+        this.vertx = v
+        this.id = launchId
+        this.task = task as componentType
         this.dependencies = dependencies
         this.depset = [:]
         this.dependencies.each { dep ->
@@ -44,7 +49,8 @@ class waitingLaunchStrategy implements launchStrategy {
         if (!listening && vertxTask)
             task.listen()
         listening = true
-        this.startCb = cb
+        LoggerFactory.getLogger(this.class.getName()).info("sending registration event: ${this.id}")
+        new registrationHelper().notify_start_ready(vertx,this.id,cb)
     }
 
     @Override

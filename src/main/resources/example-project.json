@@ -32,10 +32,10 @@
     "ext": {
       "docker": {
         "ubuntu": {
-          "launchStrategy":"coordinated",
+          "launchStrategy":"waiting",
           "ifExists": "recreate",
           "dkrOptsRef": "testDkrOpts",
-          "image": "shadowsystem/baseimage",
+          "image": "ubuntu",
           "tag": "latest",
           "deps": [],
           "environment_injectors":["JWTInjector"],
@@ -49,6 +49,10 @@
       "ExposedPorts": {
         "4711/tcp": {}
       },
+      "Cmd": [
+        "sleep",
+        "360000"
+      ],
       "HostConfig": {
         "PortBindings": {
         }

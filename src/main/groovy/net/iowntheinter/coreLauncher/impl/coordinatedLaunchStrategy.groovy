@@ -27,7 +27,9 @@ class coordinatedLaunchStrategy implements launchStrategy {
     def started
     def boolean vertxTask
 
-    coordinatedLaunchStrategy(componentType task, List dependencies) {
+
+    coordinatedLaunchStrategy(Vertx v , String launchId, componentType task, List dependencies) {
+        this.vertx = v
         this.task = task
         this.dependencies = dependencies
         listening = false

@@ -200,27 +200,28 @@ public class coreLauncher extends AbstractVerticle {
     }
 
 
-    void startContainer(String name, JsonObject cfg, Closure cb) {
-        logger.debug "ctr: ${name} cfg: ${cfg}"
+    void startContainer(String name, JsonObject cconfig, Closure cb) {
+        logger.debug "ctr: ${name} cfg: ${cconfig}"
         logger.debug "\n total config ${config}\n"
-        def cfname = new JsonObject(cfg as String).getString('dkrOptsRef')
+        def cfname = new JsonObject(cconfig as String).getString('dkrOptsRef')
         logger.debug "cfname ${cfname}"
         Map ctrcfg = (new JsonSlurper().parseText(
                 config.getJsonObject('optionBlocks').getJsonObject(cfname).toString())) as Map
         def env_ents = ctrcfg.get("Env") ?: []
-        env_ents += ["LAUNCHID=${cfg.getString('launchId')}"]
+        env_ents += ["LAUNCHID=${cconfig.getString('launchId')}"]
+        env_ents += cconfig.getJsonArray('Env')
         ctrcfg.put("Env", env_ents)
         logger.debug "ctrcfg ${ctrcfg}"
-        def nd = new DockerTask([name: name, tag: 'latest', image: cfg.getString('image'), ifExists: cfg.getString('ifExists')], ctrcfg)
+        def nd = new DockerTask([name: name, tag: 'latest', image: cconfig.getString('image'), ifExists: cconfig.getString('ifExists')], ctrcfg)
 
         def strategy = this.config.getString("default_launch_strategy")
         def nt
-        if(cfg.containsKey('launchStrategy'))
-            strategy = cfg.getString('launchStrategy')
+        if(cconfig.containsKey('launchStrategy'))
+            strategy = cconfig.getString('launchStrategy')
         if(strategy == 'waiting')
-            nt= new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
+            nt= new waitingLaunchStrategy(vertx, cconfig.getString('launchId'), nd, new JsonObject(cconfig as String).getJsonArray('deps').getList())
         else if (strategy == 'coordinated')
-            nt = new coordinatedLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList() )
+            nt = new coordinatedLaunchStrategy(vertx, cconfig.getString('launchId'), nd, new JsonObject(cconfig as String).getJsonArray('deps').getList() )
         try{
             assert nt != null
             nt.start({ result ->
@@ -236,7 +237,7 @@ public class coreLauncher extends AbstractVerticle {
     void startVerticle(String name, JsonObject vconfig, Closure cb) {
         logger.debug("${name}:${vconfig}")
         def nv = new VXVerticle(vertx, new DeploymentOptions([config: config.put('launchId', vconfig.getString('launchId'))]), name)
-        def nt = new waitingLaunchStrategy(nv, new JsonObject(vconfig as String).getJsonArray('deps').getList())
+        def nt = new coordinatedLaunchStrategy(vertx,  vconfig.getString('launchId'),  nv, new JsonObject(vconfig as String).getJsonArray('deps').getList())
         nt.start({ AsyncResult result ->
             String id
             if (result.succeeded()) {

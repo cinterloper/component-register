@@ -129,7 +129,10 @@ meta
          */
 
     }
-
+    @Override
+    String getId(){
+        return this.id
+    }
     void registrationEvent(Map peerNotification, Closure cb) {
         // use the docer driver to exec a task on the container
     }

@@ -11,6 +11,7 @@ import io.vertx.core.Handler
 interface componentType {
     void start(Closure cb) //wakeup cb after its actually started
     void stop(Closure cb)
+    String getId()
     void backup(Closure cb) // *see below
 /*
 for a docker task, backup should

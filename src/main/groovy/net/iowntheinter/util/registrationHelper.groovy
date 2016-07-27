@@ -23,6 +23,19 @@ class registrationHelper {
     }
 
     /**
+     *
+     * Notify the launching system that I am ready to start
+     * this is ment to be called from a vertx component launched by cornerstone
+     *
+     * @param v
+     * @param cb
+     */
+    void notify_start_ready(Vertx v,String id, cb){
+        v.eventBus().send('_cornerstone:registration',id)
+        cb()
+    }
+
+    /**
      * add an event to be called when all the launch group components have checked in
      * @param v
      * @param cb

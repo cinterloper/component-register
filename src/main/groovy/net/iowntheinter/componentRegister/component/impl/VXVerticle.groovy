@@ -13,7 +13,7 @@ class VXVerticle implements componentType {
     Vertx vertx
     String ImplementationID  // example com.this.that or js:myVerticle.js
     String name //human readable name of this instance
-    UUID id; //launch
+    String id; //launch
     DeploymentOptions ops
     Map deps = [:]
     String tasktype
@@ -24,7 +24,10 @@ class VXVerticle implements componentType {
         this.ops = opts
         deps = opts.getConfig().getMap()
     }
-
+    @Override
+    String getId(){
+        return this.id
+    }
 
     @Override
     void start(Closure cb) {
