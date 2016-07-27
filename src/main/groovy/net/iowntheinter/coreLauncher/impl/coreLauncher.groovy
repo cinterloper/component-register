@@ -11,6 +11,7 @@ import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import net.iowntheinter.componentRegister.impl.registrationManager
+import net.iowntheinter.coreLauncher.launchStrategy
 import net.iowntheinter.kvdn.kvserver
 import net.iowntheinter.util.http.routeProvider
 import net.iowntheinter.componentRegister.component.impl.DockerTask
@@ -207,10 +208,24 @@ public class coreLauncher extends AbstractVerticle {
         ctrcfg.put("Env", env_ents)
         logger.debug "ctrcfg ${ctrcfg}"
         def nd = new DockerTask([name: name, tag: 'latest', image: cfg.getString('image'), ifExists: cfg.getString('ifExists')], ctrcfg)
-        def nt = new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
-        nt.start({ result ->
-            logger.debug "docker start result: " + result
-        })
+
+        def strategy = this.config.getString("default_launch_strategy")
+        def nt
+        if(cfg.containsKey('launchStrategy'))
+            strategy = cfg.getString('launchStrategy')
+        if(strategy == 'waiting')
+            nt= new waitingLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList())
+        else if (strategy == 'coordinated')
+            nt = new coordinatedLaunchStrategy(nd, new JsonObject(cfg as String).getJsonArray('deps').getList() )
+        try{
+            assert nt != null
+            nt.start({ result ->
+                logger.debug "docker start result: " + result
+            })
+        }catch(e){
+            logger.error(e)
+        }
+
     }
 
 

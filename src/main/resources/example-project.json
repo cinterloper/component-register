@@ -2,6 +2,7 @@
   "name": "example-project",
   "env_vars": [],
   "output_type":"json",
+  "default_launch_strategy":"waiting",
   "kvdn_port":6500,
   "kvdn_route_provider":"net.iowntheinter.util.http.example.helloWorldRouteProvider",
   "reflectors":{
@@ -25,10 +26,10 @@
     "ext": {
       "docker": {
         "ubuntu": {
-          "launchStrategy":"waiting",
+          "launchStrategy":"coordinated",
           "ifExists": "recreate",
           "dkrOptsRef": "testDkrOpts",
-          "image": "shadowsystem/baseiimage",
+          "image": "shadowsystem/baseimage",
           "tag": "latest",
           "deps": [],
           "environment_injectors":["JWTInjector"],
