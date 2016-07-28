@@ -23,7 +23,7 @@ class jwt {
         try{
             provider = provider as JWTAuth
             logger.info("json jwtoptions: ${jwtOptions.toJson()}")
-            return provider.generateToken(tokenconfig, jwtOptions.setExpiresInMinutes(36000))
+            return provider.generateToken(tokenconfig, jwtOptions)
         }        catch(e){
             logger.error(e)
             e.printStackTrace()

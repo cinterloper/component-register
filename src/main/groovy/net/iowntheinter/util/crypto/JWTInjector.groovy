@@ -9,6 +9,8 @@ import net.iowntheinter.util.crypto.jwt
 
 /**
  * Created by g on 7/25/16.
+ * this should create a JWT token based on the componentcfg
+ * it will return this token, which will be 'injected' in the enviornment of the component being launched
  */
 class JWTInjector implements injector {
     JsonObject config

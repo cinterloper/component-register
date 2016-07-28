@@ -148,7 +148,23 @@ public class coreLauncher extends AbstractVerticle {
         def v = vertx as Vertx
         def router = Router.router(v)
         router.route().handler(BodyHandler.create())
+        if (config.containsKey("kvdn_route_providers")) {
+            def KRP = config.getJsonObject("kvdn_route_providers")
+            KRP.fieldNames().each { key ->
+                def value = KRP.getString(key)
+                try {
+                    def instance = this.class.classLoader.loadClass(value)?.newInstance() as routeProvider
+                    instance.addRoutes(router, v)
+                } catch (e) {
+                    logger.fatal("Could not load configured kvdn_route_provider: " + e)
+                    e.printStackTrace()
+                    System.exit(-1)
+                }
 
+            }
+
+
+        }
         /**
          * initalize the key value server, and activate any configured @Link:routeProvider s
          */
@@ -164,23 +180,7 @@ public class coreLauncher extends AbstractVerticle {
 
 
 
-                if (config.containsKey("kvdn_route_providers")) {
-                    def KRP = config.getJsonObject("kvdn_route_providers")
-                    KRP.fieldNames().each { key ->
-                        def value = KRP.getString(key)
-                        try {
-                            def instance = this.class.classLoader.loadClass(value)?.newInstance() as routeProvider
-                            instance.addRoutes(router, v)
-                        } catch (e) {
-                            logger.fatal("Could not load configured kvdn_route_provider: " + e)
-                            e.printStackTrace()
-                            System.exit(-1)
-                        }
 
-                    }
-
-
-                }
                 server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
                 logger.debug("server port: ${config.getInteger('kvdn_port')}")
 
