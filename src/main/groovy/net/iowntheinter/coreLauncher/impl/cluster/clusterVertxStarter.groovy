@@ -15,7 +15,6 @@ class clusterVertxStarter {
     def logger = LoggerFactory.getLogger(this.class.getName())
 
     void start(VertxOptions opts, Closure<Map> cb) {
-//make this pluggable by configuration and strip zookeeper impl into external jar
         VertxOptions options = new VertxOptions()
 
         Vertx.clusteredVertx(options, { res ->
