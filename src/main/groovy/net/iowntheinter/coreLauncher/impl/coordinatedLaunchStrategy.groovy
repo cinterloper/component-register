@@ -11,8 +11,8 @@ import net.iowntheinter.coreLauncher.launchStrategy
  * it is informed when its dependent services become available via an event bus message
  * and is responsible for only processing  work after it has been made aware
  * that its dependencies are available
- * A docker coordonatedTask must either implement well defined json on standard out
- * or call back to the event bus callback address
+ * A docker coordonatedTask must call back to the event bus callback address
+ * with its registration id (injected into the Env)
  */
 class coordinatedLaunchStrategy implements launchStrategy {
 
