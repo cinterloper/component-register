@@ -16,6 +16,7 @@ class jwt {
     jwt(Vertx vertx, JsonObject cryptconfig){
         this.vertx = vertx
         this.logger= LoggerFactory.getLogger(this.class.getName())
+        logger.trace("jwt object created, vertx ${vertx} cryptconfig ${cryptconfig}")
         provider = JWTAuth.create(this.vertx, cryptconfig)
         logger.info("jwt cryptconfig: ${cryptconfig}")
     }

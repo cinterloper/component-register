@@ -20,7 +20,8 @@ class JWTInjector implements injector {
         try {
             config = vertx.getOrCreateContext().config()
             JsonObject cryptcfg = config.getJsonObject("crypto").getJsonObject("jwt")
-            cryptcfg.put('password',System.getenv("KEYSTORE_PASS"))
+
+            cryptcfg.put('password',System.getenv(cryptcfg.getString('passvar') ?: "KEYSTORE_PASS"))
             LoggerFactory.getLogger(this.class.getName()).info("jwt cryptconfig ${cryptcfg} def algo: ${new JWTOptions().getAlgorithm()}")
 
             def j = new jwt(vertx, new JsonObject().put('keyStore',cryptcfg))
@@ -29,7 +30,7 @@ class JWTInjector implements injector {
             assert sk != null
             LoggerFactory.getLogger(this.class.getName()).info("injector returning ${sk}")
 
-            return ["JWTOKEN=${sk}"]
+            return ["JWT_TOKEN=${sk}"]
         } catch (e) {
             LoggerFactory.getLogger(this.class.getName()).error(e)
             e.printStackTrace()

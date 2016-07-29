@@ -149,11 +149,11 @@ public class coreLauncher extends AbstractVerticle {
         def router = Router.router(v)
         router.route().handler(BodyHandler.create())
         if (config.containsKey("kvdn_route_providers")) {
-            def KRP = config.getJsonObject("kvdn_route_providers")
-            KRP.fieldNames().each { key ->
-                def value = KRP.getString(key)
+            JsonArray KRP = config.getJsonArray("kvdn_route_providers")
+            KRP.toList().each { value ->
+
                 try {
-                    def instance = this.class.classLoader.loadClass(value)?.newInstance() as routeProvider
+                    def instance = this.class.classLoader.loadClass(value as String)?.newInstance() as routeProvider
                     instance.addRoutes(router, v)
                 } catch (e) {
                     logger.fatal("Could not load configured kvdn_route_provider: " + e)

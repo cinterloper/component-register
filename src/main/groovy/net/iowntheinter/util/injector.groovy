@@ -11,7 +11,8 @@ import io.vertx.core.json.JsonObject
 interface injector {
     /**
      * an injector is called right before a component is started, and is passed the components configuration
-     * the injector can do arbitrary work, then return a Set of enviornment variables to add to the components startup
+     * the injector can do arbitrary work, then return a Set of enviornment variables to add to the components
+     * startup enviornment
      * @param componentcfg
      * @param vertx
      * @return

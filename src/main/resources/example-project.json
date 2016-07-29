@@ -4,7 +4,7 @@
   "output_type":"json",
   "default_launch_strategy":"waiting",
   "kvdn_port":6500,
-  "kvdn_route_provider":"net.iowntheinter.util.http.example.helloWorldRouteProvider",
+  "kvdn_route_providers":["net.iowntheinter.util.http.example.helloWorldRouteProvider"],
   "reflectors":{
     "_KVDN_+cornerstone:registration":"_cornerstone:registration"
   },
@@ -13,6 +13,7 @@
   },
   "crypto":{
     "jwt":{
+      "passvar":"JCEKS_KEYSTORE_PASS",
       "path":"keystore.jceks",
       "type":"jceks"
     }
