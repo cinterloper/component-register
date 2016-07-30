@@ -5,7 +5,7 @@ fail() {
 }
 
 {
-  docker build -t shadowsystem/baseimage .
+  docker build -t cinterloper/cornerstone-base .
 } || {
   fail
 }

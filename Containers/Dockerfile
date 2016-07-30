@@ -9,4 +9,8 @@ ENV FAILURE_HOOK="echo FAILURE"
 ADD default-startup.sh /startup.sh
 ADD init.sh /init.sh
 ENV STARTUP_HOOKS="/startup.sh"
+RUN cd /opt/; wget https://github.com/cinterloper/kvdn/releases/download/3.2.1-1.0.4/clients-3.2.1-1.0.4.zip; unzip clients-3.2.1-1.0.4.zip
+RUN pip install pyInstaller
+RUN cd /opt/clients-3.2.1-1.0.4/python; pyinstaller kvdn-cli.py
+RUN echo 'PATH=$PATH:/opt/clients-3.2.1-1.0.4/python/dist/kvdn-cli/' >> /etc/bash.bashrc
 CMD /init.sh
