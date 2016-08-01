@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+export PATH=$PATH:/opt/clients-3.2.1-1.0.4/python/dist/kvdn-cli/
 let START_DELAY="$MY_START_TIME"
 let START_TRIES=5
 source $STARTUP_HOOKS
@@ -47,20 +48,5 @@ sleep $KVDN_START_TIME
 
 test_start &
 
-#listen on a channel named by our registration id, for commands from the bus.
-cd /opt/lash/lib/chain/
-CFG_PATH=/opt/lash/lib/chain/config/
-source config/config.sh
-source chain.sh
-export METHOD=EB DECODE_SILENT=TRUE
-    vxc -c $CORNERSTONE_HOST:7000 -l -n $LAUNCHID | while read JSON_STRING
-        do
-            decodeJson && lookup_command && run_task
-             if [ "$RETURN_ADDR" != "" ]
-             then
-               KEY_SET="$OUTPUT_KEYS OUTPUT" encodeJson | vxc -c $CORNERSTONE_HOST:7000 -n $RETURN_ADDR
-               unset RETURN_ADDR OUTPUT_KEYS OUTPUT
-             fi
-            reset_chain
-            export METHOD=EB
-        done
+#start the blocking watchdog/monitor process
+source $MAIN_LOOP
