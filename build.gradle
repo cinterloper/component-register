@@ -79,7 +79,7 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.1.7'
     compile 'ch.qos.logback:logback-core:1.1.7'
     compile 'org.slf4j:slf4j-api:1.7.21'
-    compile "net.iowntheinter:kvdn:$libversion-1.0.0"
+    compile "net.iowntheinter:kvdn:$libversion-1.0.6"
     compile 'de.gesellix:docker-client:2016-06-23T19-34-50'
 }
 
