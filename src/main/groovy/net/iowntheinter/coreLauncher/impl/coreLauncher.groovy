@@ -220,7 +220,7 @@ public class coreLauncher extends AbstractVerticle {
             strategy = cconfig.getString('launchStrategy')
         if(strategy == 'waiting')
             nt= new waitingLaunchStrategy(vertx, cconfig.getString('launchId'), nd, new JsonObject(cconfig as String).getJsonArray('deps').getList())
-        else if (strategy == 'coordinated')
+        else
             nt = new coordinatedLaunchStrategy(vertx, cconfig.getString('launchId'), nd, new JsonObject(cconfig as String).getJsonArray('deps').getList() )
         try{
             assert nt != null
