@@ -29,12 +29,12 @@ class registrationManager {
     //register globally that the component has become available
     private void listen_registrations(String regchannel = "_cornerstone:registration") {
         def eb = vertx.eventBus()
-        def depchdl = eb.consumer(regchannel)
+        def regchannelConsumer = eb.consumer(regchannel)
         Map announce = ["header": "coreLauncher",
                         "cols"  : ["COMPONENT", "STATUS", "ENABLED"],
                         "data"  : [:]
         ]
-        depchdl.handler({ msg ->
+        regchannelConsumer.handler({ msg ->
             logger.debug("registration message: " + msg.body())
             try{
                 launchIds[msg.body()]['startReady'] = true
