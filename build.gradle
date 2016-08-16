@@ -36,7 +36,7 @@ def AWS_ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID")
 def AWS_SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY")
 def USER = System.getenv("USER")
 
-if(ENV_CFG["GH_TOKEN"]){
+if(GH_TOKEN){
     github {
         owner = 'cinterloper'
         repo = 'cornerstone'
