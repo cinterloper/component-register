@@ -92,6 +92,11 @@ class coreStarter {
                 .setDescription("enables clustering")
                 .setFlag(true))
                 .addOption(new Option()
+                .setLongName("DumpConfig")
+                .setShortName("C")
+                .setDescription("output config then exit")
+                .setFlag(true))
+                .addOption(new Option()
                 .setLongName("debug")
                 .setShortName("d")
                 .setDescription("enables debugging")
@@ -124,7 +129,10 @@ class coreStarter {
             System.exit(1);
         }
 
-
+        if(commandLine.isFlagEnabled("DumpConfig")){
+            println(project_config.encodePrettily())
+            System.exit(0)
+        }
         if (commandLine.isFlagEnabled("debug")) {
 
             if (commandLine.isFlagEnabled("debug")) {
