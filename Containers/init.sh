@@ -2,14 +2,22 @@
 export PATH=$PATH:/opt/clients-3.2.1-1.0.4/python/dist/kvdn-cli/
 let START_DELAY="$MY_START_TIME"
 let START_TRIES=5
-source $STARTUP_HOOKS
 export RUN_PID="$$"
-source $LASH_PATH/bin/init.sh
 export KVDN_BASE_URL=http://$CORNERSTONE_HOST:6500
 function on_failure(){
   $FAILURE_HOOK $@
 #  kill -9 $RUN_PID
 }
+function regfunc() {
+  kvdn-cli --set --key $LAUNCHID cornerstone/registration
+}
+
+source $STARTUP_HOOKS
+#^can override regfunc in here
+
+source $LASH_PATH/bin/init.sh
+
+
 function test_start(){
     let START_COUNT="0"
 
@@ -20,7 +28,7 @@ function test_start(){
       echo "DEBUG: after health check, if you dont see this hc blocks forever"
       if [ "$HEALTH_STAT" -eq "0" ]
       then  #insert our LAUNCHID into the cornerstone/registration map, with a copy of our capabilities
-        echo _C_REG: $(echo $CAPABILITIES | kvdn-cli --set --key $LAUNCHID cornerstone/registration)
+        echo _C_REG: $(echo $CAPABILITIES | regfunc )
         export STARTED="TRUE"
       else
         export START_COUNT=$((START_COUNT+1))
