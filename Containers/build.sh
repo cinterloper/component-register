@@ -1,4 +1,14 @@
 #!/usr/bin/env bash
+VARS=(BUILDARGS)
+for var in ${VARS[@]}
+ do
+  if [  "$(eval echo \$"$var")" == "" ]
+  then
+    echo failure: YOU MUST PASS $var
+    kill -9 $$
+  fi
+done
+
 fail() {
     echo "ERROR IN BUILD"
     kill -9 $$
