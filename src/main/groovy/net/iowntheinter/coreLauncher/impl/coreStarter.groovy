@@ -54,6 +54,7 @@ class coreStarter {
                     getResourceAsStream('project.json').getText()
         }
         catch (NullPointerException e) {
+            logger.trace(e)
             return (parseDefaultProjectConfig())
         }
         return (new JsonObject(config))
@@ -65,6 +66,7 @@ class coreStarter {
             config = new JsonObject(new File(path).text)
         }
         catch (Exception e) {
+            logger.trace(e)
             return (parseDefaultProjectConfig())
         }
         return (config ?: new JsonObject())
