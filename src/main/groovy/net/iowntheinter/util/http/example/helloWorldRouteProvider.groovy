@@ -14,9 +14,12 @@ class helloWorldRouteProvider implements routeProvider  {
     @Override
     void addRoutes(Router router, Vertx v) {
         def sjsh = SockJSHandler.create(v)
+	 //apply security here, this is wide open
         def options = new BridgeOptions()
                 .addOutboundPermitted(new PermittedOptions()
-                .setAddressRegex(".*")); //apply security here
+                .setAddressRegex(".*"))
+                .addInboundPermitted(new PermittedOptions()
+                .setAddressRegex(".*"))
         sjsh.bridge(options)
         router.route("/eb/*").handler(sjsh)
 
