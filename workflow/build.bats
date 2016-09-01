@@ -6,8 +6,7 @@ source workflow/mulibuild.sh
   [ "$result" -eq 0 ]
 }
 @test "build cornerstone base container" {
-  cd Containers
-  bash build.sh
+  bash  Containers/build.sh
   result=$?
   [ "$result" -eq 0 ]
 }
