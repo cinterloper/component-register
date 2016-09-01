@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-export PATH=$PATH:/opt/clients-3.2.1-1.0.4/python/dist/kvdn-cli/
+source /etc/bash.bashrc
 let START_DELAY="$MY_START_TIME"
 let START_TRIES=5
 export RUN_PID="$$"
