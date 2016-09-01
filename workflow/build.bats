@@ -6,6 +6,8 @@ source workflow/mulibuild.sh
   [ "$result" -eq 0 ]
 }
 @test "build cornerstone base container" {
+  VERSION=$(DUMP_VERSION=true ./gradlew 2>/dev/null)
+  export BUILDARGS="--build-arg=PROJVER=$(echo $VERSION | cut -d '-' -f 2)"
   bash  Containers/build.sh
   result=$?
   [ "$result" -eq 0 ]
