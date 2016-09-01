@@ -177,15 +177,12 @@ public class coreLauncher extends AbstractVerticle {
                 } else
                     server = v.createHttpServer()
 
-
-
-
-
                 server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
                 logger.debug("server port: ${config.getInteger('kvdn_port')}")
 
-                startContainers({})
                 startVerticles(vertx)
+                startContainers({})
+
                 def dispd = startMessage.data
                 dispd['kvdn'] = [" port: ${config.getInteger('kvdn_port')}", "true"]
                 startMessage.data = dispd

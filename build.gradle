@@ -28,6 +28,12 @@ def libversion = '3.3.2'
 if(System.getenv("VERTX_VERSION") != null)
     libversion = System.getenv("VERTX_VERSION")
 version = "${libversion}-49"
+if(System.getenv('DUMP_VERSION'))
+{
+    println version
+    System.exit(0)
+}
+
 println "building for $libversion"
 def GH_TOKEN = System.getenv("GH_TOKEN")
 def AWS_MVN_BUCKET = System.getenv("AWS_MVN_BUCKET")
