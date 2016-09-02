@@ -11,7 +11,7 @@ ADD Containers/init.sh /init.sh
 ENV STARTUP_HOOKS="/startup.sh"
 RUN cd /opt/; wget https://github.com/cinterloper/kvdn/releases/download/3.3.2-1.0.9/clients-3.3.2-1.0.9.zip
 RUN cd /opt; unzip clients-3.3.2-1.0.9.zip
-RUN pip install pyInstaller
+RUN pip install pyInstaller httplib2
 RUN cd /opt/clients-3.3.2-1.0.9/python; pyinstaller kvdn-cli.py
 RUN echo 'export PATH=$PATH:/opt/clients-3.3.2-1.0.9/python/dist/kvdn-cli/' >> /etc/bash.bashrc
 ADD Containers/_main_chain_dialback.sh /
