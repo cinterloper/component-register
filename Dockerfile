@@ -17,6 +17,5 @@ RUN cp /opt/clients-3.3.2-1.0.9/python/dist/kvdn-cli /usr/bin/
 ADD Containers/_main_chain_dialback.sh /
 ENV MAIN_LOOP=/_main_chain_dialback.sh
 ADD build/libs/cornerstone-$PROJVER-fat.jar /opt/cornerstone.jar
-RUN cd /opt && git clone  https://github.com/cinterloper/nxc.git && cd /opt/nxc && npm install .
 
 CMD /init.sh
