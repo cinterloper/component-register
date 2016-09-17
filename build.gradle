@@ -24,10 +24,10 @@ plugins {
 apply plugin: 'org.owasp.dependencycheck'
 apply plugin: "co.riiid.gradle"
 
-def libversion = '3.3.2'
+def libversion = '3.3.3'
 if(System.getenv("VERTX_VERSION") != null)
     libversion = System.getenv("VERTX_VERSION")
-version = "${libversion}-49"
+version = "${libversion}-50"
 if(System.getenv('DUMP_VERSION'))
 {
     println version
@@ -108,7 +108,7 @@ dependencies {
     compile 'ch.qos.logback:logback-classic:1.1.7'
     compile 'ch.qos.logback:logback-core:1.1.7'
     compile 'org.slf4j:slf4j-api:1.7.21'
-    compile "net.iowntheinter:kvdn:$libversion-1.0.9"
+    compile "net.iowntheinter:kvdn:$libversion-1.1.0"
     compile 'de.gesellix:docker-client:2016-06-23T19-34-50'
 }
 
