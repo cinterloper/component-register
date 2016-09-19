@@ -27,7 +27,7 @@ apply plugin: "co.riiid.gradle"
 def libversion = '3.3.3'
 if(System.getenv("VERTX_VERSION") != null)
     libversion = System.getenv("VERTX_VERSION")
-version = "${libversion}-50"
+version = "${libversion}-51"
 if(System.getenv('DUMP_VERSION'))
 {
     println version
@@ -105,6 +105,7 @@ dependencies {
     compile "io.vertx:vertx-core:$libversion"
     compile "io.vertx:vertx-lang-groovy:$libversion"
     compile "io.vertx:vertx-shell:$libversion"
+    compile "com.jayway.jsonpath:json-path:2.2.0"
     compile 'ch.qos.logback:logback-classic:1.1.7'
     compile 'ch.qos.logback:logback-core:1.1.7'
     compile 'org.slf4j:slf4j-api:1.7.21'
