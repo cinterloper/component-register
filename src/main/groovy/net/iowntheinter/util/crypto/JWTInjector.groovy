@@ -6,6 +6,7 @@ import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.auth.jwt.JWTOptions
 import net.iowntheinter.util.injector
 import net.iowntheinter.util.crypto.jwt
+import net.iowntheinter.util.configLoader
 
 /** 
  * Created by g on 7/25/16.
@@ -14,14 +15,15 @@ import net.iowntheinter.util.crypto.jwt
  */
 class JWTInjector implements injector {
     JsonObject config
-
+    def c
     @Override
     Set inject(JsonObject componentcfg, Vertx vertx) {
+        c = new configLoader(vertx)
         try {
             config = vertx.getOrCreateContext().config()
             JsonObject cryptcfg = config.getJsonObject("crypto").getJsonObject("jwt")
 
-            cryptcfg.put('password',System.getenv(cryptcfg.getString('passvar') ?: "KEYSTORE_PASS"))
+            cryptcfg.put('password',c.getConfig('$.crypto.jwt.pass'))
             LoggerFactory.getLogger(this.class.getName()).info("jwt cryptconfig ${cryptcfg} def algo: ${new JWTOptions().getAlgorithm()}")
 
             def j = new jwt(vertx, new JsonObject().put('keyStore',cryptcfg))

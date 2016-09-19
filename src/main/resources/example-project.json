@@ -13,7 +13,7 @@
   },
   "crypto":{
     "jwt":{
-      "passvar":"JCEKS_KEYSTORE_PASS",
+      "pass":"$JCEKS_KEYSTORE_PASS",
       "path":"keystore.jceks",
       "type":"jceks"
     }
