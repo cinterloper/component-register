@@ -6,6 +6,8 @@ import io.vertx.core.json.JsonObject
 
 /**
  * Created by g on 9/19/16.
+ * the idea here is that you ask for a json path, that looks up a variable from the config
+ * if the value starts with '$', we treat it as an inderection and try to load it from the system ENV
  */
 class configLoader {
     Vertx vertx
