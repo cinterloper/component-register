@@ -144,7 +144,7 @@ public class coreLauncher extends AbstractVerticle {
                             "data"  : [:]
         ]
 
-        def kvs = new kvserver()
+        def kvs = new kvserver(vertx)
         def v = vertx as Vertx
         def router = Router.router(v)
         router.route().handler(BodyHandler.create())
