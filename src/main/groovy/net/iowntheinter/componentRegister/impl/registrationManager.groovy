@@ -4,6 +4,7 @@ import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import io.vertx.core.logging.LoggerFactory
+import net.iowntheinter.kvdn.util.distributedWaitGroup
 import net.iowntheinter.util.displayOutput
 
 /**
@@ -28,47 +29,18 @@ class registrationManager {
 
     //register globally that the component has become available
     private void listen_registrations(String regchannel = "_cornerstone:registration") {
-        def eb = vertx.eventBus()
-        def regchannelConsumer = eb.consumer(regchannel)
+        def wg = new distributedWaitGroup(launchIds.keySet(),vertx)
         Map announce = ["header": "coreLauncher",
                         "cols"  : ["COMPONENT", "STATUS", "ENABLED"],
                         "data"  : [:]
         ]
-        regchannelConsumer.handler({ msg ->
-            logger.debug("registration message: " + msg.body())
-            try{
-                launchIds[msg.body()]['startReady'] = true
-            }catch(e){
-                logger.error("a registration message generated an error: " +e.getMessage())
-                logger.error("did another instance launch trying " +
-                        "to assume a bridge port we are already listening on?")
-                logger.error(e)
-            }
-            def start = true
-            def d = announce.data;
 
-            def togo = [:]
-            launchIds.each {  id , props  ->
-                id = id as String
-                props = props as Map
-                d[props.launchName] = [" running ", "true"]
-                if (!props['startReady']) {
-                    start = false
-                    togo[id] = props.launchName
-                }
-            }
-            logger.debug("components that still need to check in: ${togo.values()}")
-            if (start) {
-                getVertx().eventBus().send('_cornerstone:start', 'true')
-                logger.debug("sending start sig")
-
-                new displayOutput().display(announce)
-
-            } else {
-                logger.debug("launchids ${launchIds}")
-            }
-
+        wg.onKeys('cornerstone:registration',{
+            getVertx().eventBus().send('_cornerstone:start', 'true')
+            logger.debug("sending start sig")
+            new displayOutput().display(announce)
         })
+
     }
 
 }
