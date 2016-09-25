@@ -4,9 +4,12 @@ import com.jayway.jsonpath.JsonPath
 import io.vertx.core.Vertx
 import io.vertx.core.http.HttpClient
 import io.vertx.core.json.JsonObject
+import io.vertx.core.logging.Logger
+import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.kvdn.storage.kv.impl.KvTx
 import net.iowntheinter.kvdn.storage.kv.impl.kvdnSession
 import net.iowntheinter.kvdn.util.distributedWaitGroup
+import net.iowntheinter.util.errorHandler
 
 /**
  * Created by g on 9/19/16.
@@ -16,9 +19,10 @@ import net.iowntheinter.kvdn.util.distributedWaitGroup
 public class configLoader {
     Vertx vertx
     Map configs = [:]
-
+    Logger logger
     configLoader(Vertx v) {
         this.vertx = v
+        logger = LoggerFactory.getLogger(this.class.getName())
     }
 
     void loadConfigSet(Set configPaths, cb) {
@@ -67,6 +71,6 @@ public class configLoader {
     }
     void comploader(String name, String lookup, cb){
 //unimplemented
-        throw new Exception("unimplemented")
+        errorHandler.handleError( new Exception("unimplemented"),logger)
     }
 }
