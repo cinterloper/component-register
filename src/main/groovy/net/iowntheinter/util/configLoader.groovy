@@ -7,7 +7,7 @@ import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.kvdn.storage.kv.impl.KvTx
-import net.iowntheinter.kvdn.storage.kv.impl.kvdnSession
+import net.iowntheinter.kvdn.storage.kvdnSession
 import net.iowntheinter.kvdn.util.distributedWaitGroup
 import net.iowntheinter.util.errorHandler
 
@@ -56,9 +56,11 @@ public class configLoader {
         switch(extsys){
             case 'kvdn': // $@kvdn://this/that/whatever
                 def s = new kvdnSession(vertx)
-                def tokens = url.tokenize('/')
-                KvTx tx = s.newTx("${tokens[1]}:${tokens[2]}") as KvTx
-                tx.get(tokens[3],cb)
+                s.init({
+                    def tokens = url.tokenize('/')
+                    KvTx tx = s.newTx("${tokens[1]}:${tokens[2]}") as KvTx
+                    tx.get(tokens[3],cb)
+                },{ error -> logger.error(error)})
                 break
             case 'http' || 'https':
                 HttpClient client = vertx.createHttpClient()
