@@ -7,9 +7,8 @@ import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.kvdn.storage.kv.impl.KvTx
-import net.iowntheinter.kvdn.storage.kv.impl.kvdnSession
+import net.iowntheinter.kvdn.storage.kvdnSession
 import net.iowntheinter.kvdn.util.distributedWaitGroup
-import net.iowntheinter.util.errorHandler
 
 /**
  * Created by g on 9/19/16.
@@ -17,6 +16,7 @@ import net.iowntheinter.util.errorHandler
  * if the value starts with '$', we treat it as an inderection and try to load it from the system ENV
  */
 public class configLoader {
+    Logger log
     Vertx vertx
     Map configs = [:]
     Logger logger
@@ -69,8 +69,11 @@ public class configLoader {
 
         }
     }
-    void comploader(String name, String lookup, cb){
-//unimplemented
-        errorHandler.handleError( new Exception("unimplemented"),logger)
+
+    void setNodeInternalConfig(String key, String value){
+        vertx.sharedData().getLocalMap("CSinternalconfig").put(key,value)
+    }
+    String getNodeInternalConfig(String key){
+        return vertx.sharedData().getLocalMap("CSinternalconfig").get(key)
     }
 }
