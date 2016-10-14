@@ -30,9 +30,8 @@ class registrationManager {
     //register globally that the component has become available
     private void listen_registrations(String regchannel = "_cornerstone:registration") {
         def wg = new distributedWaitGroup(launchIds.keySet(),vertx)
-        Map announce = ["header": "coreLauncher",
-                        "cols"  : ["COMPONENT", "STATUS", "ENABLED"],
-                        "data"  : [:]
+        Map announce = ["header": "SYSTEM HAS LAUNCHED",
+                        "data"  : launchIds
         ]
 
         wg.onAck(regchannel,{
