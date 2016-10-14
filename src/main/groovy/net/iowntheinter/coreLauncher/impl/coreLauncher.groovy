@@ -88,33 +88,43 @@ public class coreLauncher extends AbstractVerticle {
                     if (cconfig.fieldNames().contains("environment_injectors")) {
                         logger.info("_injecting")
                         def ij
-                        def IJC = cconfig.getJsonArray("environment_injectors")
+                        def IJS = cconfig.getJsonArray("environment_injectors")
+                        def IJCount = IJS.size()
+                        IJS.each { String ijname ->
+                            ij = this.class.classLoader.
+                                    loadClass(this.config.getJsonObject('injectors').getString(ijname))?.newInstance() as injector
+                            logger.info("did we get an injector?: ${ij}")
+                            ij.inject(docker_crconfig, vertx, { result ->
+                                if (result.error == null) {
+                                    enviornmentInjections += result.result
+                                    IJCount--
+                                } else {
+                                    ((Exception) result.error).printStackTrace()
+                                    logger.fatal("Could not load configured environment injector : " + result.error)
+                                    System.exit(-1)
+                                }
 
-                        IJC.each { String ijname ->
-                            try {
-                                ij = this.class.classLoader.
-                                        loadClass(this.config.getJsonObject('injectors').getString(ijname))?.newInstance() as injector
-                                logger.info("did we get an injector?: ${ij}")
-                                enviornmentInjections = ij.inject(docker_crconfig, vertx)
-                            } catch (e) {
-                                logger.fatal("Could not load configured environment injector : " + e)
-                                e.printStackTrace()
-                                System.exit(-1)
-                            }
-                            def env = cconfig.getJsonArray("Env") ?: new JsonArray()
-                            enviornmentInjections.each { String needle ->
-                                env.add(needle)
-                            }
-                            cconfig.put("Env", env)
+
+
+                                def env = cconfig.getJsonArray("Env") ?: new JsonArray()
+                                enviornmentInjections.each { String needle ->
+                                    env.add(needle)
+                                }
+                                cconfig.put("Env", env)
+                                if (IJCount == 0) { //last async cb fired
+                                    startContainer(name as String, cconfig, {
+                                        getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent("docker:" + name, docker_crconfig)
+                                    })
+                                }
+
+                            })
+
 
                         }
 
                     }
 
 
-                    startContainer(name as String, cconfig, {
-                        getVertx().sharedData().getLocalMap("cornerstone_deployments").putIfAbsent("docker:" + name, docker_crconfig)
-                    })
                 }
             }
         }
@@ -214,18 +224,18 @@ public class coreLauncher extends AbstractVerticle {
 
         def strategy = this.config.getString("default_launch_strategy")
         def nt
-        if(cconfig.containsKey('launchStrategy'))
+        if (cconfig.containsKey('launchStrategy'))
             strategy = cconfig.getString('launchStrategy')
-        if(strategy == 'waiting')
-            nt= new waitingLaunchStrategy(vertx, cconfig.getString('launchId'), nd, new JsonObject(cconfig as String).getJsonArray('deps').getList())
+        if (strategy == 'waiting')
+            nt = new waitingLaunchStrategy(vertx, cconfig.getString('launchId'), nd, new JsonObject(cconfig as String).getJsonArray('deps').getList())
         else
-            nt = new coordinatedLaunchStrategy(vertx, cconfig.getString('launchId'), nd, new JsonObject(cconfig as String).getJsonArray('deps').getList() )
-        try{
+            nt = new coordinatedLaunchStrategy(vertx, cconfig.getString('launchId'), nd, new JsonObject(cconfig as String).getJsonArray('deps').getList())
+        try {
             assert nt != null
             nt.start({ result ->
                 logger.debug "docker start result: " + result
             })
-        }catch(e){
+        } catch (e) {
             logger.error(e)
         }
 
@@ -235,7 +245,7 @@ public class coreLauncher extends AbstractVerticle {
     void startVerticle(String name, JsonObject vconfig, Closure cb) {
         logger.debug("${name}:${vconfig}")
         def nv = new VXVerticle(vertx, new DeploymentOptions([config: config.put('launchId', vconfig.getString('launchId'))]), name)
-        def nt = new coordinatedLaunchStrategy(vertx,  vconfig.getString('launchId'),  nv, new JsonObject(vconfig as String).getJsonArray('deps').getList())
+        def nt = new coordinatedLaunchStrategy(vertx, vconfig.getString('launchId'), nv, new JsonObject(vconfig as String).getJsonArray('deps').getList())
         nt.start({ AsyncResult result ->
             String id
             if (result.succeeded()) {

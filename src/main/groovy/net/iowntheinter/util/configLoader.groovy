@@ -33,10 +33,12 @@ public class configLoader {
             def marker = result.take(2)
             switch (marker) {
                 case '$$':
-                    lookupSysEnv(result.substring(1), { wg.ack(path, cb) })
+                    lookupSysEnv(result.substring(2),path, {
+                        wg.ack(path, cb)
+                    })
                     break
                 case '$@':
-                    extConfigLoader(result.substring(1), { wg.ack(path, cb) })
+                    extConfigLoader(result.substring(2),path, { wg.ack(path, cb) })
                     break
             }
         }
@@ -46,12 +48,13 @@ public class configLoader {
         return configs[path]
     }
 
-    void lookupSysEnv(String var, cb) {
-        configs[var] = System.getenv(var)
+    void lookupSysEnv(String var,String path, cb) {
+        configs[path] = System.getenv(var)
+        logger.trace("looked up sys env: " + configs[var])
         cb()
     }
 
-    void extConfigLoader(String url, cb) {
+    void extConfigLoader(String url, String path, cb) {
         def extsys = url.tokenize(':')[0]
         switch(extsys){
             case 'kvdn': // $@kvdn://this/that/whatever
@@ -59,15 +62,25 @@ public class configLoader {
                 s.init({
                     def tokens = url.tokenize('/')
                     KvTx tx = s.newTx("${tokens[1]}:${tokens[2]}") as KvTx
-                    tx.get(tokens[3],cb)
+                    tx.get(tokens[3],{ res ->
+                        if(res.result)
+                            configs[path]=res.result
+                        cb()
+                    })
                 },{ error -> logger.error(error)})
                 break
             case 'http' || 'https':
                 HttpClient client = vertx.createHttpClient()
-                client.getNow(url,{ resp -> cb(resp)})
+                client.getNow(url,{ resp ->
+                    resp.bodyHandler({ body ->
+                        configs[path]=body.toString()
+                        cb()
+                    })
+                })
                 break
             default:
-                comploader(extsys,url,cb)
+                throw new Exception( extsys + " Unimplemented ")
+                //comploader(extsys,url,cb)
 
         }
     }

@@ -15,20 +15,20 @@ import net.iowntheinter.coreLauncher.launchStrategy
  * with its registration id (injected into the Env)
  */
 class coordinatedLaunchStrategy implements launchStrategy {
+    boolean vertxTask
 
     Map dependentServices
     Vertx vertx
-    def task
-    def List dependencies
-    def String id
-    def boolean listening
-    def Handler startCb
-    def Closure runCb
+    List dependencies
+    String id
+    boolean listening
+    def startCb
+    Closure runCb
     def started
-    def boolean vertxTask
+    def task
 
 
-    coordinatedLaunchStrategy(Vertx v , String launchId, componentType task, List dependencies) {
+    coordinatedLaunchStrategy(Vertx v, String launchId, componentType task, List dependencies) {
         this.vertx = v
         this.task = task
         this.dependencies = dependencies
@@ -52,7 +52,7 @@ class coordinatedLaunchStrategy implements launchStrategy {
 
     @Override
     void registrationEvent(Map peerNotification, Closure cb) {
-        this.task.registrationEvent(notification, cb)
+        this.task.registrationEvent(peerNotification, cb)
 
     }
 

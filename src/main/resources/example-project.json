@@ -13,7 +13,7 @@
   },
   "crypto":{
     "jwt":{
-      "pass":"$JCEKS_KEYSTORE_PASS",
+      "pass":"$$JCEKS_KEYSTORE_PASS",
       "path":"keystore.jceks",
       "type":"jceks"
     }
@@ -40,7 +40,7 @@
           "tag": "latest",
           "deps": [],
           "environment_injectors":["JWTInjector"],
-          "enabled": true
+          "enabled": false
         }
       }
     }

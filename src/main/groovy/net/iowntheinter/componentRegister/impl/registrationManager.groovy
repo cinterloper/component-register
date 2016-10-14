@@ -35,7 +35,7 @@ class registrationManager {
                         "data"  : [:]
         ]
 
-        wg.onKeys('cornerstone:registration',{
+        wg.onAck(regchannel,{
             getVertx().eventBus().send('_cornerstone:start', 'true')
             logger.debug("sending start sig")
             new displayOutput().display(announce)

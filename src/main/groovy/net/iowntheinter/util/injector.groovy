@@ -17,5 +17,5 @@ interface injector {
      * @param vertx
      * @return
      */
-    Set inject(JsonObject componentcfg, Vertx vertx)
+    void inject(JsonObject componentcfg, Vertx vertx, cb)
 }

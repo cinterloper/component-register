@@ -17,26 +17,29 @@ class JWTInjector implements injector {
     JsonObject config
     def c
     @Override
-    Set inject(JsonObject componentcfg, Vertx vertx) {
+    void inject(JsonObject componentcfg, Vertx vertx,cb) {
         c = new configLoader(vertx)
-        try {
-            config = vertx.getOrCreateContext().config()
-            JsonObject cryptcfg = config.getJsonObject("crypto").getJsonObject("jwt")
+        c.loadConfigSet(['$.crypto.jwt.pass'].toSet(),{
+            try {
+                config = vertx.getOrCreateContext().config()
+                JsonObject cryptcfg = config.getJsonObject("crypto").getJsonObject("jwt")
 
-            cryptcfg.put('password',c.getConfig('$.crypto.jwt.pass'))
-            LoggerFactory.getLogger(this.class.getName()).info("jwt cryptconfig ${cryptcfg} def algo: ${new JWTOptions().getAlgorithm()}")
+                cryptcfg.put('password',c.getConfig('$.crypto.jwt.pass'))
+                LoggerFactory.getLogger(this.class.getName()).info("jwt cryptconfig ${cryptcfg} def algo: ${new JWTOptions().getAlgorithm()}")
 
-            def j = new jwt(vertx, new JsonObject().put('keyStore',cryptcfg))
+                def j = new jwt(vertx, new JsonObject().put('keyStore',cryptcfg))
 
-            def sk = j.createToken(new JsonObject().put('sub', componentcfg.getString('launchid')), new JWTOptions())
-            assert sk != null
-            LoggerFactory.getLogger(this.class.getName()).info("injector returning ${sk}")
+                def sk = j.createToken(new JsonObject().put('sub', componentcfg.getString('launchid')), new JWTOptions())
+                assert sk != null
+                LoggerFactory.getLogger(this.class.getName()).info("injector returning ${sk}")
 
-            return ["JWT_TOKEN=${sk}"]
-        } catch (e) {
-            LoggerFactory.getLogger(this.class.getName()).error(e)
-            e.printStackTrace()
-        }
+                cb([result:["JWT_TOKEN=${sk}"].toSet(),error:null]);
+            } catch (e) {
+                LoggerFactory.getLogger(this.class.getName()).error(e)
+                cb([result:null,error:e])
+            }
+        })
+
 
     }
 }
