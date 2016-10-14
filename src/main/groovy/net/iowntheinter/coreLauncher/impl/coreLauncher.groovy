@@ -168,7 +168,8 @@ public class coreLauncher extends AbstractVerticle {
         /**
          * initalize the key value server, and activate any configured @Link:routeProvider s
          */
-        kvs.init(router, v, {
+
+        kvs.init(router, {
             try {
                 def server
                 if (config.containsKey('http_server_options')) {
