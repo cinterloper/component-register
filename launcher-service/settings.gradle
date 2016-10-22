@@ -4,7 +4,4 @@ if (!JavaVersion.current().java8Compatible) {
                                     |  You are using something else,
                                     |  Refresh. Try again.'''.stripMargin())
 }
-
 include 'service-registry'
-include 'cornerstone-core'
-include 'launcher-service'

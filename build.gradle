@@ -27,7 +27,7 @@ apply plugin: "co.riiid.gradle"
 def libversion = '3.3.3'
 if(System.getenv("VERTX_VERSION") != null)
     libversion = System.getenv("VERTX_VERSION")
-version = "${libversion}-60"
+version =  "$libversion-${new File('src/main/resources/_CORNERSTONE_VERSION.txt').text}"
 if(System.getenv('DUMP_VERSION'))
 {
     println version
@@ -99,20 +99,13 @@ publishing {
     }
 }
 sourceCompatibility = '1.8'
-mainClassName = 'net.iowntheinter.coreLauncher.impl.coreStarter'
+mainClassName = 'net.iowntheinter.cornerstone.impl.cornerstoneStarter'
 
 dependencies {
     compile "io.vertx:vertx-core:$libversion"
     compile "io.vertx:vertx-lang-groovy:$libversion"
-    compile "io.vertx:vertx-shell:$libversion"
     compile "io.vertx:vertx-unit:$libversion"
-    compile "com.jayway.jsonpath:json-path:2.2.0"
-    compile 'ch.qos.logback:logback-classic:1.1.7'
-    compile 'ch.qos.logback:logback-core:1.1.7'
-    compile 'org.slf4j:slf4j-api:1.7.21'
-    compile 'com.bettercloud:vault-java-driver:1.2.0'
-    compile "net.iowntheinter:kvdn:$libversion-1.6.2"
-    compile 'de.gesellix:docker-client:2016-10-07T18-47-59'
+    compile "net.iowntheinter:cornerstone-core:$version"
 }
 
 processResources {

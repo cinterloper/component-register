@@ -11,7 +11,7 @@ repositories {
   jcenter()
 }
 
-def libversion = '3.3.3'
+def libversion = '3.3.2'
 if(System.getenv("VERTX_VERSION") != null)
   libversion = System.getenv("VERTX_VERSION")
 version = libversion
@@ -19,12 +19,8 @@ sourceCompatibility = '1.8'
 
 dependencies {
   compile "io.vertx:vertx-core:$version"
-  compile "io.vertx:vertx-service-discovery:$version"
-  compile 'ch.qos.logback:logback-classic:1.1.7'
-  compile 'ch.qos.logback:logback-core:1.1.7'
-  compile 'org.slf4j:slf4j-api:1.7.21'
-  compile "net.iowntheinter:kvdn:$libversion-20"
-  compile "net.iowntheinter:cornerstone:$libversion-29"
+
+  compile "net.iowntheinter:cornerstone-core:$libversion-"
 
 }
 

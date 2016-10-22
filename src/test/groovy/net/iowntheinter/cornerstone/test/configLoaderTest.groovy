@@ -7,7 +7,7 @@ import io.vertx.ext.unit.TestSuite
  */
 TestSuite suite = TestSuite.create("the_test_suite")
 suite.test("my_test_case", {context ->
-  
+
   String s = "value"
   context.assertEquals("value", s)
 })
