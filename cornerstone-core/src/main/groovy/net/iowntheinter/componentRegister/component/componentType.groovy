@@ -2,6 +2,7 @@ package net.iowntheinter.componentRegister.component
 
 import io.vertx.core.AsyncResult
 import io.vertx.core.Handler
+import io.vertx.core.json.JsonObject
 
 /**
  * Created by grant on 4/13/16.
@@ -9,10 +10,10 @@ import io.vertx.core.Handler
  * it must check in by that time or will be considered failed
  */
 interface componentType {
-    void start(Handler<AsyncResult> cb) //wakeup cb after its actually started
-    void stop(Handler<AsyncResult> cb)
+    void start(Handler<AsyncResult<JsonObject>> cb) //wakeup cb after its actually started
+    void stop(Handler<AsyncResult<JsonObject>> cb)
     String getId()
-    void backup(Handler<AsyncResult> cb) // *see below
+    void backup(Handler<AsyncResult<JsonObject>> cb) // *see below
 /*
 for a docker task, backup should
   provide some notification to the container

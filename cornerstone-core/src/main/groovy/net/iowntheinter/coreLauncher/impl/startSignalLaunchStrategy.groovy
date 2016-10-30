@@ -7,14 +7,14 @@ import net.iowntheinter.coreLauncher.launchStrategy
 
 /**
  * Created by grant on 4/15/16.
- * a coordinatedLaunchStrategy is launched immediately
+ * a startSignalLaunchStrategy is launched immediately
  * it is informed when its dependent services become available via an event bus message
  * and is responsible for only processing  work after it has been made aware
  * that its dependencies are available
  * A docker coordonatedTask must call back to the event bus callback address
  * with its registration id (injected into the Env)
  */
-class coordinatedLaunchStrategy implements launchStrategy {
+class startSignalLaunchStrategy implements launchStrategy {
     boolean vertxTask
 
     Map dependentServices
@@ -28,7 +28,7 @@ class coordinatedLaunchStrategy implements launchStrategy {
     def task
 
 
-    coordinatedLaunchStrategy(Vertx v, String launchId, componentType task, List dependencies) {
+    startSignalLaunchStrategy(Vertx v, String launchId, componentType task, List dependencies) {
         this.vertx = v
         this.task = task
         this.dependencies = dependencies

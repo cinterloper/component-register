@@ -8,11 +8,14 @@ import io.vertx.core.VertxOptions
  * Created by grant on 4/11/16.
  */
 class singleVertxStarter {
-    Context ctx
-
-
+    Vertx vertx
     void start(VertxOptions opts, Closure<Map> cb) {
-
-        cb([success: true, vertx: Vertx.vertx(opts)])
+        try {
+            vertx = Vertx.vertx(opts)
+        }catch (e){
+            e.printStackTrace()
+            System.exit(-1)
+        }
+        cb([success: true, vertx: vertx])
     }
 }

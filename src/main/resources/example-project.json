@@ -2,9 +2,17 @@
   "name": "example-project",
   "env_vars": ["JCEKS_KEYSTORE_PASS"],
   "output_type":"json",
-  "default_launch_strategy":"waiting",
-  "kvdn_port":6500,
-  "kvdn_route_providers":["net.iowntheinter.util.http.example.helloWorldRouteProvider"],
+  "default_launch_strategy":"independent",
+  "launch_stratagies":{
+    "independent": null,
+    "group":       "net.iowntheinter.coreLauncher.impl.startSignalLaunchStrategy",
+    "capabilities":"net.iowntheinter.coreLauncher.impl.capabilitiesLaunchStrategy"
+  },
+
+  "kvdn":{
+    "port":6500,
+    "route_providers":["net.iowntheinter.util.http.example.helloWorldRouteProvider"]
+  },
   "reflectors":{
     "_KVDN_+cornerstone:registration":"_cornerstone:registration"
   },
@@ -26,14 +34,26 @@
       },
       "groovy:example.groovy": {
         "deps": [],
-        "enabled": true
+        "count":2,
+        "enabled": true,
+        "worker":false
       }
 
     },
     "ext": {
       "docker": {
         "ubuntu": {
-          "launchStrategy":"waiting",
+          "launchStrategy":"independent",
+          "ifExists": "recreate",
+          "dkrOptsRef": "testDkrOpts",
+          "image": "ubuntu",
+          "tag": "latest",
+          "deps": [],
+          "environment_injectors":["JWTInjector"],
+          "enabled": false
+        },
+        "ubuntu2": {
+          "launchStrategy":"group",
           "ifExists": "recreate",
           "dkrOptsRef": "testDkrOpts",
           "image": "ubuntu",

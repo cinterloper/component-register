@@ -35,7 +35,7 @@ class DockerTaskRX implements componentType {
     }
 
     @Override
-    void start(Handler<AsyncResult> cb) {
+    void start(Handler<AsyncResult<JsonObject>> cb) {
         Observable<DockerContainerResponse> r = client.createContainerObs(container.toString(), name)
         r.flatMap({ res ->
             client.startContainerObs(res.getId())
@@ -45,7 +45,7 @@ class DockerTaskRX implements componentType {
             })
                     .subscribe({ sres ->
                 logger.info(sres.toString())
-                cb.handle(Future.succeededFuture(sres))
+                cb.handle(Future.succeededFuture(new JsonObject().put("result",sres.toString())))
             })
         })
 
@@ -53,18 +53,18 @@ class DockerTaskRX implements componentType {
     }
 
     @Override
-    void stop(Handler<AsyncResult> cb) {
+    void stop(Handler<AsyncResult<JsonObject>> cb) {
         Observable<DockerContainerResponse> r = client.stopContainerObs(this.id, 0)
         r.doOnError({ error ->
             logger.error(error)
             cb.handle(Future.failedFuture(error))
         }).subscribe({ result ->
-            cb.handle(Future.succeededFuture(result))
+            cb.handle(Future.succeededFuture(new JsonObject().put("result",result.toString())))
         })
     }
 
     @Override
-    void backup(Handler<AsyncResult> cb) {
+    void backup(Handler<AsyncResult<JsonObject>> cb) {
         throw new Exception("unimplemented")
     }
 

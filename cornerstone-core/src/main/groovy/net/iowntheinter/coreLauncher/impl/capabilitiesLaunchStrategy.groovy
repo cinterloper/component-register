@@ -11,7 +11,7 @@ import net.iowntheinter.util.registrationHelper
  *
 
  */
-class waitingLaunchStrategy implements launchStrategy {
+class capabilitiesLaunchStrategy implements launchStrategy {
     def task
     def List dependencies
     def Map depset
@@ -23,7 +23,7 @@ class waitingLaunchStrategy implements launchStrategy {
     def boolean vertxTask
     Vertx vertx
 
-    waitingLaunchStrategy(Vertx v, String launchId, componentType task, List dependencies) {
+    capabilitiesLaunchStrategy(Vertx v, String launchId, componentType task, List dependencies) {
         this.vertx = v
         this.id = launchId
         this.task = task as componentType

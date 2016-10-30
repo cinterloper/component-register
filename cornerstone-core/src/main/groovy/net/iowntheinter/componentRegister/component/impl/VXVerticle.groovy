@@ -4,6 +4,7 @@ import io.vertx.core.AsyncResult
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
+import io.vertx.core.json.JsonObject
 import net.iowntheinter.componentRegister.component.componentType
 
 /**
@@ -30,19 +31,19 @@ class VXVerticle implements componentType {
     }
 
     @Override
-    void start(Handler<AsyncResult> cb) {
+    void start(Handler<AsyncResult<JsonObject>> cb) {
         this.name = name
         vertx.deployVerticle(ImplementationID, ops, cb)
     }
 
     @Override
-    void stop(Handler<AsyncResult> cb) {
-        vertx.undeploy(id as String, cb as Handler)
+    void stop(Handler<AsyncResult<JsonObject>> cb) {
+        vertx.undeploy(id as String, cb )
     }
 
     @Override
-    void backup(Handler<AsyncResult> cb) {
-
+    void backup(Handler<AsyncResult<JsonObject>> cb) {
+       throw new Exception("unimplemented")
     }
 
     void registrationEvent(Map peerNotification, Closure cb) {

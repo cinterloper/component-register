@@ -39,7 +39,12 @@ class cornerstoneStarter {
     static JsonObject project_config
     static URLClassLoader classloader = (URLClassLoader) (Thread.currentThread().getContextClassLoader())
     static Logger logger = LoggerFactory.getLogger(this.class.getName())
+    private final UUID incarnation
 
+
+    cornerstoneStarter() {
+        incarnation = UUID.randomUUID()
+    }
 
     static void halt() {
         def rt = Runtime.getRuntime()
@@ -131,7 +136,7 @@ class cornerstoneStarter {
             System.exit(1);
         }
 
-        if(commandLine.isFlagEnabled("DumpConfig")){
+        if (commandLine.isFlagEnabled("DumpConfig")) {
             println(project_config.encodePrettily())
             System.exit(0)
         }
@@ -172,28 +177,28 @@ class cornerstoneStarter {
                 halt()
             } else {
                 vx = res.vertx as Vertx
-                project_config.put("_root_launch_id", vx.getOrCreateContext().deploymentID())
-                project_config.put("clustered", commandLine.isFlagEnabled("cluster"))
-                def opts = new DeploymentOptions([config: project_config.getMap(), worker: true])
+                project_config.put("_cornerstone_incarnation", vx.getOrCreateContext().deploymentID())
+                logger.debug("cornerstone incarnation: " + project_config.getString('_cornserstone_incarnation'))
+                def opts = new DeploymentOptions([config: project_config.getMap()])
                 vx.deployVerticle('net.iowntheinter.coreLauncher.impl.coreLauncher', opts)
             }
         }
 
         logger.debug("starting first vertx")
-        def startmessage =  ["header":"cornerstone init",
-                             "cols": ["COMPONENT", "STATUS", "MESSAGE"],
-                             "data": [
-                                     'cornerstoneStarter':["running","ok"],
-                             ]
+        def startmessage = ["header": "cornerstone init",
+                            "cols"  : ["COMPONENT", "STATUS", "MESSAGE"],
+                            "data"  : [
+                                    'cornerstoneStarter': ["running", "ok"],
+                            ]
         ]
 
 
         new displayOutput(project_config.getString("output_type") ?: "json").display(startmessage)
 
 
-        if (commandLine.isFlagEnabled("cluster")) {
+        if (commandLine.isFlagEnabled("cluster"))
             new clusterVertxStarter().start(new VertxOptions(), afterVXStart)
-        } else
+        else
             new singleVertxStarter().start(new VertxOptions(), afterVXStart)
 
     }
