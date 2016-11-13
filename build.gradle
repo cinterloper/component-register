@@ -99,13 +99,16 @@ publishing {
     }
 }
 sourceCompatibility = '1.8'
-mainClassName = 'net.iowntheinter.cornerstone.impl.cornerstoneStarter'
+mainClassName = 'net.iowntheinter.cornerstone.cornerstoneStarter'
 
 dependencies {
     compile "io.vertx:vertx-core:$libversion"
     compile "io.vertx:vertx-lang-groovy:$libversion"
     compile "io.vertx:vertx-unit:$libversion"
     compile "net.iowntheinter:cornerstone-core:$version"
+    compile "net.iowntheinter:cornerstone-util:$version"
+    compile "net.iowntheinter:cornerstone-launcher-service:$version"
+
 }
 
 processResources {

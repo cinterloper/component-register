@@ -10,15 +10,21 @@ import io.vertx.core.cli.CLI
 import io.vertx.core.cli.CommandLine
 import io.vertx.core.cli.Option
 import io.vertx.core.cli.impl.DefaultCommandLine
+import io.vertx.core.http.HttpServerOptions
+import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import io.vertx.core.logging.SLF4JLogDelegateFactory
+import io.vertx.ext.web.Router
+import io.vertx.ext.web.handler.BodyHandler
 import net.iowntheinter.cornerstone.cluster.clusterVertxStarter
 import net.iowntheinter.cornerstone.single.singleVertxStarter
 
 
 import io.vertx.core.logging.LoggerFactory
+import net.iowntheinter.kvdn.kvserver
 import net.iowntheinter.util.displayOutput
+import net.iowntheinter.util.http.routeProvider
 
 /**
  * Created by grant on 4/11/16.
@@ -169,18 +175,32 @@ class cornerstoneStarter {
             }
         }
 
+
+
         Closure afterVXStart = { Map res ->
-            Vertx vx
+            Vertx vertx
             logger.debug(res)
             if (!res.success) {
                 logger.error("could not start vertx")
                 halt()
             } else {
-                vx = res.vertx as Vertx
-                project_config.put("_cornerstone_incarnation", vx.getOrCreateContext().deploymentID())
+                vertx = res.vertx as Vertx
+                project_config.put("_cornerstone_incarnation", vertx.getOrCreateContext().deploymentID())
                 logger.debug("cornerstone incarnation: " + project_config.getString('_cornserstone_incarnation'))
                 def opts = new DeploymentOptions([config: project_config.getMap()])
-                vx.deployVerticle('net.iowntheinter.coreLauncher.impl.coreLauncher', opts)
+                vertx.deployVerticle('net.iowntheinter.coreLauncher.impl.coreLauncher', opts)
+
+
+
+
+
+
+
+
+
+
+
+
             }
         }
 

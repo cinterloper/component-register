@@ -47,6 +47,7 @@ class launcherImpl implements componentLauncher {
         wg=new distributedWaitGroup(lg.keySet(),{
             vertx.eventBus().send("_cornerstone:start",GROUPID)
         },vertx) as distributedWaitGroup
+
         lg.each { comp, launchdata ->
 
             switch(launchdata.type){

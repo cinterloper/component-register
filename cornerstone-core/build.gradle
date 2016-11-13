@@ -16,7 +16,7 @@ if (System.getenv("VERTX_VERSION") != null)
     libversion = System.getenv("VERTX_VERSION")
 sourceCompatibility = '1.8'
 def projversion = new File("src/main/resources/_CORNERSTONE_VERSION.txt").text
-version = "$libversion-$projversion"
+version = "$libversion-$projversion-2"
 
 dependencies {
     compile "io.vertx:vertx-core:$libversion"

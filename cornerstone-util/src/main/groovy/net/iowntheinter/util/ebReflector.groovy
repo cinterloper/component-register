@@ -59,13 +59,7 @@ class ebReflector extends AbstractVerticle {
         def ret = true
         MessageConsumer subscriptionChannel = eb.consumer(srcaddr)
         subscriptionChannel.handler({ message ->
-            def String jreq = ""
-            try {
-                jreq = message.body().toString()
-                eb.publish(dstaddr, jreq)
-            } catch (e) {
-                log.error("error ${e}")
-            }
+            eb.publish(dstaddr, message.body())
         })
         //store a refrence to the channel so it can be removed, return the id
         def RID = UUID.randomUUID().toString()

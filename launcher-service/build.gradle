@@ -26,11 +26,11 @@ repositories {
 def libversion = '3.3.3'
 if(System.getenv("VERTX_VERSION") != null)
   libversion = System.getenv("VERTX_VERSION")
-version =  "$libversion-${new File('src/main/resources/_CORNERSTONE_VERSION.txt').text}"
+version =  "$libversion-${new File('src/main/resources/_CORNERSTONE_VERSION.txt').text}-2"
 sourceCompatibility = '1.8'
 
 dependencies {
-  compile "io.vertx:vertx-core:$version"
+  compile "io.vertx:vertx-core:$libversion"
   compile "io.vertx:vertx-service-proxy:$libversion"
   compile "io.vertx:vertx-sockjs-service-proxy:$libversion"
   compile "io.vertx:vertx-codegen:$libversion"
