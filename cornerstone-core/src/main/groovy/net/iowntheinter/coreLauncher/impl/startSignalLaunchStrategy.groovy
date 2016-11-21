@@ -1,8 +1,7 @@
 package net.iowntheinter.coreLauncher.impl
 
-import io.vertx.core.Handler
 import io.vertx.core.Vertx
-import net.iowntheinter.componentRegister.component.componentType
+import net.iowntheinter.componentRegister.component.ActorTypes.Managed
 import net.iowntheinter.coreLauncher.launchStrategy
 
 /**
@@ -28,7 +27,7 @@ class startSignalLaunchStrategy implements launchStrategy {
     def task
 
 
-    startSignalLaunchStrategy(Vertx v, String launchId, componentType task, List dependencies) {
+    startSignalLaunchStrategy(Vertx v, String launchId, Managed task, List dependencies) {
         this.vertx = v
         this.task = task
         this.dependencies = dependencies

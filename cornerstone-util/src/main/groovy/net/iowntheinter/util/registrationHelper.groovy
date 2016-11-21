@@ -12,6 +12,13 @@ import io.vertx.core.Vertx
  */
 
 class registrationHelper {
+    
+    Vertx vertx
+    registrationHelper(vertx = null){
+        if (vertx != null){
+            this.vertx=vertx
+        }
+    }
 
     /**
      *
@@ -21,7 +28,7 @@ class registrationHelper {
      * @param v
      * @param cb
      */
-    static void notify_start_ready(Vertx v, cb) {
+    void notify_start_ready(Vertx v = this.vertx, cb) {
         v.eventBus().send(channelref.REGISTRATION,
                 v.getOrCreateContext().config().getString('launchId') )
         cb()
@@ -35,7 +42,7 @@ class registrationHelper {
      * @param v
      * @param cb
      */
-    static void notify_start_ready(Vertx v, String id, cb) {
+    void notify_start_ready(Vertx v = this.vertx, String id, cb) {
         v.eventBus().send(channelref.REGISTRATION, id)
         cb()
     }
@@ -45,7 +52,7 @@ class registrationHelper {
      * @param v
      * @param cb
      */
-    static void on_group_start_signial(Vertx v, cb) {
+    void on_group_start_signial(Vertx v = this.vertx, cb) {
         def gid = v.getOrCreateContext().config().getString('groupId')
         v.eventBus().consumer(channelref.START + "_$gid", { startevent ->
             cb(startevent.body())
@@ -56,7 +63,7 @@ class registrationHelper {
      * @param v
      * @param cb
      */
-    static void on_individual_start_signial(Vertx v, cb) {
+    void on_individual_start_signial(Vertx v = this.vertx, cb) {
         def id = v.getOrCreateContext().config().getString('launchId')
         v.eventBus().consumer(channelref.START + "_$id", { startevent ->
             cb(startevent.body())
@@ -68,15 +75,11 @@ class registrationHelper {
      * @param v
      * @param cb
      */
-    static void on_stop_signial(Vertx v, cb) {
+    void on_stop_signial(Vertx v = this.vertx, cb) {
         v.eventBus().consumer(channelref.STOP, { stopevent ->
             cb(stopevent.body())
         })
     }
 
-    static void raise_fatal_error(Vertx v, Exception e) {
-        v.eventBus().send(channelref.ERROR, [error: e.getMessage(),
-                                             id   : v.getOrCreateContext().config().getString('launchId')])
-    }
 
 }

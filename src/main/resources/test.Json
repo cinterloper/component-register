@@ -1,8 +1,0 @@
-{
-  "cols": ["COMPONENT", "STATUS", "MESSAGE"],
-  "data": {
-    "c1":[ "good", "everything is good"],
-    "c2":[ "bad", "its not good"]
-  }
-
-}

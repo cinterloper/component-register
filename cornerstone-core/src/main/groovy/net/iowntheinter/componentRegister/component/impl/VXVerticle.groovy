@@ -5,12 +5,13 @@ import io.vertx.core.DeploymentOptions
 import io.vertx.core.Handler
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
-import net.iowntheinter.componentRegister.component.componentType
+import net.iowntheinter.componentRegister.component.ActorTypes.Internal
+import net.iowntheinter.componentRegister.component.ActorTypes.Managed
 
 /**
  * Created by grant on 4/10/16.
  */
-class VXVerticle implements componentType {
+class VXVerticle implements Internal, Managed {
     Vertx vertx
     String ImplementationID  // example com.this.that or js:myVerticle.js
     String name //human readable name of this instance
@@ -41,15 +42,17 @@ class VXVerticle implements componentType {
         vertx.undeploy(id as String, cb )
     }
 
-    @Override
-    void backup(Handler<AsyncResult<JsonObject>> cb) {
-       throw new Exception("unimplemented")
-    }
-
     void registrationEvent(Map peerNotification, Closure cb) {
         //send a message to the verticles personal channel
     }
 
+    @Override
+    void onRegistration(Handler<AsyncResult<JsonObject>> cb) {
 
+    }
 
+    @Override
+    void sendNotification(JsonObject notification, Handler<AsyncResult<JsonObject>> h) {
+
+    }
 }

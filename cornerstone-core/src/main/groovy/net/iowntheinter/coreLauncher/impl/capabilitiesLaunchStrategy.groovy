@@ -2,7 +2,7 @@ package net.iowntheinter.coreLauncher.impl
 
 import io.vertx.core.Vertx
 import io.vertx.core.logging.LoggerFactory
-import net.iowntheinter.componentRegister.component.componentType
+import net.iowntheinter.componentRegister.component.ActorTypes.Managed
 import net.iowntheinter.coreLauncher.launchStrategy
 import net.iowntheinter.util.registrationHelper
 
@@ -23,10 +23,10 @@ class capabilitiesLaunchStrategy implements launchStrategy {
     def boolean vertxTask
     Vertx vertx
 
-    capabilitiesLaunchStrategy(Vertx v, String launchId, componentType task, List dependencies) {
+    capabilitiesLaunchStrategy(Vertx v, String launchId, Managed task, List dependencies) {
         this.vertx = v
         this.id = launchId
-        this.task = task as componentType
+        this.task = task as Managed
         this.dependencies = dependencies
         this.depset = [:]
         this.dependencies.each { dep ->

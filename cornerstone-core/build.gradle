@@ -16,11 +16,12 @@ if (System.getenv("VERTX_VERSION") != null)
     libversion = System.getenv("VERTX_VERSION")
 sourceCompatibility = '1.8'
 def projversion = new File("src/main/resources/_CORNERSTONE_VERSION.txt").text
-version = "$libversion-$projversion-2"
+version = "$libversion-$projversion"
 
 dependencies {
     compile "io.vertx:vertx-core:$libversion"
     compile "io.vertx:vertx-lang-groovy:$libversion"
+    compile "io.vertx:vertx-rx-java:$libversion"
     compile "io.vertx:vertx-rx-groovy:$libversion"
     compile "io.vertx:vertx-shell:$libversion"
     compile "io.vertx:vertx-unit:$libversion"
@@ -31,6 +32,7 @@ dependencies {
     compile 'com.bettercloud:vault-java-driver:1.2.0'
     compile "net.iowntheinter:kvdn:$libversion-1.6.5"
     compile "com.shekhargulati.reactivex:rx-docker-client:0.2.2"
+    compile "net.iowntheinter:cornerstone-util:$version"
 
 }
 

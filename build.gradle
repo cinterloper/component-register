@@ -59,8 +59,8 @@ if(GH_TOKEN){
 
 
 repositories {
-    mavenCentral()
     mavenLocal()
+    mavenCentral()
     jcenter()
     maven { url 'http://dl.bintray.com/gesellix/docker-utils' }
     if (AWS_MVN_BUCKET && !AWS_MVN_BUCKET.allWhitespace) {

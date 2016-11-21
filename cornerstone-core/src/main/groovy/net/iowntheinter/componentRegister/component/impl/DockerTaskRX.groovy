@@ -8,14 +8,14 @@ import io.vertx.core.Handler
 import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import io.vertx.core.logging.LoggerFactory
-import io.vertx.rx.java.RxHelper
-import net.iowntheinter.componentRegister.component.componentType
+import net.iowntheinter.componentRegister.component.ActorTypes.External
+import net.iowntheinter.componentRegister.component.ActorTypes.Managed
 import rx.Observable
 
 /**
  * Created by g on 7/9/16.
  */
-class DockerTaskRX implements componentType {
+class DockerTaskRX implements External, Managed {
     final UUID requestID
     String id, name
     RxDockerClient client
@@ -71,5 +71,15 @@ class DockerTaskRX implements componentType {
     @Override
     String getId() {
         return this.id
+    }
+
+    @Override
+    void onRegistration(Handler<AsyncResult<JsonObject>> cb) {
+
+    }
+
+    @Override
+    void sendNotification(JsonObject notification, Handler<AsyncResult<JsonObject>> h) {
+
     }
 }
