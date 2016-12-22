@@ -27,7 +27,7 @@ apply plugin: "co.riiid.gradle"
 def libversion = '3.3.3'
 if(System.getenv("VERTX_VERSION") != null)
     libversion = System.getenv("VERTX_VERSION")
-version = "${libversion}-60"
+version = "${libversion}-70"
 if(System.getenv('DUMP_VERSION'))
 {
     println version
@@ -111,7 +111,7 @@ dependencies {
     compile 'ch.qos.logback:logback-core:1.1.7'
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'com.bettercloud:vault-java-driver:1.2.0'
-    compile "net.iowntheinter:kvdn:$libversion-1.6.2"
+    compile "net.iowntheinter:kvdn:$libversion-1.6.6"
     compile 'de.gesellix:docker-client:2016-10-07T18-47-59'
 }
 
