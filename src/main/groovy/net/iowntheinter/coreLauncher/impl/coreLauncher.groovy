@@ -54,14 +54,15 @@ public class coreLauncher extends AbstractVerticle {
 
         //start all the docker components first in case the cluster manager is one of them
 
-        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap().each { name, cfg ->
+                                                                                        //    \/ um wut? yeah its getMap or an empty map
+        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap()?:[:].each { name, cfg ->
             cfg = cfg as JsonObject
             if (cfg.getBoolean("enabled")) {
                 def Id = UUID.randomUUID().toString()
                 launchIds[Id] = [launchId: Id, type: "docker", launchName: "docker:${name}", name: name, config: cfg, startReady: false]
             }
         }
-        config.getJsonObject('startup').getJsonObject('vx').getMap().each { name, vconfig ->
+        config.getJsonObject('startup').getJsonObject('vx').getMap()?:[:].each { name, vconfig ->
             vconfig = vconfig as JsonObject
             def Id = UUID.randomUUID().toString()
             if (vconfig.getBoolean("enabled")) {
