@@ -27,7 +27,7 @@ public class configLoader {
     }
 
     void loadConfigSet(Set configPaths, cb) {
-        def wg = new distributedWaitGroup(configPaths, vertx)
+        def wg = new distributedWaitGroup(configPaths,cb, vertx)
         configPaths.each { String path ->
             JsonObject c = vertx.getOrCreateContext().config()
             String result = JsonPath.read(c.toString(), path)
@@ -35,11 +35,11 @@ public class configLoader {
             switch (marker) {
                 case '$$': // system enviornment var
                     lookupSysEnv(result.substring(2),path, {
-                        wg.ack(path, cb)
+                        wg.ack(path)
                     })
                     break
                 case '$@':
-                    extConfigLoader(result.substring(2),path, { wg.ack(path, cb) })
+                    extConfigLoader(result.substring(2),path, { wg.ack(path) })
                     break
             }
         }

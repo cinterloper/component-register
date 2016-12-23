@@ -29,16 +29,16 @@ class registrationManager {
 
     //register globally that the component has become available
     private void listen_registrations(String regchannel = "_cornerstone:registration") {
-        def wg = new distributedWaitGroup(launchIds.keySet(),vertx)
         Map announce = ["header": "SYSTEM HAS LAUNCHED",
                         "data"  : launchIds
         ]
-
-        wg.onAck(regchannel,{
+        def wg = new distributedWaitGroup(launchIds.keySet(),{
             getVertx().eventBus().send('_cornerstone:start', 'true')
             logger.debug("sending start sig")
             new displayOutput().display(announce)
-        })
+        },vertx)
+
+        wg.onChannel(regchannel)
 
     }
 
