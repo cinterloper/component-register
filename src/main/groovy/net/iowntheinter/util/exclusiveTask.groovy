@@ -28,22 +28,23 @@ class exclusiveTask {
             if (lockAttempt.succeeded()) {
                 logger.debug("this node has acquired the lock for $name")
                 cb(lockAttempt.result())
-            } else{
+            } else {
                 logger.debug("the lock attempt was rejected for $name")
                 alreadyLockedCb(lockAttempt.result())
             }
         })
     }
-
-    void execWithRetry(long retryTime) {
+    //you can pass in a closure that takes the retry time, and modifys it
+    //example: random, backoff
+    void execWithRetry(long retryTime, offsetFunc = { long rt -> return rt }) {
         vertx.sharedData().getLock(name, { AsyncResult lockAttempt ->
             if (lockAttempt.succeeded()) {
                 logger.debug("this node has acquired the lock for $name")
                 cb(lockAttempt.result())
-            } else{
+            } else {
                 logger.debug("the lock attempt was rejected for $name, will attempte in $retryTime secs")
-                vertx.setTimer(retryTime,{
-                    execWithRetry(retryTime)
+                vertx.setTimer(retryTime + (long) offsetFunc(retryTime), {
+                    execWithRetry(retryTime + (long) offsetFunc(retryTime))
                 })
 
             }
