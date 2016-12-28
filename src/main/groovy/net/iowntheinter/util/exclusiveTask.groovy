@@ -44,7 +44,7 @@ class exclusiveTask {
             } else {
                 logger.debug("the lock attempt was rejected for $name, will attempte in $retryTime secs")
                 vertx.setTimer(retryTime + (long) offsetFunc(retryTime), {
-                    execWithRetry(retryTime + (long) offsetFunc(retryTime))
+                    execWithRetry(retryTime ,offsetFunc)
                 })
 
             }
