@@ -17,10 +17,11 @@ class exclusiveTask {
     def cb
 
     exclusiveTask(Vertx vertx, name, cb) {
+        this.logger = LoggerFactory.getLogger(this.class.name)
+        logger.debug("created new exclusiveTask : $name")
         this.name = name
         this.vertx = vertx
         this.cb = cb
-        this.logger = LoggerFactory.getLogger(this.class.name)
     }
 
     void exec(alreadyLockedCb) {
@@ -29,7 +30,7 @@ class exclusiveTask {
                 logger.debug("this node has acquired the lock for $name")
                 cb(lockAttempt.result())
             } else {
-                logger.debug("the lock attempt was rejected for $name")
+                logger.debug("the task lock for $name is held by another member ")
                 alreadyLockedCb(lockAttempt.result())
             }
         })
@@ -42,7 +43,7 @@ class exclusiveTask {
                 logger.debug("this node has acquired the lock for $name")
                 cb(lockAttempt.result())
             } else {
-                logger.debug("the lock attempt was rejected for $name, will attempte in $retryTime secs")
+                logger.trace("the task lock for $name is held by another member, will retry in $retryTime secs")
                 vertx.setTimer(retryTime + (long) offsetFunc(retryTime), {
                     execWithRetry(retryTime ,offsetFunc)
                 })

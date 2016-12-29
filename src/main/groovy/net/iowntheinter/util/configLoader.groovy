@@ -41,6 +41,10 @@ public class configLoader {
                 case '$@':
                     extConfigLoader(result.substring(2),path, { wg.ack(path) })
                     break
+                default:
+                    configs[path]=result
+                    wg.ack(path)
+                    break
             }
         }
     }
@@ -51,7 +55,7 @@ public class configLoader {
 
     void lookupSysEnv(String var,String path, cb) {
         configs[path] = System.getenv(var)
-        logger.trace("looked up sys env: " + configs[var])
+        logger.trace("looked up sys env: " + configs[path])
         cb()
     }
 

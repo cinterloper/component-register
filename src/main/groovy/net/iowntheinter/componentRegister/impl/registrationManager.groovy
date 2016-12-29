@@ -1,7 +1,6 @@
 package net.iowntheinter.componentRegister.impl
 
 import io.vertx.core.Vertx
-import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.Logger
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.kvdn.util.distributedWaitGroup
@@ -13,10 +12,13 @@ import net.iowntheinter.util.displayOutput
 class registrationManager {
     Vertx vertx
     Logger logger
-    Map launchIds
-    registrationManager(Map lid, Vertx v){
-        this.vertx=v as Vertx
-        this.launchIds = lid
+    final String nodeid
+    final Map launchIds
+    registrationManager(Map launchIds, Vertx vertx){
+        this.nodeid = UUID.randomUUID().toString()
+        this.vertx=vertx as Vertx
+        this.launchIds = launchIds
+        this.vertx.sharedData().getLocalMap("_cornerstone:config").put("nodeid",nodeid)
         logger = LoggerFactory.getLogger(this.class.getName())
         logger.debug('Launch ids for new reg manager: '+ launchIds)
 
@@ -33,12 +35,13 @@ class registrationManager {
                         "data"  : launchIds
         ]
         def wg = new distributedWaitGroup(launchIds.keySet(),{
-            getVertx().eventBus().send('_cornerstone:start', 'true')
+            getVertx().eventBus().send("_cornerstone:start:$nodeid", 'true')
             logger.debug("sending start sig")
             new displayOutput().display(announce)
         },vertx)
 
         wg.onChannel(regchannel)
+
 
     }
 

@@ -12,7 +12,7 @@ import net.iowntheinter.util.http.routeProvider
  */
 class helloWorldRouteProvider implements routeProvider  {
     @Override
-    void addRoutes(Router router, Vertx v) {
+    void addRoutes(Router router, Vertx v,cb) {
         def sjsh = SockJSHandler.create(v)
 	 //apply security here, this is wide open
         def options = new BridgeOptions()
@@ -26,5 +26,6 @@ class helloWorldRouteProvider implements routeProvider  {
         router.get('/hello').blockingHandler({ request ->
             request.response().end("hello!")
         })
+        cb()
     }
 }

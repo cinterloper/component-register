@@ -14,6 +14,7 @@ import io.vertx.ext.web.handler.BodyHandler
 import net.iowntheinter.componentRegister.impl.registrationManager
 import net.iowntheinter.coreLauncher.launchStrategy
 import net.iowntheinter.kvdn.kvserver
+import net.iowntheinter.kvdn.util.distributedWaitGroup
 import net.iowntheinter.util.http.routeProvider
 import net.iowntheinter.componentRegister.component.impl.DockerTask
 import net.iowntheinter.componentRegister.component.impl.VXVerticle
@@ -50,24 +51,27 @@ public class coreLauncher extends AbstractVerticle {
         this.config = vertx.getOrCreateContext().config()
 
         logger.debug(vertx)
-        logger.debug("reached CoreLauncher inside vert.x, config: ${config}")
+        logger.debug("reached CoreLauncher inside vert.x, config: ${config.encodePrettily()}")
 
         //start all the docker components first in case the cluster manager is one of them
 
-                                                                                        //    \/ um wut? yeah its getMap or an empty map
-        config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap()?:[:].each { name, cfg ->
+        //    \/ um wut? yeah its getMap or an empty map
+        (config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap() ?: [:]).each { name, cfg ->
             cfg = cfg as JsonObject
             if (cfg.getBoolean("enabled")) {
                 def Id = UUID.randomUUID().toString()
                 launchIds[Id] = [launchId: Id, type: "docker", launchName: "docker:${name}", name: name, config: cfg, startReady: false]
             }
         }
-        config.getJsonObject('startup').getJsonObject('vx').getMap()?:[:].each { name, vconfig ->
+        logger.debug("startup verticles: ${config.getJsonObject('startup').getJsonObject('vx').encodePrettily()}")
+        (config.getJsonObject('startup').getJsonObject('vx').getMap() ?: [:]).each { name, vconfig ->
             vconfig = vconfig as JsonObject
+            logger.debug("verticle config ${vconfig.encodePrettily()}")
             def Id = UUID.randomUUID().toString()
             if (vconfig.getBoolean("enabled")) {
                 launchIds[Id] = [launchId: Id, type: 'vertx', launchName: "vertx:${name}", name: name, config: vconfig, startReady: false]
-                //add docker id
+
+                logger.debug("configuring start verticle ${launchIds[Id]}")
             }
         }
         rm = new registrationManager(launchIds, vertx)
@@ -136,6 +140,7 @@ public class coreLauncher extends AbstractVerticle {
                 def vconfig = launch_task.config as JsonObject
                 def name = launch_task.name
 
+                logger.info("starting $launch_task.name")
                 if (vconfig.getBoolean("enabled") && launch_task.type == "vertx") {
                     getVertx().sharedData().getLocalMap("cornerstone_components").putIfAbsent(name, vconfig)
                     startVerticle(name as String, (vconfig as JsonObject).put('launchId', Id), { Map result ->
@@ -159,13 +164,45 @@ public class coreLauncher extends AbstractVerticle {
         def v = vertx as Vertx
         def router = Router.router(v)
         router.route().handler(BodyHandler.create())
+
+        /**
+         * initalize the key value server, and activate any configured @Link:routeProvider s
+         */
+        def kvinit = {
+            kvs.init(router, {
+                try {
+                    def server
+                    if (config.containsKey('http_server_options')) {
+                        server = v.createHttpServer(
+                                new HttpServerOptions(config.getJsonObject('http_server_options')))
+                    } else
+                        server = v.createHttpServer()
+
+                    server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
+                    logger.debug("server port: ${config.getInteger('kvdn_port')}")
+
+                    startVerticles(vertx)
+                    startContainers({})
+
+                    def dispd = startMessage.data
+                    dispd['kvdn'] = [" port: ${config.getInteger('kvdn_port')}", "true"]
+                    startMessage.data = dispd
+                    new displayOutput().display(startMessage)
+                } catch (e) {
+                    logger.error "error during deploy:" + e.getMessage()
+                    e.printStackTrace()
+                }
+            })
+        }
         if (config.containsKey("kvdn_route_providers")) {
             JsonArray KRP = config.getJsonArray("kvdn_route_providers")
-            KRP.toList().each { value ->
+            def routeLoader = new distributedWaitGroup(KRP.toSet(), kvinit, vertx)
+
+            KRP.toList().each {  value ->
 
                 try {
                     def instance = this.class.classLoader.loadClass(value as String)?.newInstance() as routeProvider
-                    instance.addRoutes(router, v)
+                    instance.addRoutes(router, vertx, {routeLoader.ack(value as String)})
                 } catch (e) {
                     logger.fatal("Could not load configured kvdn_route_provider: " + e)
                     e.printStackTrace()
@@ -176,35 +213,6 @@ public class coreLauncher extends AbstractVerticle {
 
 
         }
-        /**
-         * initalize the key value server, and activate any configured @Link:routeProvider s
-         */
-
-        kvs.init(router, {
-            try {
-                def server
-                if (config.containsKey('http_server_options')) {
-                    server = v.createHttpServer(
-                            new HttpServerOptions(config.getJsonObject('http_server_options')))
-                } else
-                    server = v.createHttpServer()
-
-                server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
-                logger.debug("server port: ${config.getInteger('kvdn_port')}")
-
-                startVerticles(vertx)
-                startContainers({})
-
-                def dispd = startMessage.data
-                dispd['kvdn'] = [" port: ${config.getInteger('kvdn_port')}", "true"]
-                startMessage.data = dispd
-                new displayOutput().display(startMessage)
-            } catch (e) {
-                logger.error "error during deploy:" + e.getMessage()
-                e.printStackTrace()
-            }
-        })
-
 
     }
 
@@ -262,6 +270,7 @@ public class coreLauncher extends AbstractVerticle {
                 cb([name: id, error: null])
             } else {
                 logger.error "deployment failed: ${name} :\n ${result.cause()}"
+                result.cause().printStackTrace()
                 cb([name: null, error: result.cause()])
             }
         })

@@ -9,5 +9,5 @@ import io.vertx.ext.web.Router
  */
 interface routeProvider {
 
-    void addRoutes(Router r, Vertx v)
+    void addRoutes(Router r, Vertx v, cb)
 }
