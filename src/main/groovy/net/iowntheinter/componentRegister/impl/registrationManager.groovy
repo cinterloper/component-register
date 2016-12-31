@@ -23,11 +23,6 @@ class registrationManager {
         logger.debug('Launch ids for new reg manager: '+ launchIds)
 
     }
-    //list locally that we have started it
-    private void list_component_started(String depid, String cmpname, cb){
-
-    }
-
 
     //register globally that the component has become available
     private void listen_registrations(String regchannel = "_cornerstone:registration") {
