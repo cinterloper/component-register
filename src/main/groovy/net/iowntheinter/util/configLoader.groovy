@@ -28,9 +28,11 @@ public class configLoader {
 
     void loadConfigSet(Set configPaths, cb) {
         def wg = new distributedWaitGroup(configPaths,cb, vertx)
+        JsonObject c = vertx.getOrCreateContext().config()
+        def jp = JsonPath.parse(c.toString())
         configPaths.each { String path ->
-            JsonObject c = vertx.getOrCreateContext().config()
-            String result = JsonPath.read(c.toString(), path)
+
+            String result = jp.read(path)
             def marker = result.take(2)
             switch (marker) {
                 case '$$': // system enviornment var
@@ -50,6 +52,8 @@ public class configLoader {
     }
 
     String getConfig(String path) {
+        if (!configs[path])
+            throw new Exception("$path was not loaded but has been requested")
         return configs[path]
     }
 

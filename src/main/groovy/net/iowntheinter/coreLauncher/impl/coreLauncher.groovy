@@ -15,6 +15,7 @@ import net.iowntheinter.componentRegister.impl.registrationManager
 import net.iowntheinter.coreLauncher.launchStrategy
 import net.iowntheinter.kvdn.kvserver
 import net.iowntheinter.kvdn.util.distributedWaitGroup
+import net.iowntheinter.util.configLoader
 import net.iowntheinter.util.http.routeProvider
 import net.iowntheinter.componentRegister.component.impl.DockerTask
 import net.iowntheinter.componentRegister.component.impl.VXVerticle
@@ -169,29 +170,42 @@ public class coreLauncher extends AbstractVerticle {
          * initalize the key value server, and activate any configured @Link:routeProvider s
          */
         def kvinit = {
-            kvs.init(router, {
-                try {
-                    def server
-                    if (config.containsKey('http_server_options')) {
-                        server = v.createHttpServer(
-                                new HttpServerOptions(config.getJsonObject('http_server_options')))
-                    } else
-                        server = v.createHttpServer()
+            def c = new configLoader(vertx)
+            c.loadConfigSet([
+                             '$.http_server_options.keyStoreOptions.path',
+                             '$.http_server_options.keyStoreOptions.password'].toSet(),{
 
-                    server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
-                    logger.debug("server port: ${config.getInteger('kvdn_port')}")
 
-                    startVerticles(vertx)
-                    startContainers({})
+                JsonObject opts = config.getJsonObject('http_server_options')
+                Map keyStoreOptions = opts.getJsonObject('keyStoreOptions').getMap()
+                keyStoreOptions.path=c.getConfig('$.http_server_options.keyStoreOptions.path')
+                keyStoreOptions.password=c.getConfig('$.http_server_options.keyStoreOptions.password')
+                opts.put('keyStoreOption'  , new JsonObject(keyStoreOptions))
 
-                    def dispd = startMessage.data
-                    dispd['kvdn'] = [" port: ${config.getInteger('kvdn_port')}", "true"]
-                    startMessage.data = dispd
-                    new displayOutput().display(startMessage)
-                } catch (e) {
-                    logger.error "error during deploy:" + e.getMessage()
-                    e.printStackTrace()
-                }
+                kvs.init(router, {
+                    try {
+                        def server
+                        if (config.containsKey('http_server_options')) {
+                            server = v.createHttpServer(
+                                    new HttpServerOptions(opts))
+                        } else
+                            server = v.createHttpServer()
+
+                        server.requestHandler(router.&accept).listen(config.getInteger('kvdn_port'))
+                        logger.debug("server port: ${config.getInteger('kvdn_port')}")
+
+                        startVerticles(vertx)
+                        startContainers({})
+
+                        def dispd = startMessage.data
+                        dispd['kvdn'] = [" port: ${config.getInteger('kvdn_port')}", "true"]
+                        startMessage.data = dispd
+                        new displayOutput().display(startMessage)
+                    } catch (e) {
+                        logger.error "error during deploy:" + e.getMessage()
+                        e.printStackTrace()
+                    }
+                })
             })
         }
         if (config.containsKey("kvdn_route_providers")) {
