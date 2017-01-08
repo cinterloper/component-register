@@ -1,16 +1,18 @@
 package net.iowntheinter.util.http.example
 
 import io.vertx.core.Vertx
+import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.sockjs.BridgeOptions
 import io.vertx.ext.web.handler.sockjs.PermittedOptions
 import io.vertx.ext.web.handler.sockjs.SockJSHandler
+import net.iowntheinter.cornerstone.extensionManager.extension
 import net.iowntheinter.util.http.routeProvider
 
 /**
  * Created by g on 7/12/16.
  */
-class helloWorldRouteProvider implements routeProvider  {
+class helloWorldRouteProvider implements routeProvider , extension {
     @Override
     void addRoutes(Router router, Vertx v,cb) {
         def sjsh = SockJSHandler.create(v)
@@ -27,5 +29,16 @@ class helloWorldRouteProvider implements routeProvider  {
             request.response().end("hello!")
         })
         cb()
+    }
+
+    @Override
+    void load(Vertx v, Object cb) {
+
+
+    }
+
+    @Override
+    JsonObject register(Vertx v) {
+        return null
     }
 }

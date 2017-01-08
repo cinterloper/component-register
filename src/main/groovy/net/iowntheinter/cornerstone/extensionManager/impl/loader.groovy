@@ -51,8 +51,9 @@ class loader {
         extensions.each { String c ->
             logger.info("loading extension $c")
             def E = this.class.classLoader.loadClass(c as String)?.newInstance() as extension
-            extensionProcessor(E, { dwg.ack(c) })
-
+            E.load(vertx,{ //do initalization
+                extensionProcessor(E, { dwg.ack(c) }) //allow user to call specalized methods
+            })
         }
     }
 

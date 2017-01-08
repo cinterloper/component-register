@@ -30,7 +30,16 @@ class DockerTaskRX implements componentType {
         this.requestID = UUID.randomUUID()
         logger = LoggerFactory.getLogger(this.class.getName() + ": $requestID : $name ")
     }
-
+    DockerTaskRX(Map meta, Map cfg) {
+        client =  RxDockerClient.fromDefaultEnv()
+        def info = client.info()
+        logger.debug("\ndockerinfo:${info}")
+        image = meta.image
+        tag = meta.tag ?: "latest"
+        name = meta.name
+        this.container = new JsonObject(cfg)
+        this.meta = meta
+    }
     DockerTaskRX(String name, JsonObject container) {
         DockerTaskRX(name, container, RxDockerClient.fromDefaultEnv())
     }

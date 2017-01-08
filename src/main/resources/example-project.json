@@ -8,6 +8,13 @@
   "reflectors":{
     "_KVDN_+cornerstone:registration":"_cornerstone:registration"
   },
+  "http_server_options":{
+    "keyStoreOptions":{
+      "path":"klj",
+
+      "password":"sdf"
+    }
+  },
   "injectors":{
     "JWTInjector":"net.iowntheinter.util.crypto.JWTInjector"
   },
@@ -40,7 +47,7 @@
           "tag": "latest",
           "deps": [],
           "environment_injectors":["JWTInjector"],
-          "enabled": false
+          "enabled": true
         }
       }
     }

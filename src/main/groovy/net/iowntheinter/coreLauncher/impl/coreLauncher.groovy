@@ -244,6 +244,7 @@ public class coreLauncher extends AbstractVerticle {
         env_ents += cconfig.getJsonArray('Env')
         ctrcfg.put("Env", env_ents)
         logger.debug "ctrcfg ${ctrcfg}"
+        //def nd = new DockerTask([name: name, tag: 'latest', image: cconfig.getString('image'), ifExists: cconfig.getString('ifExists')], ctrcfg)
         def nd = new DockerTaskRX([name: name, tag: 'latest', image: cconfig.getString('image'), ifExists: cconfig.getString('ifExists')], ctrcfg)
 
         def strategy = this.config.getString("default_launch_strategy")
