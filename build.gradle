@@ -104,6 +104,8 @@ mainClassName = 'net.iowntheinter.coreLauncher.impl.coreStarter'
 dependencies {
     compile "io.vertx:vertx-core:$libversion"
     compile "io.vertx:vertx-lang-groovy:$libversion"
+    compile "io.vertx:vertx-rx-groovy:$libversion"
+    compile "io.vertx:vertx-rx-java:$libversion"
     compile "io.vertx:vertx-shell:$libversion"
     compile "io.vertx:vertx-unit:$libversion"
     compile "com.jayway.jsonpath:json-path:2.2.0"
@@ -112,6 +114,7 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'com.bettercloud:vault-java-driver:1.2.0'
     compile "net.iowntheinter:kvdn:$libversion-1.6.8"
+    compile "com.shekhargulati.reactivex:rx-docker-client:0.2.2"
     compile 'de.gesellix:docker-client:2016-10-07T18-47-59'
 }
 

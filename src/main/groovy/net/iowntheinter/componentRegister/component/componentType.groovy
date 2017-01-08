@@ -9,10 +9,10 @@ import io.vertx.core.Handler
  * it must check in by that time or will be considered failed
  */
 interface componentType {
-    void start(Closure cb) //wakeup cb after its actually started
-    void stop(Closure cb)
+    void start( cb) //wakeup cb after its actually started
+    void stop( cb)
     String getId()
-    void backup(Closure cb) // *see below
+    void backup( cb) // *see below
 /*
 for a docker task, backup should
   provide some notification to the container
