@@ -38,7 +38,7 @@ class ebReflector extends AbstractVerticle {
  * @param RID id returned when a reflector is created
  * @param cb
  */
-    public void removeReflector(String RID, cb) {
+    void removeReflector(String RID, cb) {
         try {
             MessageConsumer r = reflectors[RID] as MessageConsumer
             r.unregister()
@@ -55,17 +55,11 @@ class ebReflector extends AbstractVerticle {
  * @param dstaddr
  * @param cb
  */
-    public void createReflector(String srcaddr, String dstaddr, cb) {
+    void createReflector(String srcaddr, String dstaddr, cb) {
         def ret = true
         MessageConsumer subscriptionChannel = eb.consumer(srcaddr)
         subscriptionChannel.handler({ message ->
-            def String jreq = ""
-            try {
-                jreq = message.body().toString()
-                eb.publish(dstaddr, jreq)
-            } catch (e) {
-                log.error("error ${e}")
-            }
+            eb.publish(dstaddr, message.body())
         })
         //store a refrence to the channel so it can be removed, return the id
         def RID = UUID.randomUUID().toString()
