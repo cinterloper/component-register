@@ -116,6 +116,8 @@ dependencies {
     compile "net.iowntheinter:kvdn:$libversion-1.6.8"
     compile "com.shekhargulati.reactivex:rx-docker-client:0.2.2"
     compile 'de.gesellix:docker-client:2016-10-07T18-47-59'
+    compile 'io.github.lukehutch:fast-classpath-scanner:2.0.10'
+
 }
 
 processResources {

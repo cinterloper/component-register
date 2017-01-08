@@ -36,7 +36,7 @@ class DockerTaskRX implements componentType {
     }
 
     @Override
-    void start( cb) {
+    void start(cb) {
         Observable<DockerContainerResponse> r = client.createContainerObs(container.toString(), name)
         r.flatMap({ res ->
             client.startContainerObs(res.getId())
@@ -46,7 +46,7 @@ class DockerTaskRX implements componentType {
             })
                     .subscribe({ sres ->
                 logger.info(sres.toString())
-                cb.handle(Future.succeededFuture(new JsonObject().put("result",sres.toString())))
+                cb.handle(Future.succeededFuture(new JsonObject().put("result", sres.toString())))
             })
         })
 
@@ -54,13 +54,13 @@ class DockerTaskRX implements componentType {
     }
 
     @Override
-    void stop( cb) {
+    void stop(cb) {
         Observable<HttpStatus> r = client.stopContainerObs(this.id, 0)
         r.doOnError({ error ->
             logger.error(error)
             cb.handle(Future.failedFuture(error))
         }).subscribe({ result ->
-            cb.handle(Future.succeededFuture(new JsonObject().put("result",result.toString())))
+            cb.handle(Future.succeededFuture(new JsonObject().put("result", result.toString())))
         })
     }
 
@@ -74,17 +74,11 @@ class DockerTaskRX implements componentType {
         return this.id
     }
 
-    @Override
-    void backup(Closure cb) {
 
-    }
-
-    @Override
     void onRegistration(Handler<AsyncResult<JsonObject>> cb) {
 
     }
 
-    @Override
     void sendNotification(JsonObject notification, Handler<AsyncResult<JsonObject>> h) {
 
     }

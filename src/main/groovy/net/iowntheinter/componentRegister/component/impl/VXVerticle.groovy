@@ -24,13 +24,14 @@ class VXVerticle implements componentType {
         this.ops = opts
         deps = opts.getConfig().getMap()
     }
+
     @Override
-    String getId(){
+    String getId() {
         return this.id
     }
 
     @Override
-    void start(Closure cb) {
+    void start(cb) {
         this.name = name
 
         vertx.deployVerticle(ImplementationID, ops, { AsyncResult result ->
@@ -39,19 +40,18 @@ class VXVerticle implements componentType {
     }
 
     @Override
-    void stop(Closure cb) {
+    void stop(cb) {
         vertx.undeploy(id as String, cb as Handler)
     }
 
     @Override
-    void backup(Closure cb) {
+    void backup(cb) {
 
     }
 
     void registrationEvent(Map peerNotification, Closure cb) {
         //send a message to the verticles personal channel
     }
-
 
 
 }

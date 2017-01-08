@@ -49,7 +49,7 @@ meta
 
 
     @Override
-    void start(Closure cb) {
+    void start(cb) {
         boolean running = false
         logger.info("\n dkr config: \n ${cfg}")
         def resp = new JsonObject()
@@ -68,18 +68,18 @@ meta
                     " \n running: " + running)
             switch (meta.ifExists) {
                 case 'recreate':
-                    if(running)
+                    if (running)
                         dockerClient.stop(oldId)
                     dockerClient.rm(oldId)
                     running = false
                     break
                 case 'restart':
-                    if(running)
+                    if (running)
                         dockerClient.stop(oldId)
-                    try{
+                    try {
                         dockerClient.startContainer(oldId)
                         running = true
-                    }catch(e){
+                    } catch (e) {
                         logger.error("error on container restart " + e.getMessage())
                         running = false
                     }
@@ -94,32 +94,32 @@ meta
             }
         }
         if (!running) {
-            def error='',success
-            try{
+            def error = '', success
+            try {
                 dockerClient.run(image, cfg, tag, name)
                 success = true
             }
-            catch(e){
-                logger.error("error after launching ctr : "+ e.getMessage())
+            catch (e) {
+                logger.error("error after launching ctr : " + e.getMessage())
                 error = e.getMessage()
                 success = false
             }
-            cb([success:success, error:error])// if not error its assumed to be lanunched
+            cb([success: success, error: error])// if not error its assumed to be lanunched
             //should set a timer and wait for dail back
-        }else {
-            cb([success:true, error:"running"])
+        } else {
+            cb([success: true, error: "running"])
         }
     }
 
     @Override
-    void stop(Closure cb) {
+    void stop(cb) {
 
         cb([success: true, result: dockerClient.stop(this.id)])
 
     }
 
     @Override
-    void backup(Closure cb) {
+    void backup(cb) {
         /*
         map connections
         volumes.each { it ->
@@ -129,10 +129,12 @@ meta
          */
 
     }
+
     @Override
-    String getId(){
+    String getId() {
         return this.id
     }
+
     void registrationEvent(Map peerNotification, Closure cb) {
         // use the docer driver to exec a task on the container
     }

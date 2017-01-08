@@ -11,6 +11,7 @@ import io.vertx.core.json.JsonObject
 import io.vertx.core.logging.LoggerFactory
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
+import net.iowntheinter.componentRegister.component.impl.DockerTaskRX
 import net.iowntheinter.componentRegister.impl.registrationManager
 import net.iowntheinter.coreLauncher.launchStrategy
 import net.iowntheinter.kvdn.kvserver
@@ -54,7 +55,7 @@ public class coreLauncher extends AbstractVerticle {
         logger.debug(vertx)
         logger.debug("reached CoreLauncher inside vert.x, config: ${config.encodePrettily()}")
 
-        //start all the docker components first in case the cluster manager is one of them
+        //start all the docker components first in case the cluster loader is one of them
 
         //    \/ um wut? yeah its getMap or an empty map
         (config.getJsonObject('startup').getJsonObject('ext').getJsonObject('docker').getMap() ?: [:]).each { name, cfg ->
@@ -243,7 +244,7 @@ public class coreLauncher extends AbstractVerticle {
         env_ents += cconfig.getJsonArray('Env')
         ctrcfg.put("Env", env_ents)
         logger.debug "ctrcfg ${ctrcfg}"
-        def nd = new DockerTask([name: name, tag: 'latest', image: cconfig.getString('image'), ifExists: cconfig.getString('ifExists')], ctrcfg)
+        def nd = new DockerTaskRX([name: name, tag: 'latest', image: cconfig.getString('image'), ifExists: cconfig.getString('ifExists')], ctrcfg)
 
         def strategy = this.config.getString("default_launch_strategy")
         def nt
