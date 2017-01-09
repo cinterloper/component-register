@@ -27,7 +27,7 @@ apply plugin: "co.riiid.gradle"
 def libversion = '3.3.3'
 if(System.getenv("VERTX_VERSION") != null)
     libversion = System.getenv("VERTX_VERSION")
-version = "${libversion}-75"
+version =  "$libversion-${new File('src/main/resources/_CORNERSTONE_VERSION.txt').text.trim()}"
 if(System.getenv('DUMP_VERSION'))
 {
     println version
@@ -113,10 +113,9 @@ dependencies {
     compile 'ch.qos.logback:logback-core:1.1.7'
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'com.bettercloud:vault-java-driver:1.2.0'
-    compile "net.iowntheinter:kvdn:$libversion-1.6.8"
+    compile "net.iowntheinter:kvdn:$libversion-1.8.0-b1"
     compile "com.shekhargulati.reactivex:rx-docker-client:0.2.2"
     compile 'de.gesellix:docker-client:2016-10-07T18-47-59'
-    compile 'io.github.lukehutch:fast-classpath-scanner:2.0.10'
 
 }
 

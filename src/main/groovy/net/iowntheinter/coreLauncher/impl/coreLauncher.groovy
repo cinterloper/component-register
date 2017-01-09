@@ -13,15 +13,13 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import net.iowntheinter.componentRegister.component.impl.DockerTaskRX
 import net.iowntheinter.componentRegister.impl.registrationManager
-import net.iowntheinter.coreLauncher.launchStrategy
 import net.iowntheinter.kvdn.kvserver
 import net.iowntheinter.kvdn.util.distributedWaitGroup
-import net.iowntheinter.util.configLoader
-import net.iowntheinter.util.http.routeProvider
-import net.iowntheinter.componentRegister.component.impl.DockerTask
+import net.iowntheinter.cornerstone.util.configLoader
+import net.iowntheinter.cornerstone.util.http.routeProvider
 import net.iowntheinter.componentRegister.component.impl.VXVerticle
-import net.iowntheinter.util.displayOutput
-import net.iowntheinter.util.injector
+import net.iowntheinter.cornerstone.util.displayOutput
+import net.iowntheinter.cornerstone.util.injector
 
 public class coreLauncher extends AbstractVerticle {
 

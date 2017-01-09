@@ -4,7 +4,7 @@ import io.vertx.core.Vertx
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.componentRegister.component.componentType
 import net.iowntheinter.coreLauncher.launchStrategy
-import net.iowntheinter.util.registrationHelper
+import net.iowntheinter.cornerstone.util.registrationHelper
 
 /**
  * Created by grant on 4/15/16.

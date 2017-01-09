@@ -18,7 +18,7 @@ import net.iowntheinter.coreLauncher.impl.single.singleVertxStarter
 
 
 import io.vertx.core.logging.LoggerFactory
-import net.iowntheinter.util.displayOutput
+import net.iowntheinter.cornerstone.util.displayOutput
 
 /**
  * Created by grant on 4/11/16.

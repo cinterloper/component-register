@@ -4,7 +4,7 @@ import io.vertx.core.Vertx
 import io.vertx.core.logging.Logger
 import io.vertx.core.logging.LoggerFactory
 import net.iowntheinter.kvdn.util.distributedWaitGroup
-import net.iowntheinter.util.displayOutput
+import net.iowntheinter.cornerstone.util.displayOutput
 
 /**
  * Created by g on 7/16/16.

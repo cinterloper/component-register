@@ -1,7 +1,7 @@
 package net.iowntheinter.cornerstone.test.components
 
 import io.vertx.core.AbstractVerticle
-import net.iowntheinter.util.registrationHelper
+import net.iowntheinter.cornerstone.util.registrationHelper
 
 /**
  * Created by g on 10/15/16.

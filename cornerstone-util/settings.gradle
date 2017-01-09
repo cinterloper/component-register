@@ -1,10 +1,7 @@
 if (!JavaVersion.current().java8Compatible) {
-  throw new IllegalStateException('''A Haiku:
+    throw new IllegalStateException('''A Haiku:
                                     |  This needs Java 8,
                                     |  You are using something else,
                                     |  Refresh. Try again.'''.stripMargin())
 }
-if(System.getenv("BUILD_EXTENSIONS"))
-  include 'service-registry'
-
-include 'cornerstone-util'
+include 'service-registry'
